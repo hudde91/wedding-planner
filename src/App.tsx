@@ -1,15 +1,20 @@
-import { createSignal, onMount, Show, createEffect } from "solid-js";
+import { createSignal, onMount, Show, Component } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
+import { nanoid } from "nanoid";
 import WeddingDetails from "./components/WeddingDetails";
 import TodoList from "./components/TodoList";
 import GuestList from "./components/GuestList";
 import SeatingChart from "./components/SeatingChart";
 import Navigation from "./components/Navigation";
+import { WeddingPlan, TodoItem, Guest, GuestFormData, Table } from "./types";
 
-function App() {
-  const [appState, setAppState] = createSignal("loading");
-  const [activeTab, setActiveTab] = createSignal("details");
-  const [weddingPlan, setWeddingPlan] = createSignal({
+type AppState = "loading" | "loaded";
+type TabId = "details" | "todos" | "guests" | "seating";
+
+const App: Component = () => {
+  const [appState, setAppState] = createSignal<AppState>("loading");
+  const [activeTab, setActiveTab] = createSignal<TabId>("details");
+  const [weddingPlan, setWeddingPlan] = createSignal<WeddingPlan>({
     couple_name1: "",
     couple_name2: "",
     wedding_date: "",
@@ -19,7 +24,7 @@ function App() {
     tables: [],
   });
 
-  const defaultTodos = [
+  const defaultTodos: TodoItem[] = [
     { id: 1, text: "Set wedding date and venue", completed: false },
     { id: 2, text: "Book photographer", completed: false },
     { id: 3, text: "Choose wedding attire", completed: false },
@@ -32,16 +37,10 @@ function App() {
     { id: 10, text: "Hire DJ/band", completed: false },
   ];
 
-  // Debug effect
-  createEffect(() => {
-    console.log("App state - Guests:", weddingPlan().guests.length);
-    console.log("App state - Tables:", weddingPlan().tables.length);
-  });
-
   onMount(async () => {
     try {
-      const savedPlan = await invoke("load_wedding_plan");
-      const plan = {
+      const savedPlan = await invoke<WeddingPlan>("load_wedding_plan");
+      const plan: WeddingPlan = {
         ...savedPlan,
         todos:
           savedPlan.todos && savedPlan.todos.length > 0
@@ -59,7 +58,7 @@ function App() {
     }
   });
 
-  const savePlanToBackend = async (plan) => {
+  const savePlanToBackend = async (plan: WeddingPlan): Promise<void> => {
     try {
       await invoke("save_wedding_plan", { plan });
       console.log("Saved to backend successfully");
@@ -69,8 +68,10 @@ function App() {
     }
   };
 
-  const updateWeddingDetails = (field, value) => {
-    console.log("Updating wedding details:", field, value);
+  const updateWeddingDetails = (
+    field: keyof WeddingPlan,
+    value: string | number
+  ): void => {
     setWeddingPlan((prev) => {
       const updated = { ...prev, [field]: value };
       savePlanToBackend(updated);
@@ -78,22 +79,20 @@ function App() {
     });
   };
 
-  const addTodo = (text) => {
-    console.log("Adding todo:", text);
+  const addTodo = (text: string): void => {
     setWeddingPlan((prev) => {
       const newId =
         prev.todos.length > 0
           ? Math.max(...prev.todos.map((t) => t.id)) + 1
           : 1;
-      const newTodo = { id: newId, text: text, completed: false };
+      const newTodo: TodoItem = { id: newId, text: text, completed: false };
       const updated = { ...prev, todos: [...prev.todos, newTodo] };
       savePlanToBackend(updated);
       return updated;
     });
   };
 
-  const toggleTodo = (id) => {
-    console.log("Toggling todo:", id);
+  const toggleTodo = (id: number): void => {
     setWeddingPlan((prev) => {
       const updated = {
         ...prev,
@@ -106,8 +105,7 @@ function App() {
     });
   };
 
-  const deleteTodo = (id) => {
-    console.log("Deleting todo:", id);
+  const deleteTodo = (id: number): void => {
     setWeddingPlan((prev) => {
       const updated = {
         ...prev,
@@ -118,40 +116,66 @@ function App() {
     });
   };
 
-  const addGuest = (guestData) => {
-    console.log("Adding guest:", guestData.name);
-    console.log("Current guests before add:", weddingPlan().guests.length);
-
+  const addGuest = (guestData: GuestFormData): void => {
     setWeddingPlan((prev) => {
-      const newGuest = { id: Date.now(), ...guestData };
+      // Convert temporary plus one IDs to permanent nanoid IDs
+      const processedPlusOnes =
+        guestData.plus_ones?.map((plusOne) => ({
+          ...plusOne,
+          id: plusOne.id?.toString().startsWith("temp_")
+            ? nanoid()
+            : plusOne.id || nanoid(),
+        })) || [];
+
+      const newGuest: Guest = {
+        id: nanoid(),
+        ...guestData,
+        plus_ones: processedPlusOnes,
+      };
+
       const updated = {
         ...prev,
-        guests: [...prev.guests, newGuest], // Ensure new array reference
+        guests: [...prev.guests, newGuest],
       };
-      console.log("New guests array length:", updated.guests.length);
-      console.log("New guest added:", newGuest);
       savePlanToBackend(updated);
       return updated;
     });
   };
 
-  const updateGuest = (id, guestData) => {
-    console.log("Updating guest:", id, guestData.name);
+  const updateGuest = (id: string, guestData: GuestFormData): void => {
     setWeddingPlan((prev) => {
       const oldGuest = prev.guests.find((g) => g.id === id);
       const wasAttending = oldGuest?.rsvp_status === "attending";
       const nowAttending = guestData.rsvp_status === "attending";
 
-      // If guest is no longer attending, remove them from all seats
+      // Convert temporary plus one IDs to permanent nanoid IDs
+      const processedPlusOnes =
+        guestData.plus_ones?.map((plusOne) => ({
+          ...plusOne,
+          id: plusOne.id?.toString().startsWith("temp_")
+            ? nanoid()
+            : plusOne.id || nanoid(),
+        })) || [];
+
+      // If guest is no longer attending, remove them and their plus ones from all seats
       let updatedTables = prev.tables;
       if (wasAttending && !nowAttending) {
         console.log("Guest no longer attending, removing from seating chart");
+
+        // Get all guest IDs to remove (main guest + plus ones)
+        const guestIdsToRemove = new Set([id]);
+        if (oldGuest?.plus_ones) {
+          oldGuest.plus_ones.forEach((plusOne) =>
+            guestIdsToRemove.add(plusOne.id)
+          );
+        }
+
         updatedTables = prev.tables.map((table) => ({
           id: table.id,
           name: table.name,
           shape: table.shape,
           seats: table.seats.map((seat) =>
-            seat.guestId === id
+            guestIdsToRemove.has(seat.guestId || "")
               ? { id: seat.id, guestId: null, guestName: "" }
               : {
                   id: seat.id,
@@ -165,7 +189,9 @@ function App() {
       const updated = {
         ...prev,
         guests: prev.guests.map((guest) =>
-          guest.id === id ? { ...guest, ...guestData } : guest
+          guest.id === id
+            ? { ...guest, ...guestData, plus_ones: processedPlusOnes }
+            : guest
         ),
         tables: updatedTables,
       };
@@ -174,16 +200,25 @@ function App() {
     });
   };
 
-  const deleteGuest = (id) => {
-    console.log("Deleting guest:", id);
+  const deleteGuest = (id: string): void => {
     setWeddingPlan((prev) => {
-      // Remove guest from all seats when deleting
+      const guestToDelete = prev.guests.find((g) => g.id === id);
+
+      // Get all guest IDs to remove (main guest + plus ones)
+      const guestIdsToRemove = new Set([id]);
+      if (guestToDelete?.plus_ones) {
+        guestToDelete.plus_ones.forEach((plusOne) =>
+          guestIdsToRemove.add(plusOne.id)
+        );
+      }
+
+      // Remove guest and their plus ones from all seats when deleting
       const updatedTables = prev.tables.map((table) => ({
         id: table.id,
         name: table.name,
         shape: table.shape,
         seats: table.seats.map((seat) =>
-          seat.guestId === id
+          guestIdsToRemove.has(seat.guestId || "")
             ? { id: seat.id, guestId: null, guestName: "" }
             : { id: seat.id, guestId: seat.guestId, guestName: seat.guestName }
         ),
@@ -199,10 +234,8 @@ function App() {
     });
   };
 
-  const updateSeatingPlan = (tables) => {
-    console.log("Updating seating plan, tables count:", tables.length);
+  const updateSeatingPlan = (tables: Table[]): void => {
     setWeddingPlan((prev) => {
-      // Create a completely new wedding plan object with deep-copied tables
       const updated = {
         ...prev,
         tables: tables.map((table) => ({
@@ -273,9 +306,6 @@ function App() {
                 updateGuest={updateGuest}
                 deleteGuest={deleteGuest}
               />
-              <div class="mt-4 text-xs text-gray-500">
-                Debug: {weddingPlan().guests.length} guests loaded
-              </div>
             </Show>
 
             <Show when={activeTab() === "seating"}>
@@ -290,6 +320,6 @@ function App() {
       </Show>
     </div>
   );
-}
+};
 
 export default App;

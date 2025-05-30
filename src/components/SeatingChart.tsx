@@ -1,39 +1,97 @@
-import { createSignal, createMemo, For, onMount, onCleanup } from "solid-js";
+import {
+  createSignal,
+  createMemo,
+  For,
+  onMount,
+  onCleanup,
+  Component,
+} from "solid-js";
+import {
+  Table,
+  Guest,
+  Attendee,
+  TableFormData,
+  SeatingStats,
+  TableShape,
+} from "../types";
 
-function SeatingChart(props) {
+interface SeatingChartProps {
+  tables: Table[];
+  guests: Guest[];
+  updateSeatingPlan: (tables: Table[]) => void;
+}
+
+const SeatingChart: Component<SeatingChartProps> = (props) => {
   const [showAddTableForm, setShowAddTableForm] = createSignal(false);
-  const [editingTable, setEditingTable] = createSignal(null);
-  const [draggedGuest, setDraggedGuest] = createSignal(null);
-  const [draggedFromSeat, setDraggedFromSeat] = createSignal(null);
-  const [tableForm, setTableForm] = createSignal({
+  const [editingTable, setEditingTable] = createSignal<Table | null>(null);
+  const [draggedGuest, setDraggedGuest] = createSignal<Attendee | null>(null);
+  const [draggedFromSeat, setDraggedFromSeat] = createSignal<{
+    tableId: number;
+    seatId: number;
+  } | null>(null);
+  const [tableForm, setTableForm] = createSignal<TableFormData>({
     name: "",
     seats: 8,
-    shape: "round", // round or rectangular
+    shape: "round",
   });
 
-  // Get attending guests who can be seated
-  const availableGuests = createMemo(() =>
-    props.guests.filter((guest) => guest.rsvp_status === "attending")
-  );
+  const availableGuests = createMemo((): Attendee[] => {
+    const attendingGuests = props.guests.filter(
+      (guest) => guest.rsvp_status === "attending"
+    );
+    const allAttendees: Attendee[] = [];
+
+    attendingGuests.forEach((guest) => {
+      // Add the main guest
+      allAttendees.push({
+        id: guest.id,
+        name: guest.name,
+        type: "main",
+        parentGuestId: null,
+      });
+
+      // Add their plus ones as individual attendees
+      if (
+        guest.plus_ones &&
+        Array.isArray(guest.plus_ones) &&
+        guest.plus_ones.length > 0
+      ) {
+        guest.plus_ones.forEach((plusOne, index) => {
+          // Ensure plus one has an ID, create one if missing
+          const plusOneId = plusOne.id || `${guest.id}_plus_${index}`;
+          allAttendees.push({
+            id: plusOneId,
+            name: plusOne.name || `${guest.name}'s plus one ${index + 1}`,
+            type: "plus_one",
+            parentGuestId: guest.id,
+          });
+        });
+      }
+    });
+
+    return allAttendees;
+  });
 
   // Get guests who are not yet seated
-  const unseatedGuests = createMemo(() => {
-    const seatedGuestIds = new Set();
+  const unseatedGuests = createMemo((): Attendee[] => {
+    const seatedGuestIds = new Set<string>();
     props.tables.forEach((table) => {
       table.seats.forEach((seat) => {
         if (seat.guestId) seatedGuestIds.add(seat.guestId);
       });
     });
-    return availableGuests().filter((guest) => !seatedGuestIds.has(guest.id));
+    return availableGuests().filter(
+      (attendee) => !seatedGuestIds.has(attendee.id)
+    );
   });
 
-  const resetTableForm = () => {
+  const resetTableForm = (): void => {
     setTableForm({ name: "", seats: 8, shape: "round" });
     setShowAddTableForm(false);
     setEditingTable(null);
   };
 
-  const handleTableSubmit = (e) => {
+  const handleTableSubmit = (e: Event): void => {
     e.preventDefault();
     const form = tableForm();
 
@@ -51,7 +109,7 @@ function SeatingChart(props) {
     if (editingTable()) {
       // Update existing table - ensure complete new objects
       const updatedTables = props.tables.map((table) =>
-        table.id === editingTable().id
+        table.id === editingTable()!.id
           ? {
               id: table.id,
               name: form.name,
@@ -68,8 +126,8 @@ function SeatingChart(props) {
       props.updateSeatingPlan(updatedTables);
     } else {
       // Add new table
-      const newTable = {
-        id: Date.now(),
+      const newTable: Table = {
+        id: Date.now(), // Use Date.now() for internal table ID
         name: form.name,
         shape: form.shape,
         seats: [...seats], // Ensure new array
@@ -80,7 +138,7 @@ function SeatingChart(props) {
     resetTableForm();
   };
 
-  const startEditTable = (table) => {
+  const startEditTable = (table: Table): void => {
     setTableForm({
       name: table.name,
       seats: table.seats.length,
@@ -90,7 +148,7 @@ function SeatingChart(props) {
     setShowAddTableForm(true);
   };
 
-  const deleteTable = (tableId) => {
+  const deleteTable = (tableId: number): void => {
     if (
       confirm(
         "Are you sure you want to delete this table? All seating assignments will be lost."
@@ -105,26 +163,37 @@ function SeatingChart(props) {
 
   const [isDragging, setIsDragging] = createSignal(false);
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 });
-  const [hoveredSeat, setHoveredSeat] = createSignal(null);
+  const [hoveredSeat, setHoveredSeat] = createSignal<{
+    tableId: number;
+    seatId: number;
+  } | null>(null);
 
-  const handleMouseDown = (guest, fromSeat = null) => {
-    console.log("Starting drag for guest:", guest.name);
-    setDraggedGuest(guest);
-    setDraggedFromSeat(fromSeat);
+  const handleMouseDown = (
+    attendee: Attendee,
+    fromSeat?: { tableId: number; seatId: number }
+  ): void => {
+    setDraggedGuest(attendee);
+    setDraggedFromSeat(fromSeat || null);
     setIsDragging(true);
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: MouseEvent): void => {
     if (isDragging() && draggedGuest()) {
       setDragPosition({ x: e.clientX, y: e.clientY });
 
       // Find seat under cursor for hover effect
       const element = document.elementFromPoint(e.clientX, e.clientY);
-      const seatElement = element?.closest("[data-seat-id]");
+      const seatElement = element?.closest(
+        "[data-seat-id]"
+      ) as HTMLElement | null;
 
       if (seatElement) {
-        const tableId = parseInt(seatElement.getAttribute("data-table-id"));
-        const seatId = parseInt(seatElement.getAttribute("data-seat-id"));
+        const tableId = parseInt(
+          seatElement.getAttribute("data-table-id") || "0"
+        );
+        const seatId = parseInt(
+          seatElement.getAttribute("data-seat-id") || "0"
+        );
         setHoveredSeat({ tableId, seatId });
       } else {
         setHoveredSeat(null);
@@ -132,7 +201,7 @@ function SeatingChart(props) {
     }
   };
 
-  const handleMouseUp = (e) => {
+  const handleMouseUp = (e: MouseEvent): void => {
     if (!isDragging() || !draggedGuest()) {
       setIsDragging(false);
       setDraggedGuest(null);
@@ -140,16 +209,17 @@ function SeatingChart(props) {
       return;
     }
 
-    console.log("Mouse up");
-
     // Find the seat element under the mouse
     const element = document.elementFromPoint(e.clientX, e.clientY);
-    const seatElement = element?.closest("[data-seat-id]");
+    const seatElement = element?.closest(
+      "[data-seat-id]"
+    ) as HTMLElement | null;
 
     if (seatElement) {
-      const tableId = parseInt(seatElement.getAttribute("data-table-id"));
-      const seatId = parseInt(seatElement.getAttribute("data-seat-id"));
-      console.log("Dropping on table:", tableId, "seat:", seatId);
+      const tableId = parseInt(
+        seatElement.getAttribute("data-table-id") || "0"
+      );
+      const seatId = parseInt(seatElement.getAttribute("data-seat-id") || "0");
       handleDrop(e, tableId, seatId);
     } else {
       console.log("No valid drop target found");
@@ -163,9 +233,11 @@ function SeatingChart(props) {
   };
 
   // Function to check if a seat is being hovered during drag
-  const isSeatHovered = (tableId, seatId) => {
+  const isSeatHovered = (tableId: number, seatId: number): boolean => {
     const hovered = hoveredSeat();
-    return hovered && hovered.tableId === tableId && hovered.seatId === seatId;
+    return hovered
+      ? hovered.tableId === tableId && hovered.seatId === seatId
+      : false;
   };
 
   // Add global mouse event listeners using onMount to ensure proper initialization
@@ -182,32 +254,23 @@ function SeatingChart(props) {
     }
   });
 
-  const handleDrop = (e, tableId, seatId) => {
+  const handleDrop = (e: Event, tableId: number, seatId: number): void => {
     e.preventDefault();
-    const guest = draggedGuest();
+    const attendee = draggedGuest();
     const fromSeat = draggedFromSeat();
 
-    if (!guest) return;
-
-    console.log(
-      "Dropping guest:",
-      guest.name,
-      "on table:",
-      tableId,
-      "seat:",
-      seatId
-    );
+    if (!attendee) return;
 
     // Create completely new tables array with proper immutability
     const newTables = props.tables.map((table) => {
       // Create new seats array for each table
       const newSeats = table.seats.map((seat) => {
         if (table.id === tableId && seat.id === seatId) {
-          // This is the target seat - place the guest here
+          // This is the target seat - place the attendee here
           return {
             id: seat.id,
-            guestId: guest.id,
-            guestName: guest.name,
+            guestId: attendee.id,
+            guestName: attendee.name,
           };
         } else if (
           fromSeat &&
@@ -215,7 +278,7 @@ function SeatingChart(props) {
           table.id === fromSeat.tableId &&
           seat.id === fromSeat.seatId
         ) {
-          // This is the source seat - remove the guest
+          // This is the source seat - remove the attendee
           return {
             id: seat.id,
             guestId: null,
@@ -240,16 +303,10 @@ function SeatingChart(props) {
       };
     });
 
-    console.log("New tables array:", newTables);
-
-    // Force update with completely new array reference
     props.updateSeatingPlan(newTables);
   };
 
-  const removeGuestFromSeat = (tableId, seatId) => {
-    console.log("Removing guest from table:", tableId, "seat:", seatId);
-
-    // Create completely new tables array with proper immutability
+  const removeGuestFromSeat = (tableId: number, seatId: number): void => {
     const newTables = props.tables.map((table) => {
       const newSeats = table.seats.map((seat) => {
         if (table.id === tableId && seat.id === seatId) {
@@ -281,7 +338,11 @@ function SeatingChart(props) {
     props.updateSeatingPlan(newTables);
   };
 
-  const getSeatStyle = (index, total, shape) => {
+  const getSeatStyle = (
+    index: number,
+    total: number,
+    shape: TableShape
+  ): string => {
     if (shape === "rectangular") {
       // Arrange seats around rectangle perimeter
       const perSide = Math.ceil(total / 4);
@@ -313,7 +374,7 @@ function SeatingChart(props) {
     }
   };
 
-  const stats = createMemo(() => {
+  const stats = createMemo((): SeatingStats => {
     const totalSeats = props.tables.reduce(
       (sum, table) => sum + table.seats.length,
       0
@@ -379,7 +440,10 @@ function SeatingChart(props) {
                   type="text"
                   value={tableForm().name}
                   onInput={(e) =>
-                    setTableForm((prev) => ({ ...prev, name: e.target.value }))
+                    setTableForm((prev) => ({
+                      ...prev,
+                      name: (e.target as HTMLInputElement).value,
+                    }))
                   }
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                   placeholder="e.g., Head Table, Table 1"
@@ -396,7 +460,8 @@ function SeatingChart(props) {
                   onInput={(e) =>
                     setTableForm((prev) => ({
                       ...prev,
-                      seats: parseInt(e.target.value) || 4,
+                      seats:
+                        parseInt((e.target as HTMLInputElement).value) || 4,
                     }))
                   }
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -411,7 +476,11 @@ function SeatingChart(props) {
                 <select
                   value={tableForm().shape}
                   onChange={(e) =>
-                    setTableForm((prev) => ({ ...prev, shape: e.target.value }))
+                    setTableForm((prev) => ({
+                      ...prev,
+                      shape: (e.target as HTMLSelectElement)
+                        .value as TableShape,
+                    }))
                   }
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
@@ -447,29 +516,33 @@ function SeatingChart(props) {
           </h3>
           <div class="flex flex-wrap gap-2">
             <For each={unseatedGuests()}>
-              {(guest) => (
+              {(attendee) => (
                 <div
                   onMouseDown={(e) => {
                     e.preventDefault();
-                    console.log(
-                      "Starting drag for unseated guest:",
-                      guest.name
-                    );
-                    handleMouseDown(guest);
+                    handleMouseDown(attendee);
                   }}
-                  class={`px-3 py-1 bg-yellow-200 text-yellow-800 rounded-full cursor-move hover:bg-yellow-300 transition-colors text-sm select-none ${
-                    isDragging() && draggedGuest()?.id === guest.id
+                  class={`px-3 py-1 rounded-full cursor-move hover:bg-yellow-300 transition-colors text-sm select-none ${
+                    attendee.type === "plus_one"
+                      ? "bg-orange-200 text-orange-800 hover:bg-orange-300"
+                      : "bg-yellow-200 text-yellow-800"
+                  } ${
+                    isDragging() && draggedGuest()?.id === attendee.id
                       ? "opacity-50"
                       : ""
                   }`}
                 >
-                  {guest.name}
+                  {attendee.name}
+                  {attendee.type === "plus_one" && (
+                    <span class="ml-1 text-xs opacity-75">+1</span>
+                  )}
                 </div>
               )}
             </For>
           </div>
           <p class="text-sm text-yellow-700 mt-2">
-            Drag guests to available seats on tables
+            Drag attendees to available seats on tables. Plus ones are shown in
+            orange.
           </p>
         </div>
       )}
@@ -581,15 +654,11 @@ function SeatingChart(props) {
                           <div
                             onMouseDown={(e) => {
                               e.stopPropagation();
-                              const guest = availableGuests().find(
-                                (g) => g.id === seat.guestId
+                              const attendee = availableGuests().find(
+                                (a) => a.id === seat.guestId
                               );
-                              if (guest) {
-                                console.log(
-                                  "Starting drag for seated guest:",
-                                  guest.name
-                                );
-                                handleMouseDown(guest, {
+                              if (attendee) {
+                                handleMouseDown(attendee, {
                                   tableId: table.id,
                                   seatId: seat.id,
                                 });
@@ -635,11 +704,11 @@ function SeatingChart(props) {
           class="fixed pointer-events-none z-50 px-3 py-1 bg-purple-600 text-white rounded-full text-sm font-medium shadow-lg transform -translate-x-1/2 -translate-y-1/2"
           style={`left: ${dragPosition().x}px; top: ${dragPosition().y}px;`}
         >
-          {draggedGuest().name}
+          {draggedGuest()!.name}
         </div>
       )}
     </div>
   );
-}
+};
 
 export default SeatingChart;

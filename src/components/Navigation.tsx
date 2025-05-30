@@ -1,5 +1,20 @@
-const Navigation = (props) => {
-  const tabs = [
+import { Component, Accessor, Setter } from "solid-js";
+
+type TabId = "details" | "todos" | "guests" | "seating";
+
+interface Tab {
+  id: TabId;
+  label: string;
+  icon: string;
+}
+
+interface NavigationProps {
+  activeTab: Accessor<TabId>;
+  setActiveTab: Setter<TabId>;
+}
+
+const Navigation: Component<NavigationProps> = (props) => {
+  const tabs: Tab[] = [
     { id: "details", label: "Wedding Details", icon: "💒" },
     { id: "todos", label: "Wedding Checklist", icon: "✅" },
     { id: "guests", label: "Guest List", icon: "👥" },

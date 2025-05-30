@@ -1,4 +1,15 @@
-const WeddingDetails = (props) => {
+import { Component } from "solid-js";
+import { WeddingPlan } from "../types";
+
+interface WeddingDetailsProps {
+  weddingPlan: WeddingPlan;
+  updateWeddingDetails: (
+    field: keyof WeddingPlan,
+    value: string | number
+  ) => void;
+}
+
+const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
   return (
     <div class="space-y-6">
       <h2 class="text-xl font-semibold text-gray-800 mb-4">Wedding Details</h2>
@@ -12,7 +23,10 @@ const WeddingDetails = (props) => {
             type="text"
             value={props.weddingPlan.couple_name1}
             onInput={(e) =>
-              props.updateWeddingDetails("couple_name1", e.target.value)
+              props.updateWeddingDetails(
+                "couple_name1",
+                (e.target as HTMLInputElement).value
+              )
             }
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="Enter name"
@@ -27,7 +41,10 @@ const WeddingDetails = (props) => {
             type="text"
             value={props.weddingPlan.couple_name2}
             onInput={(e) =>
-              props.updateWeddingDetails("couple_name2", e.target.value)
+              props.updateWeddingDetails(
+                "couple_name2",
+                (e.target as HTMLInputElement).value
+              )
             }
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="Enter name"
@@ -44,7 +61,10 @@ const WeddingDetails = (props) => {
             type="date"
             value={props.weddingPlan.wedding_date}
             onInput={(e) =>
-              props.updateWeddingDetails("wedding_date", e.target.value)
+              props.updateWeddingDetails(
+                "wedding_date",
+                (e.target as HTMLInputElement).value
+              )
             }
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
@@ -58,7 +78,10 @@ const WeddingDetails = (props) => {
             type="number"
             value={props.weddingPlan.budget}
             onInput={(e) =>
-              props.updateWeddingDetails("budget", Number(e.target.value))
+              props.updateWeddingDetails(
+                "budget",
+                Number((e.target as HTMLInputElement).value)
+              )
             }
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             placeholder="0"
