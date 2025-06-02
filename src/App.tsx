@@ -5,15 +5,24 @@ import WeddingDetails from "./components/WeddingDetails";
 import TodoList from "./components/TodoList";
 import GuestList from "./components/GuestList";
 import SeatingChart from "./components/SeatingChart";
-import Navigation from "./components/Navigation";
-import { WeddingPlan, TodoItem, Guest, GuestFormData, Table } from "./types";
+import Overview from "./components/Overview";
+import Sidebar from "./components/Sidebar";
+import {
+  WeddingPlan,
+  TodoItem,
+  Guest,
+  GuestFormData,
+  Table,
+  TodoFormData,
+} from "./types";
 
 type AppState = "loading" | "loaded";
-type TabId = "details" | "todos" | "guests" | "seating";
+type TabId = "overview" | "details" | "todos" | "guests" | "seating";
 
 const App: Component = () => {
   const [appState, setAppState] = createSignal<AppState>("loading");
-  const [activeTab, setActiveTab] = createSignal<TabId>("details");
+  const [activeTab, setActiveTab] = createSignal<TabId>("overview");
+  const [sidebarOpen, setSidebarOpen] = createSignal(true);
   const [weddingPlan, setWeddingPlan] = createSignal<WeddingPlan>({
     couple_name1: "",
     couple_name2: "",
@@ -110,6 +119,28 @@ const App: Component = () => {
       const updated = {
         ...prev,
         todos: prev.todos.filter((todo) => todo.id !== id),
+      };
+      savePlanToBackend(updated);
+      return updated;
+    });
+  };
+
+  const updateTodo = (id: number, todoData: TodoFormData): void => {
+    setWeddingPlan((prev) => {
+      const updated = {
+        ...prev,
+        todos: prev.todos.map((todo) =>
+          todo.id === id
+            ? {
+                ...todo,
+                ...todoData,
+                completion_date:
+                  todoData.cost || todoData.vendor_name || todoData.notes
+                    ? new Date().toISOString().split("T")[0]
+                    : todo.completion_date,
+              }
+            : todo
+        ),
       };
       savePlanToBackend(updated);
       return updated;
@@ -255,9 +286,9 @@ const App: Component = () => {
   };
 
   return (
-    <div class="min-h-screen bg-gray-50">
+    <div class="min-h-screen bg-gray-50 flex">
       <Show when={appState() === "loading"}>
-        <div class="flex items-center justify-center min-h-screen">
+        <div class="flex items-center justify-center min-h-screen w-full">
           <div class="text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
             <p class="mt-4 text-gray-600">Loading your wedding plan...</p>
@@ -266,55 +297,146 @@ const App: Component = () => {
       </Show>
 
       <Show when={appState() === "loaded"}>
-        <div class="container mx-auto px-4 py-8 max-w-4xl">
-          <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-purple-800 mb-2">
-              Wedding Planner
-            </h1>
-            <Show
-              when={weddingPlan().couple_name1 && weddingPlan().couple_name2}
-            >
-              <p class="text-gray-600">
-                {weddingPlan().couple_name1} & {weddingPlan().couple_name2}
-              </p>
-            </Show>
+        {/* Sidebar */}
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          isOpen={sidebarOpen}
+          setIsOpen={setSidebarOpen}
+          weddingPlan={weddingPlan()}
+        />
+
+        {/* Main Content */}
+        <div
+          class={`flex-1 transition-all duration-300 ${
+            sidebarOpen() ? "ml-64" : "ml-16"
+          }`}
+        >
+          {/* Top Header */}
+          <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-4">
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen())}
+                  class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                >
+                  <svg
+                    class="w-5 h-5 text-gray-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"
+                    ></path>
+                  </svg>
+                </button>
+                <div>
+                  <h1 class="text-2xl font-bold text-gray-900">
+                    {(() => {
+                      switch (activeTab()) {
+                        case "overview":
+                          return "Wedding Overview";
+                        case "details":
+                          return "Wedding Details";
+                        case "todos":
+                          return "Wedding Checklist";
+                        case "guests":
+                          return "Guest Management";
+                        case "seating":
+                          return "Seating Chart";
+                        default:
+                          return "Wedding Planner";
+                      }
+                    })()}
+                  </h1>
+                  <Show
+                    when={
+                      weddingPlan().couple_name1 && weddingPlan().couple_name2
+                    }
+                  >
+                    <p class="text-sm text-gray-600">
+                      {weddingPlan().couple_name1} &{" "}
+                      {weddingPlan().couple_name2}
+                    </p>
+                  </Show>
+                </div>
+              </div>
+              <div class="flex items-center space-x-4">
+                <div class="text-sm text-gray-500">
+                  <span class="inline-flex items-center">
+                    <svg
+                      class="w-4 h-4 mr-1 text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Auto-saved
+                  </span>
+                </div>
+              </div>
+            </div>
           </header>
 
-          <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
+          {/* Content Area */}
+          <main class="p-6">
+            <div class="max-w-7xl mx-auto">
+              <Show when={activeTab() === "overview"}>
+                <Overview weddingPlan={weddingPlan()} />
+              </Show>
 
-          <main class="bg-white rounded-lg shadow-md p-6">
-            <Show when={activeTab() === "details"}>
-              <WeddingDetails
-                weddingPlan={weddingPlan()}
-                updateWeddingDetails={updateWeddingDetails}
-              />
-            </Show>
+              <Show when={activeTab() === "details"}>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <WeddingDetails
+                    weddingPlan={weddingPlan()}
+                    updateWeddingDetails={updateWeddingDetails}
+                  />
+                </div>
+              </Show>
 
-            <Show when={activeTab() === "todos"}>
-              <TodoList
-                todos={weddingPlan().todos}
-                addTodo={addTodo}
-                toggleTodo={toggleTodo}
-                deleteTodo={deleteTodo}
-              />
-            </Show>
+              <Show when={activeTab() === "todos"}>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <TodoList
+                    todos={weddingPlan().todos}
+                    addTodo={addTodo}
+                    toggleTodo={toggleTodo}
+                    deleteTodo={deleteTodo}
+                    updateTodo={updateTodo}
+                  />
+                </div>
+              </Show>
 
-            <Show when={activeTab() === "guests"}>
-              <GuestList
-                guests={weddingPlan().guests}
-                addGuest={addGuest}
-                updateGuest={updateGuest}
-                deleteGuest={deleteGuest}
-              />
-            </Show>
+              <Show when={activeTab() === "guests"}>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <GuestList
+                    guests={weddingPlan().guests}
+                    addGuest={addGuest}
+                    updateGuest={updateGuest}
+                    deleteGuest={deleteGuest}
+                  />
+                </div>
+              </Show>
 
-            <Show when={activeTab() === "seating"}>
-              <SeatingChart
-                tables={weddingPlan().tables}
-                guests={weddingPlan().guests}
-                updateSeatingPlan={updateSeatingPlan}
-              />
-            </Show>
+              <Show when={activeTab() === "seating"}>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <SeatingChart
+                    tables={weddingPlan().tables}
+                    guests={weddingPlan().guests}
+                    updateSeatingPlan={updateSeatingPlan}
+                  />
+                </div>
+              </Show>
+            </div>
           </main>
         </div>
       </Show>

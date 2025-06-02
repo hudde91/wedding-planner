@@ -344,33 +344,38 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     shape: TableShape
   ): string => {
     if (shape === "rectangular") {
-      // Arrange seats around rectangle perimeter
-      const perSide = Math.ceil(total / 4);
-      const side = Math.floor(index / perSide);
-      const posInSide = index % perSide;
+      // Distribute seats symmetrically along the sides with proper clearance
+      const longSide = Math.ceil(total / 2); // Half on long sides
+      const shortSide = Math.floor(total / 2); // Half on short sides
 
-      switch (side) {
-        case 0: // top
-          return `top: 0; left: ${(posInSide + 1) * (100 / (perSide + 1))}%;`;
-        case 1: // right
-          return `right: 0; top: ${(posInSide + 1) * (100 / (perSide + 1))}%;`;
-        case 2: // bottom
-          return `bottom: 0; right: ${
-            (posInSide + 1) * (100 / (perSide + 1))
-          }%;`;
-        case 3: // left
-          return `left: 0; bottom: ${
-            (posInSide + 1) * (100 / (perSide + 1))
-          }%;`;
-        default:
-          return `top: 50%; left: 50%;`;
+      if (index < longSide) {
+        // Top side - positioned above table with clearance
+        const progress = longSide > 1 ? index / (longSide - 1) : 0.5;
+        return `top: 4px; left: ${
+          25 + progress * 50
+        }%; transform: translateX(-50%);`;
+      } else {
+        // Bottom side - positioned below table with clearance
+        const bottomIndex = index - longSide;
+        const progress = shortSide > 1 ? bottomIndex / (shortSide - 1) : 0.5;
+        return `bottom: 4px; left: ${
+          25 + progress * 50
+        }%; transform: translateX(-50%);`;
       }
     } else {
-      // Arrange seats in circle
-      const angle = (index * 360) / total;
-      const x = 50 + 40 * Math.cos((angle * Math.PI) / 180);
-      const y = 50 + 40 * Math.sin((angle * Math.PI) / 180);
-      return `left: ${x}%; top: ${y}%;`;
+      // Round table: seats positioned exactly on the table edge
+      const angle = (index * 360) / total - 90; // Start from top
+      const tableRadiusPx = 48; // Table is now 96px diameter (w-24), so 48px radius
+      const seatOffsetPx = 12; // Small offset to position seats just outside the border
+      const totalRadiusPx = tableRadiusPx + seatOffsetPx; // 60px from center
+
+      // Convert to percentage relative to container (144px container with 16px padding = 112px usable)
+      const usableSize = 112; // Container minus padding (144 - 32)
+      const radiusPercent = (totalRadiusPx / usableSize) * 100;
+
+      const x = 50 + radiusPercent * Math.cos((angle * Math.PI) / 180);
+      const y = 50 + radiusPercent * Math.sin((angle * Math.PI) / 180);
+      return `left: ${x}%; top: ${y}%; transform: translate(-50%, -50%);`;
     }
   };
 
@@ -548,12 +553,12 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
       )}
 
       {/* Tables */}
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         <For each={props.tables}>
           {(table) => (
             <div class="bg-white border-2 border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-800">
+              <div class="flex justify-between items-center mb-3">
+                <h3 class="text-base font-semibold text-gray-800 truncate">
                   {table.name}
                 </h3>
                 <div class="flex space-x-1">
@@ -598,11 +603,13 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                 </div>
               </div>
 
-              <div class="relative w-full h-64 border-2 border-dashed border-gray-300 rounded-lg">
+              <div class="relative w-full aspect-square max-h-36 border-2 border-dashed border-gray-300 rounded-lg overflow-visible p-4">
                 {/* Table representation */}
                 <div
-                  class={`absolute inset-4 ${
-                    table.shape === "round" ? "rounded-full" : "rounded-lg"
+                  class={`absolute ${
+                    table.shape === "round"
+                      ? "w-24 h-24 rounded-full left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                      : "inset-6 rounded-lg"
                   } bg-amber-100 border-2 border-amber-300`}
                 ></div>
 
@@ -610,7 +617,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                 <For each={table.seats}>
                   {(seat, index) => (
                     <div
-                      class="absolute transform -translate-x-1/2 -translate-y-1/2"
+                      class="absolute"
                       style={getSeatStyle(
                         index(),
                         table.seats.length,
@@ -620,20 +627,19 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                       <div
                         data-table-id={table.id}
                         data-seat-id={seat.id}
-                        class={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all ${
+                        class={`w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all cursor-pointer ${
                           seat.guestId
-                            ? "bg-purple-100 border-purple-300 text-purple-800 hover:bg-purple-200 cursor-pointer"
-                            : "bg-gray-100 border-gray-300 text-gray-500 hover:bg-gray-200 border-dashed cursor-pointer"
+                            ? "bg-purple-100 border-purple-300 text-purple-800 hover:bg-purple-200"
+                            : "bg-gray-100 border-gray-300 text-gray-500 hover:bg-gray-200 border-dashed"
                         } ${
                           isDragging() && isSeatHovered(table.id, seat.id)
                             ? seat.guestId
-                              ? "ring-4 ring-orange-300 bg-orange-100"
-                              : "ring-4 ring-green-300 bg-green-100"
+                              ? "ring-2 ring-orange-300 bg-orange-100"
+                              : "ring-2 ring-green-300 bg-green-100"
                             : isDragging()
-                            ? "ring-2 ring-purple-300"
+                            ? "ring-1 ring-purple-300"
                             : ""
                         }`}
-                        style="min-height: 48px; min-width: 48px;"
                         title={
                           isDragging() && isSeatHovered(table.id, seat.id)
                             ? seat.guestId
@@ -664,7 +670,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                                 });
                               }
                             }}
-                            class="text-center leading-tight cursor-move w-full h-full flex items-center justify-center pointer-events-auto select-none"
+                            class="text-center leading-tight cursor-move w-full h-full flex items-center justify-center pointer-events-auto select-none text-xs"
                           >
                             {seat.guestName
                               .split(" ")
@@ -673,7 +679,9 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                               .toUpperCase()}
                           </div>
                         ) : (
-                          <div class="text-center pointer-events-none">+</div>
+                          <div class="text-center pointer-events-none text-xs">
+                            +
+                          </div>
                         )}
                       </div>
                     </div>
@@ -681,7 +689,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                 </For>
               </div>
 
-              <div class="text-center text-sm text-gray-500 mt-2">
+              <div class="text-center text-xs text-gray-500 mt-2">
                 {table.seats.filter((seat) => seat.guestId).length} /{" "}
                 {table.seats.length} seats filled
               </div>

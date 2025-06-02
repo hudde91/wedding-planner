@@ -2,6 +2,8 @@ export type RSVPStatus = "pending" | "attending" | "declined";
 
 export type TableShape = "round" | "rectangular";
 
+export type TabId = "overview" | "details" | "todos" | "guests" | "seating";
+
 export interface PlusOne {
   id: string;
   name: string;
@@ -37,6 +39,13 @@ export interface TodoItem {
   id: number;
   text: string;
   completed: boolean;
+  cost?: number;
+  vendor_name?: string;
+  vendor_contact?: string;
+  vendor_email?: string;
+  vendor_phone?: string;
+  notes?: string;
+  completion_date?: string;
 }
 
 export interface WeddingPlan {
@@ -101,4 +110,33 @@ export interface GuestStats {
   declined: Guest[];
   pending: Guest[];
   totalAttendees: number;
+}
+
+export interface TodoFormData {
+  cost?: number;
+  vendor_name?: string;
+  vendor_contact?: string;
+  vendor_email?: string;
+  vendor_phone?: string;
+  notes?: string;
+}
+
+export interface BudgetSummary {
+  totalBudget: number;
+  totalSpent: number;
+  remainingBudget: number;
+  spentPercentage: number;
+  daysUntilWedding: number | null;
+  totalGuests: number;
+  attendingGuests: number;
+  declinedGuests: number;
+  pendingGuests: number;
+  totalAttendees: number;
+  completedTodos: number;
+  totalTodos: number;
+  todoProgress: number;
+  totalTables: number;
+  totalSeats: number;
+  occupiedSeats: number;
+  weddingDate: string;
 }
