@@ -241,58 +241,6 @@ const SeatingChart: Component = () => {
     };
   });
 
-  const getSeatStyle = (
-    index: number,
-    total: number,
-    shape: TableShape
-  ): string => {
-    if (shape === "rectangular") {
-      const tableSize = getTableSize(total, shape);
-      const containerSize = getContainerSize(total, shape);
-
-      const dotsPerSide = Math.ceil(total / 2);
-      const remainingDots = total - dotsPerSide;
-
-      if (index < dotsPerSide) {
-        // Top side dots - evenly spaced across the width
-        const topSpacing = tableSize.width / (dotsPerSide + 1);
-        const x =
-          (containerSize.width - tableSize.width) / 2 +
-          topSpacing * (index + 1);
-        const y = (containerSize.height - tableSize.height) / 2 - 32; // 32px above table
-        return `left: ${x}px; top: ${y}px; transform: translateX(-50%);`;
-      } else {
-        // Bottom side dots - evenly spaced across the width
-        const bottomIndex = index - dotsPerSide;
-        const bottomSpacing = tableSize.width / (remainingDots + 1);
-        const x =
-          (containerSize.width - tableSize.width) / 2 +
-          bottomSpacing * (bottomIndex + 1);
-        const y =
-          (containerSize.height - tableSize.height) / 2 + tableSize.height;
-        return `left: ${x}px; top: ${y}px; transform: translateX(-50%);`;
-      }
-    } else {
-      const tableSize = getTableSize(total, shape);
-      const containerSize = getContainerSize(total, shape);
-
-      const angleStep = (2 * Math.PI) / total;
-      const angle = index * angleStep - Math.PI / 2;
-
-      const tableRadius = tableSize.width / 2;
-      const seatDistance = 18;
-      const seatRadius = tableRadius + seatDistance;
-
-      const centerX = containerSize.width / 2;
-      const centerY = containerSize.height / 2;
-
-      const x = centerX + seatRadius * Math.cos(angle);
-      const y = centerY + seatRadius * Math.sin(angle);
-
-      return `left: ${x}px; top: ${y}px; transform: translate(-50%, -50%);`;
-    }
-  };
-
   const getTableSize = (
     seatCount: number,
     shape: TableShape
@@ -343,6 +291,86 @@ const SeatingChart: Component = () => {
       // Round tables
       const size = Math.max(120, tableSize.width + 64);
       return { width: size, height: size };
+    }
+  };
+
+  const getGridClasses = createMemo((): string => {
+    const tablesData = tables();
+    if (tablesData.length === 0) return "grid-cols-1";
+
+    // Calculate the maximum container width needed
+    const maxContainerWidth = Math.max(
+      ...tablesData.map((table) => {
+        const containerSize = getContainerSize(table.seats.length, table.shape);
+        return containerSize.width;
+      })
+    );
+
+    // Define breakpoints and column counts based on max container width
+    // These values ensure tables don't overlap
+    if (maxContainerWidth <= 200) {
+      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+    } else if (maxContainerWidth <= 280) {
+      return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+    } else if (maxContainerWidth <= 350) {
+      return "grid-cols-1 md:grid-cols-2 xl:grid-cols-3";
+    } else if (maxContainerWidth <= 450) {
+      return "grid-cols-1 lg:grid-cols-2";
+    } else {
+      // For very large tables, use single column
+      return "grid-cols-1";
+    }
+  });
+
+  const getSeatStyle = (
+    index: number,
+    total: number,
+    shape: TableShape
+  ): string => {
+    if (shape === "rectangular") {
+      const tableSize = getTableSize(total, shape);
+      const containerSize = getContainerSize(total, shape);
+
+      const dotsPerSide = Math.ceil(total / 2);
+      const remainingDots = total - dotsPerSide;
+
+      if (index < dotsPerSide) {
+        // Top side dots - evenly spaced across the width
+        const topSpacing = tableSize.width / (dotsPerSide + 1);
+        const x =
+          (containerSize.width - tableSize.width) / 2 +
+          topSpacing * (index + 1);
+        const y = (containerSize.height - tableSize.height) / 2 - 32; // 32px above table
+        return `left: ${x}px; top: ${y}px; transform: translateX(-50%);`;
+      } else {
+        // Bottom side dots - evenly spaced across the width
+        const bottomIndex = index - dotsPerSide;
+        const bottomSpacing = tableSize.width / (remainingDots + 1);
+        const x =
+          (containerSize.width - tableSize.width) / 2 +
+          bottomSpacing * (bottomIndex + 1);
+        const y =
+          (containerSize.height - tableSize.height) / 2 + tableSize.height;
+        return `left: ${x}px; top: ${y}px; transform: translateX(-50%);`;
+      }
+    } else {
+      const tableSize = getTableSize(total, shape);
+      const containerSize = getContainerSize(total, shape);
+
+      const angleStep = (2 * Math.PI) / total;
+      const angle = index * angleStep - Math.PI / 2;
+
+      const tableRadius = tableSize.width / 2;
+      const seatDistance = 18;
+      const seatRadius = tableRadius + seatDistance;
+
+      const centerX = containerSize.width / 2;
+      const centerY = containerSize.height / 2;
+
+      const x = centerX + seatRadius * Math.cos(angle);
+      const y = centerY + seatRadius * Math.sin(angle);
+
+      return `left: ${x}px; top: ${y}px; transform: translate(-50%, -50%);`;
     }
   };
 
@@ -728,10 +756,7 @@ const SeatingChart: Component = () => {
       )}
 
       {/* Tables */}
-      {/* TODO: as getContainerSize gets bigger we need to adjust the grid here. 
-      The size of getContainerSize should never overlap the grid col it is in so set the grid to be responsive.
-       */}
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div class={`grid ${getGridClasses()} gap-6`}>
         <For each={tables()}>
           {(table) => (
             <div class="bg-white border-2 border-gray-200 rounded-lg p-4 shadow-sm">

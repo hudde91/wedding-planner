@@ -328,8 +328,6 @@ const TodoList: Component<TodoListProps> = (props) => {
                       Total Cost
                     </label>
                     <input
-                      type="number"
-                      step="0.01"
                       min="0"
                       value={todoFormData().cost || ""}
                       onInput={(e) =>
@@ -340,7 +338,7 @@ const TodoList: Component<TodoListProps> = (props) => {
                         )
                       }
                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-                      placeholder="0.00"
+                      placeholder="0"
                     />
                   </div>
                 </div>

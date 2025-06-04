@@ -75,12 +75,11 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
             Budget ($)
           </label>
           <input
-            type="number"
             value={props.weddingPlan.budget}
             onInput={(e) =>
               props.updateWeddingDetails(
                 "budget",
-                Number((e.target as HTMLInputElement).value)
+                Number((e.target as HTMLInputElement).value) || 0
               )
             }
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
