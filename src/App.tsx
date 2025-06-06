@@ -1,12 +1,6 @@
 import { createSignal, onMount, Show, Component } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import { nanoid } from "nanoid";
-import WeddingDetails from "./components/WeddingDetails";
-import TodoList from "./components/TodoList";
-import GuestList from "./components/GuestList";
-import SeatingChart from "./components/SeatingChart";
-import Overview from "./components/Overview";
-import Sidebar from "./components/Sidebar";
 import {
   WeddingPlan,
   TodoItem,
@@ -15,6 +9,15 @@ import {
   Table,
   TodoFormData,
 } from "./types";
+
+import LoadingSpinner from "./components/common/LoadingSpinner";
+import MainLayout from "./components/layout/MainLayout";
+
+import Overview from "./components/overview/Overview";
+import WeddingDetails from "./components/wedding-details/WeddingDetails";
+import TodoList from "./components/todos/TodoList";
+import GuestList from "./components/guests/GuestList";
+import SeatingChart from "./components/seating/SeatingChart";
 
 type AppState = "loading" | "loaded";
 type TabId = "overview" | "details" | "todos" | "guests" | "seating";
@@ -88,6 +91,7 @@ const App: Component = () => {
     });
   };
 
+  // Todo functions
   const addTodo = (text: string): void => {
     setWeddingPlan((prev) => {
       const newId =
@@ -147,9 +151,9 @@ const App: Component = () => {
     });
   };
 
+  // Guest functions
   const addGuest = (guestData: GuestFormData): void => {
     setWeddingPlan((prev) => {
-      // Convert temporary plus one IDs to permanent nanoid IDs
       const processedPlusOnes =
         guestData.plus_ones?.map((plusOne) => ({
           ...plusOne,
@@ -163,11 +167,7 @@ const App: Component = () => {
         ...guestData,
         plus_ones: processedPlusOnes,
       };
-
-      const updated = {
-        ...prev,
-        guests: [...prev.guests, newGuest],
-      };
+      const updated = { ...prev, guests: [...prev.guests, newGuest] };
       savePlanToBackend(updated);
       return updated;
     });
@@ -179,7 +179,6 @@ const App: Component = () => {
       const wasAttending = oldGuest?.rsvp_status === "attending";
       const nowAttending = guestData.rsvp_status === "attending";
 
-      // Convert temporary plus one IDs to permanent nanoid IDs
       const processedPlusOnes =
         guestData.plus_ones?.map((plusOne) => ({
           ...plusOne,
@@ -188,12 +187,8 @@ const App: Component = () => {
             : plusOne.id || nanoid(),
         })) || [];
 
-      // If guest is no longer attending, remove them and their plus ones from all seats
       let updatedTables = prev.tables;
       if (wasAttending && !nowAttending) {
-        console.log("Guest no longer attending, removing from seating chart");
-
-        // Get all guest IDs to remove (main guest + plus ones)
         const guestIdsToRemove = new Set([id]);
         if (oldGuest?.plus_ones) {
           oldGuest.plus_ones.forEach((plusOne) =>
@@ -234,8 +229,6 @@ const App: Component = () => {
   const deleteGuest = (id: string): void => {
     setWeddingPlan((prev) => {
       const guestToDelete = prev.guests.find((g) => g.id === id);
-
-      // Get all guest IDs to remove (main guest + plus ones)
       const guestIdsToRemove = new Set([id]);
       if (guestToDelete?.plus_ones) {
         guestToDelete.plus_ones.forEach((plusOne) =>
@@ -243,7 +236,6 @@ const App: Component = () => {
         );
       }
 
-      // Remove guest and their plus ones from all seats when deleting
       const updatedTables = prev.tables.map((table) => ({
         id: table.id,
         name: table.name,
@@ -286,159 +278,65 @@ const App: Component = () => {
   };
 
   return (
-    <div class="min-h-screen bg-gray-50 flex">
+    <div class="min-h-screen bg-gray-50">
       <Show when={appState() === "loading"}>
-        <div class="flex items-center justify-center min-h-screen w-full">
-          <div class="text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto"></div>
-            <p class="mt-4 text-gray-600">Loading your wedding plan...</p>
-          </div>
-        </div>
+        <LoadingSpinner />
       </Show>
 
       <Show when={appState() === "loaded"}>
-        {/* Sidebar */}
-        <Sidebar
+        <MainLayout
           activeTab={activeTab}
           setActiveTab={setActiveTab}
-          isOpen={sidebarOpen}
-          setIsOpen={setSidebarOpen}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
           weddingPlan={weddingPlan()}
-        />
-
-        {/* Main Content */}
-        <div
-          class={`flex-1 transition-all duration-300 ${
-            sidebarOpen() ? "ml-64" : "ml-16"
-          }`}
         >
-          {/* Top Header */}
-          <header class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4">
-                <button
-                  onClick={() => setSidebarOpen(!sidebarOpen())}
-                  class="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                >
-                  <svg
-                    class="w-5 h-5 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M4 6h16M4 12h16M4 18h16"
-                    ></path>
-                  </svg>
-                </button>
-                <div>
-                  <h1 class="text-2xl font-bold text-gray-900">
-                    {(() => {
-                      switch (activeTab()) {
-                        case "overview":
-                          return "Wedding Overview";
-                        case "details":
-                          return "Wedding Details";
-                        case "todos":
-                          return "Wedding Checklist";
-                        case "guests":
-                          return "Guest Management";
-                        case "seating":
-                          return "Seating Chart";
-                        default:
-                          return "Wedding Planner";
-                      }
-                    })()}
-                  </h1>
-                  <Show
-                    when={
-                      weddingPlan().couple_name1 && weddingPlan().couple_name2
-                    }
-                  >
-                    <p class="text-sm text-gray-600">
-                      {weddingPlan().couple_name1} &{" "}
-                      {weddingPlan().couple_name2}
-                    </p>
-                  </Show>
-                </div>
-              </div>
-              <div class="flex items-center space-x-4">
-                <div class="text-sm text-gray-500">
-                  <span class="inline-flex items-center">
-                    <svg
-                      class="w-4 h-4 mr-1 text-green-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 13l4 4L19 7"
-                      ></path>
-                    </svg>
-                    Auto-saved
-                  </span>
-                </div>
-              </div>
+          <Show when={activeTab() === "overview"}>
+            <Overview weddingPlan={weddingPlan()} />
+          </Show>
+
+          <Show when={activeTab() === "details"}>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <WeddingDetails
+                weddingPlan={weddingPlan()}
+                updateWeddingDetails={updateWeddingDetails}
+              />
             </div>
-          </header>
+          </Show>
 
-          {/* Content Area */}
-          <main class="p-6">
-            <div class="max-w-7xl mx-auto">
-              <Show when={activeTab() === "overview"}>
-                <Overview weddingPlan={weddingPlan()} />
-              </Show>
-
-              <Show when={activeTab() === "details"}>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <WeddingDetails
-                    weddingPlan={weddingPlan()}
-                    updateWeddingDetails={updateWeddingDetails}
-                  />
-                </div>
-              </Show>
-
-              <Show when={activeTab() === "todos"}>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <TodoList
-                    todos={weddingPlan().todos}
-                    addTodo={addTodo}
-                    toggleTodo={toggleTodo}
-                    deleteTodo={deleteTodo}
-                    updateTodo={updateTodo}
-                  />
-                </div>
-              </Show>
-
-              <Show when={activeTab() === "guests"}>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <GuestList
-                    guests={weddingPlan().guests}
-                    addGuest={addGuest}
-                    updateGuest={updateGuest}
-                    deleteGuest={deleteGuest}
-                  />
-                </div>
-              </Show>
-
-              <Show when={activeTab() === "seating"}>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <SeatingChart
-                    tables={weddingPlan().tables}
-                    guests={weddingPlan().guests}
-                    updateSeatingPlan={updateSeatingPlan}
-                  />
-                </div>
-              </Show>
+          <Show when={activeTab() === "todos"}>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <TodoList
+                todos={weddingPlan().todos}
+                addTodo={addTodo}
+                toggleTodo={toggleTodo}
+                deleteTodo={deleteTodo}
+                updateTodo={updateTodo}
+              />
             </div>
-          </main>
-        </div>
+          </Show>
+
+          <Show when={activeTab() === "guests"}>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <GuestList
+                guests={weddingPlan().guests}
+                addGuest={addGuest}
+                updateGuest={updateGuest}
+                deleteGuest={deleteGuest}
+              />
+            </div>
+          </Show>
+
+          <Show when={activeTab() === "seating"}>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <SeatingChart
+                tables={weddingPlan().tables}
+                guests={weddingPlan().guests}
+                updateSeatingPlan={updateSeatingPlan}
+              />
+            </div>
+          </Show>
+        </MainLayout>
       </Show>
     </div>
   );

@@ -1,5 +1,5 @@
 import { Component, Accessor, Setter, Show } from "solid-js";
-import { WeddingPlan } from "../types";
+import { WeddingPlan } from "../../types";
 
 type TabId = "overview" | "details" | "todos" | "guests" | "seating";
 

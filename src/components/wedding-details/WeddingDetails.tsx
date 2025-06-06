@@ -1,5 +1,5 @@
 import { Component } from "solid-js";
-import { WeddingPlan } from "../types";
+import { WeddingPlan } from "../../types";
 
 interface WeddingDetailsProps {
   weddingPlan: WeddingPlan;
