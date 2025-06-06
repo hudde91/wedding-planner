@@ -1,9 +1,8 @@
-import { createSignal, Component, For, Show } from "solid-js";
+import { createSignal, Component, For, Show, createMemo } from "solid-js";
 import { TodoItem as TodoItemType, TodoFormData } from "../../types";
 import TodoProgress from "./TodoProgress";
 import AddTodoForm from "./AddTodoForm";
 import TodoItem from "./TodoItem";
-import TodoDetailsModal from "./TodoDetailsModal";
 
 interface TodoListProps {
   todos: TodoItemType[];
@@ -14,42 +13,36 @@ interface TodoListProps {
 }
 
 const TodoList: Component<TodoListProps> = (props) => {
-  const [editingTodo, setEditingTodo] = createSignal<TodoItemType | null>(null);
-  const [showDetailsForm, setShowDetailsForm] = createSignal(false);
+  const [expandedTodoId, setExpandedTodoId] = createSignal<number | null>(null);
 
-  const completedCount = (): number =>
-    props.todos.filter((todo) => todo.completed).length;
+  // Make these reactive using createMemo
+  const completedCount = createMemo(
+    () => props.todos.filter((todo) => todo.completed).length
+  );
 
-  const totalCount = (): number => props.todos.length;
+  const totalCount = createMemo(() => props.todos.length);
 
-  const totalSpent = (): number =>
-    props.todos.reduce((sum, todo) => sum + (todo.cost || 0), 0);
+  const totalSpent = createMemo(() =>
+    props.todos.reduce((sum, todo) => sum + (todo.cost || 0), 0)
+  );
 
-  const handleTodoClick = (todo: TodoItemType): void => {
-    setEditingTodo(todo);
-    setShowDetailsForm(true);
+  const handleToggleExpanded = (todoId: number): void => {
+    setExpandedTodoId((prev) => (prev === todoId ? null : todoId));
   };
 
-  const handleDetailsSubmit = (todoData: TodoFormData): void => {
-    const todo = editingTodo();
+  const handleUpdateDetails = (id: number, todoData: TodoFormData): void => {
+    const todo = props.todos.find((t) => t.id === id);
     if (!todo) return;
 
-    props.updateTodo(todo.id, todoData);
+    props.updateTodo(id, todoData);
 
     // If todo wasn't completed and has cost info, mark as completed
     if (
       !todo.completed &&
       (todoData.cost || todoData.vendor_name || todoData.notes)
     ) {
-      props.toggleTodo(todo.id);
+      props.toggleTodo(id);
     }
-
-    resetForm();
-  };
-
-  const resetForm = (): void => {
-    setEditingTodo(null);
-    setShowDetailsForm(false);
   };
 
   return (
@@ -69,7 +62,9 @@ const TodoList: Component<TodoListProps> = (props) => {
               todo={todo}
               onToggle={props.toggleTodo}
               onDelete={props.deleteTodo}
-              onClick={handleTodoClick}
+              isExpanded={expandedTodoId() === todo.id}
+              onToggleExpanded={handleToggleExpanded}
+              onUpdateDetails={handleUpdateDetails}
             />
           )}
         </For>
@@ -81,14 +76,6 @@ const TodoList: Component<TodoListProps> = (props) => {
           <p class="text-lg font-medium mb-2">No tasks added yet</p>
           <p>Add your first wedding planning task above!</p>
         </div>
-      </Show>
-
-      <Show when={showDetailsForm() && editingTodo()}>
-        <TodoDetailsModal
-          todo={editingTodo()!}
-          onSubmit={handleDetailsSubmit}
-          onCancel={resetForm}
-        />
       </Show>
     </div>
   );

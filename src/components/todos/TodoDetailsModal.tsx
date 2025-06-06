@@ -1,4 +1,4 @@
-import { createSignal, Component } from "solid-js";
+import { createSignal, Component, createEffect } from "solid-js";
 import { TodoItem, TodoFormData } from "../../types";
 
 interface TodoDetailsModalProps {
@@ -17,10 +17,21 @@ const TodoDetailsModal: Component<TodoDetailsModalProps> = (props) => {
     notes: props.todo.notes || "",
   });
 
-  const handleSubmit = (e: Event): void => {
-    e.preventDefault();
-    props.onSubmit(todoFormData());
-  };
+  // Auto-save effect - debounced to avoid too many saves
+  let saveTimeout: ReturnType<typeof setTimeout>;
+  createEffect(() => {
+    const currentData = todoFormData();
+
+    // Clear previous timeout
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
+
+    // Set new timeout for auto-save (500ms debounce)
+    saveTimeout = setTimeout(() => {
+      props.onSubmit(currentData);
+    }, 500);
+  });
 
   const updateFormField = <K extends keyof TodoFormData>(
     field: K,
@@ -57,7 +68,7 @@ const TodoDetailsModal: Component<TodoDetailsModalProps> = (props) => {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} class="space-y-6">
+          <div class="space-y-6">
             {/* Cost Section */}
             <div class="bg-green-50 p-4 rounded-lg border border-green-200">
               <h4 class="text-lg font-medium text-green-800 mb-3">
@@ -92,6 +103,23 @@ const TodoDetailsModal: Component<TodoDetailsModalProps> = (props) => {
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Vendor Name
+                  </label>
+                  <input
+                    type="text"
+                    value={todoFormData().vendor_name || ""}
+                    onInput={(e) =>
+                      updateFormField(
+                        "vendor_name",
+                        (e.target as HTMLInputElement).value
+                      )
+                    }
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Vendor name"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
                     Phone
                   </label>
                   <input
@@ -105,6 +133,40 @@ const TodoDetailsModal: Component<TodoDetailsModalProps> = (props) => {
                     }
                     class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     placeholder="(555) 123-4567"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={todoFormData().vendor_email || ""}
+                    onInput={(e) =>
+                      updateFormField(
+                        "vendor_email",
+                        (e.target as HTMLInputElement).value
+                      )
+                    }
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="vendor@example.com"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Contact Person
+                  </label>
+                  <input
+                    type="text"
+                    value={todoFormData().vendor_contact || ""}
+                    onInput={(e) =>
+                      updateFormField(
+                        "vendor_contact",
+                        (e.target as HTMLInputElement).value
+                      )
+                    }
+                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Contact person name"
                   />
                 </div>
               </div>
@@ -134,23 +196,26 @@ const TodoDetailsModal: Component<TodoDetailsModalProps> = (props) => {
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
-              <button
-                type="button"
-                onClick={props.onCancel}
-                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                class="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition duration-200"
-              >
-                Save Details
-              </button>
+            {/* Auto-save indicator */}
+            <div class="text-center text-sm text-gray-500">
+              <span class="inline-flex items-center">
+                <svg
+                  class="w-4 h-4 mr-1 text-green-500"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                  ></path>
+                </svg>
+                Changes saved automatically
+              </span>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

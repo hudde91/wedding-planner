@@ -143,14 +143,12 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     setShowAddTableForm(true);
   };
 
-  // TODO: The delete happens even if I click "Cancel" in the confirmation dialog this is a bug
-  // Fix this
   const deleteTable = (tableId: number): void => {
-    if (
-      confirm(
-        "Are you sure you want to delete this table? All seating assignments will be lost."
-      )
-    ) {
+    const confirmed = confirm(
+      "Are you sure you want to delete this table? All seating assignments will be lost."
+    );
+
+    if (confirmed) {
       const updatedTables = props.tables.filter(
         (table) => table.id !== tableId
       );

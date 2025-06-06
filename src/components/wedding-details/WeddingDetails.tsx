@@ -75,6 +75,8 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
             Budget ($)
           </label>
           <input
+            type="number"
+            min="0"
             value={props.weddingPlan.budget}
             onInput={(e) =>
               props.updateWeddingDetails(

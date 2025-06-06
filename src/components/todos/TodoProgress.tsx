@@ -1,4 +1,4 @@
-import { Component } from "solid-js";
+import { Component, createMemo } from "solid-js";
 import ProgressBar from "../common/ProgressBar";
 
 interface TodoProgressProps {
@@ -17,12 +17,11 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
     }).format(amount);
   };
 
-  const progressPercentage =
-    props.totalCount > 0 ? (props.completedCount / props.totalCount) * 100 : 0;
+  // Make progress calculation reactive using createMemo
+  const progressPercentage = createMemo(() =>
+    props.totalCount > 0 ? (props.completedCount / props.totalCount) * 100 : 0
+  );
 
-  {
-    console.log("Progress percentage:", progressPercentage);
-  }
   return (
     <div class="space-y-4">
       <div class="flex justify-between items-center">
@@ -44,7 +43,7 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
             {props.completedCount} / {props.totalCount} completed
           </span>
         </div>
-        <ProgressBar progress={progressPercentage} color="purple" />
+        <ProgressBar progress={progressPercentage()} color="purple" />
         <div class="mt-2 text-xs text-gray-600">
           Click on any task to add vendor details, costs, and notes
         </div>
