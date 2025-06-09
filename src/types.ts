@@ -140,3 +140,14 @@ export interface BudgetSummary {
   occupiedSeats: number;
   weddingDate: string;
 }
+
+export interface PinterestPin {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  link: string;
+  boardName?: string;
+  creatorName?: string;
+  saveCount?: number;
+}

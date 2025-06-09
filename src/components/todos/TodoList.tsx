@@ -1,8 +1,12 @@
+// Fixed TodoList.tsx - Complete file with proper TypeScript interfaces
 import { createSignal, Component, For, Show, createMemo } from "solid-js";
 import { TodoItem as TodoItemType, TodoFormData } from "../../types";
 import TodoProgress from "./TodoProgress";
 import AddTodoForm from "./AddTodoForm";
 import TodoItem from "./TodoItem";
+
+// Remove PinterestInspirations import since we moved it to TodoItem
+// import PinterestInspirations from "./PinterestInspirations";
 
 interface TodoListProps {
   todos: TodoItemType[];
