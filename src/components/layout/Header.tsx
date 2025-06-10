@@ -1,7 +1,5 @@
 import { Component, Show } from "solid-js";
-import { WeddingPlan } from "../../types";
-
-type TabId = "overview" | "details" | "todos" | "guests" | "seating";
+import type { WeddingPlan, TabId } from "../../types";
 
 interface HeaderProps {
   activeTab: TabId;
@@ -14,6 +12,8 @@ const Header: Component<HeaderProps> = (props) => {
     switch (tabId) {
       case "overview":
         return "Wedding Overview";
+      case "timeline":
+        return "Wedding Timeline";
       case "details":
         return "Wedding Details";
       case "todos":

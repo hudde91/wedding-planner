@@ -2,7 +2,13 @@ export type RSVPStatus = "pending" | "attending" | "declined";
 
 export type TableShape = "round" | "rectangular";
 
-export type TabId = "overview" | "details" | "todos" | "guests" | "seating";
+export type TabId =
+  | "overview"
+  | "details"
+  | "todos"
+  | "guests"
+  | "seating"
+  | "timeline";
 
 export interface PlusOne {
   id: string;

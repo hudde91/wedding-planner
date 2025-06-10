@@ -1,13 +1,14 @@
 import { createSignal, onMount, Show, Component } from "solid-js";
 import { invoke } from "@tauri-apps/api/tauri";
 import { nanoid } from "nanoid";
-import {
+import type {
   WeddingPlan,
   TodoItem,
   Guest,
   GuestFormData,
   Table,
   TodoFormData,
+  TabId,
 } from "./types";
 
 import LoadingSpinner from "./components/common/LoadingSpinner";
@@ -18,9 +19,9 @@ import WeddingDetails from "./components/wedding-details/WeddingDetails";
 import TodoList from "./components/todos/TodoList";
 import GuestList from "./components/guests/GuestList";
 import SeatingChart from "./components/seating/SeatingChart";
+import Timeline from "./components/timeline/Timeline";
 
 type AppState = "loading" | "loaded";
-type TabId = "overview" | "details" | "todos" | "guests" | "seating";
 
 const App: Component = () => {
   const [appState, setAppState] = createSignal<AppState>("loading");
@@ -333,6 +334,18 @@ const App: Component = () => {
                 tables={weddingPlan().tables}
                 guests={weddingPlan().guests}
                 updateSeatingPlan={updateSeatingPlan}
+              />
+            </div>
+          </Show>
+
+          <Show when={activeTab() === "timeline"}>
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+              <Timeline
+                weddingPlan={weddingPlan()}
+                onToggleTodo={toggleTodo}
+                onDeleteTodo={deleteTodo}
+                onUpdateTodo={updateTodo}
+                onAddTodo={addTodo}
               />
             </div>
           </Show>

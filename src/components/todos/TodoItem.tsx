@@ -136,7 +136,6 @@ const TodoItem: Component<TodoItemProps> = (props) => {
     });
   };
 
-  // FIX: Stable event handlers
   const handleGetInspiration = (e: MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();

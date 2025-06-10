@@ -1,7 +1,5 @@
 import { Component, Accessor, Setter, Show } from "solid-js";
-import { WeddingPlan } from "../../types";
-
-type TabId = "overview" | "details" | "todos" | "guests" | "seating";
+import type { WeddingPlan, TabId } from "../../types";
 
 interface SidebarItem {
   id: TabId;
@@ -25,6 +23,12 @@ const Sidebar: Component<SidebarProps> = (props) => {
       label: "Overview",
       icon: "📊",
       description: "Wedding dashboard",
+    },
+    {
+      id: "timeline",
+      label: "Timeline",
+      icon: "⏰",
+      description: "Planning phases",
     },
     {
       id: "details",

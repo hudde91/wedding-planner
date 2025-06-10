@@ -1,9 +1,7 @@
 import { Component, Accessor, Setter } from "solid-js";
-import { WeddingPlan } from "../../types";
+import type { WeddingPlan, TabId } from "../../types";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
-
-type TabId = "overview" | "details" | "todos" | "guests" | "seating";
 
 interface MainLayoutProps {
   activeTab: Accessor<TabId>;
