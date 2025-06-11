@@ -143,17 +143,9 @@
       }
       
       let data = fs::read_to_string(&file_path).map_err(|e| e.to_string())?;
+      let plan: WeddingPlan = serde_json::from_str(&data).map_err(|e| e.to_string())?;
       
-      // Try to parse the existing data
-      match serde_json::from_str::<WeddingPlan>(&data) {
-          Ok(plan) => Ok(plan),
-          Err(_) => {
-              // If parsing fails (old format), delete the old file and start fresh
-              println!("Old data format detected, clearing and starting fresh...");
-              let _ = fs::remove_file(&file_path);
-              Ok(WeddingPlan::default())
-          }
-      }
+      Ok(plan)
   }
   
   fn main() {

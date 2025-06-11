@@ -53,14 +53,6 @@ const App: Component = () => {
   onMount(async () => {
     try {
       const savedPlan = await invoke<WeddingPlan>("load_wedding_plan");
-
-      // Clean up any tables with old structure to prevent errors
-      const cleanedTables =
-        savedPlan.tables?.filter((table: any) => {
-          // Only keep tables that have the new structure
-          return "capacity" in table && "assigned_guests" in table;
-        }) || [];
-
       const plan: WeddingPlan = {
         ...savedPlan,
         todos:
@@ -68,7 +60,7 @@ const App: Component = () => {
             ? savedPlan.todos
             : defaultTodos,
         guests: savedPlan.guests || [],
-        tables: cleanedTables,
+        tables: savedPlan.tables || [],
       };
       setWeddingPlan(plan);
       setAppState("loaded");
