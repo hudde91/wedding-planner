@@ -44,16 +44,33 @@ export const useWeddingStats = (weddingPlan: () => WeddingPlan) => {
     const todoProgress =
       totalTodos > 0 ? (completedTodos / totalTodos) * 100 : 0;
 
-    // Calculate seating info
+    // Calculate seating info using NEW table structure
     const totalTables = plan.tables.length;
+
+    // Use capacity instead of seats.length
     const totalSeats = plan.tables.reduce(
-      (sum, table) => sum + table.seats.length,
+      (sum, table) => sum + (table.capacity || 0),
       0
     );
-    const occupiedSeats = plan.tables.reduce(
-      (sum, table) => sum + table.seats.filter((seat) => seat.guestId).length,
-      0
-    );
+
+    // Calculate occupied seats based on assigned guests
+    const occupiedSeats = plan.tables.reduce((sum, table) => {
+      if (!table.assigned_guests) return sum;
+
+      const tableGuests = plan.guests.filter(
+        (guest) =>
+          table.assigned_guests.includes(guest.id) &&
+          guest.rsvp_status === "attending"
+      );
+
+      return (
+        sum +
+        tableGuests.reduce(
+          (guestSum, guest) => guestSum + 1 + (guest.plus_ones?.length || 0),
+          0
+        )
+      );
+    }, 0);
 
     return {
       daysUntilWedding,

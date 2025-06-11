@@ -1,4 +1,4 @@
-import { createSignal, Component, For, Show } from "solid-js";
+import { createSignal, Component, For } from "solid-js";
 import { Guest, GuestFormData, RSVPStatus, PlusOne } from "../../types";
 import PlusOneForm from "./PlusOneForm";
 

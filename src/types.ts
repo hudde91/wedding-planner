@@ -35,10 +35,12 @@ export interface Seat {
 }
 
 export interface Table {
-  id: number;
+  id: string;
   name: string;
-  seats: Seat[];
-  shape: TableShape;
+  capacity: number;
+  assigned_guests: string[]; // Array of guest IDs assigned to this table
+  x?: number;
+  y?: number;
 }
 
 export interface TodoItem {

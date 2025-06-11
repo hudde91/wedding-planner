@@ -53,6 +53,14 @@ const App: Component = () => {
   onMount(async () => {
     try {
       const savedPlan = await invoke<WeddingPlan>("load_wedding_plan");
+
+      // Clean up any tables with old structure to prevent errors
+      const cleanedTables =
+        savedPlan.tables?.filter((table: any) => {
+          // Only keep tables that have the new structure
+          return "capacity" in table && "assigned_guests" in table;
+        }) || [];
+
       const plan: WeddingPlan = {
         ...savedPlan,
         todos:
@@ -60,7 +68,7 @@ const App: Component = () => {
             ? savedPlan.todos
             : defaultTodos,
         guests: savedPlan.guests || [],
-        tables: savedPlan.tables || [],
+        tables: cleanedTables,
       };
       setWeddingPlan(plan);
       setAppState("loaded");
@@ -190,25 +198,11 @@ const App: Component = () => {
 
       let updatedTables = prev.tables;
       if (wasAttending && !nowAttending) {
-        const guestIdsToRemove = new Set([id]);
-        if (oldGuest?.plus_ones) {
-          oldGuest.plus_ones.forEach((plusOne) =>
-            guestIdsToRemove.add(plusOne.id)
-          );
-        }
-
+        // Remove guest from tables if they're no longer attending
         updatedTables = prev.tables.map((table) => ({
-          id: table.id,
-          name: table.name,
-          shape: table.shape,
-          seats: table.seats.map((seat) =>
-            guestIdsToRemove.has(seat.guestId || "")
-              ? { id: seat.id, guestId: null, guestName: "" }
-              : {
-                  id: seat.id,
-                  guestId: seat.guestId,
-                  guestName: seat.guestName,
-                }
+          ...table,
+          assigned_guests: table.assigned_guests.filter(
+            (guestId) => guestId !== id
           ),
         }));
       }
@@ -229,22 +223,11 @@ const App: Component = () => {
 
   const deleteGuest = (id: string): void => {
     setWeddingPlan((prev) => {
-      const guestToDelete = prev.guests.find((g) => g.id === id);
-      const guestIdsToRemove = new Set([id]);
-      if (guestToDelete?.plus_ones) {
-        guestToDelete.plus_ones.forEach((plusOne) =>
-          guestIdsToRemove.add(plusOne.id)
-        );
-      }
-
+      // Remove guest from any tables they're assigned to
       const updatedTables = prev.tables.map((table) => ({
-        id: table.id,
-        name: table.name,
-        shape: table.shape,
-        seats: table.seats.map((seat) =>
-          guestIdsToRemove.has(seat.guestId || "")
-            ? { id: seat.id, guestId: null, guestName: "" }
-            : { id: seat.id, guestId: seat.guestId, guestName: seat.guestName }
+        ...table,
+        assigned_guests: table.assigned_guests.filter(
+          (guestId) => guestId !== id
         ),
       }));
 
@@ -258,20 +241,12 @@ const App: Component = () => {
     });
   };
 
-  const updateSeatingPlan = (tables: Table[]): void => {
+  // Seating functions
+  const updateTables = (tables: Table[]): void => {
     setWeddingPlan((prev) => {
       const updated = {
         ...prev,
-        tables: tables.map((table) => ({
-          id: table.id,
-          name: table.name,
-          shape: table.shape,
-          seats: table.seats.map((seat) => ({
-            id: seat.id,
-            guestId: seat.guestId,
-            guestName: seat.guestName,
-          })),
-        })),
+        tables: tables,
       };
       savePlanToBackend(updated);
       return updated;
@@ -329,13 +304,11 @@ const App: Component = () => {
           </Show>
 
           <Show when={activeTab() === "seating"}>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <SeatingChart
-                tables={weddingPlan().tables}
-                guests={weddingPlan().guests}
-                updateSeatingPlan={updateSeatingPlan}
-              />
-            </div>
+            <SeatingChart
+              tables={weddingPlan().tables}
+              guests={weddingPlan().guests}
+              onUpdateTables={updateTables}
+            />
           </Show>
 
           <Show when={activeTab() === "timeline"}>

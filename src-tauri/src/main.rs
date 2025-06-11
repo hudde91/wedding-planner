@@ -52,6 +52,20 @@
       id: i64,
       text: String,
       completed: bool,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      cost: Option<f64>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      vendor_name: Option<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      vendor_contact: Option<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      vendor_email: Option<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      vendor_phone: Option<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      notes: Option<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      completion_date: Option<String>,
   }
   
   #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -78,20 +92,15 @@
   
   #[derive(Serialize, Deserialize, Debug, Clone)]
   struct Table {
-      id: i64,
+      id: String,
       name: String,
-      seats: Vec<Seat>,
+      capacity: i32,
       #[serde(default)]
-      shape: TableShape,
-  }
-  
-  #[derive(Serialize, Deserialize, Debug, Clone)]
-  struct Seat {
-      id: i32,
-      #[serde(rename = "guestId")]
-      guest_id: Option<String>,
-      #[serde(rename = "guestName")]
-      guest_name: String,
+      assigned_guests: Vec<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      x: Option<f64>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      y: Option<f64>,
   }
   
   impl Default for WeddingPlan {
@@ -133,10 +142,18 @@
           return Ok(WeddingPlan::default());
       }
       
-      let data = fs::read_to_string(file_path).map_err(|e| e.to_string())?;
-      let plan: WeddingPlan = serde_json::from_str(&data).map_err(|e| e.to_string())?;
+      let data = fs::read_to_string(&file_path).map_err(|e| e.to_string())?;
       
-      Ok(plan)
+      // Try to parse the existing data
+      match serde_json::from_str::<WeddingPlan>(&data) {
+          Ok(plan) => Ok(plan),
+          Err(_) => {
+              // If parsing fails (old format), delete the old file and start fresh
+              println!("Old data format detected, clearing and starting fresh...");
+              let _ = fs::remove_file(&file_path);
+              Ok(WeddingPlan::default())
+          }
+      }
   }
   
   fn main() {
