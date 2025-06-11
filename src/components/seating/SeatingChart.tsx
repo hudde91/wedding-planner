@@ -25,8 +25,6 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
       name: `Table ${props.tables.length + 1}`,
       capacity: 8,
       assigned_guests: [],
-      x: 0,
-      y: 0,
     };
 
     const updatedTables = [...props.tables, newTable];
@@ -52,6 +50,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     props.onUpdateTables(updatedTables);
   };
 
+  // TODO: Does not work, need to use seatNumber from callback
   const assignGuestToTable = (guestId: string, tableId: string) => {
     const updatedTables = props.tables.map((table) => {
       // Remove guest from any other table first
@@ -549,20 +548,20 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
               </For>
             </div>
           </Show>
+          {/* Unassigned Guests Section */}
+          <Show when={getUnassignedGuests().length > 0}>
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-100 shadow-lg">
+              <h3 class="text-xl font-medium text-gray-900 mb-4">
+                Unassigned Guests
+              </h3>
+              <UnassignedGuests
+                guests={getUnassignedGuests()}
+                tables={props.tables}
+                onAssignGuestToSeat={assignGuestToTable}
+              />
+            </div>
+          </Show>
         </div>
-        {/* Unassigned Guests Section */}
-        <Show when={getUnassignedGuests().length > 0}>
-          <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-8 border border-gray-100 shadow-lg">
-            <h3 class="text-xl font-medium text-gray-900 mb-4">
-              Unassigned Guests
-            </h3>
-            <UnassignedGuests
-              guests={getUnassignedGuests()}
-              tables={props.tables}
-              onAssignGuest={assignGuestToTable}
-            />
-          </div>
-        </Show>
       </div>
     </div>
   );

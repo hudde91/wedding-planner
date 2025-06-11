@@ -6,6 +6,7 @@ interface TimelineOverviewProps {
   weddingPlan: WeddingPlan;
 }
 
+// TODO: Replace all emoji icons with more elegant and luxorius SVG icons
 const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
   const monthsUntilWedding = createMemo(() => {
     if (!props.weddingPlan.wedding_date) return 0;

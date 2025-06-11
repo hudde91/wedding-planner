@@ -26,6 +26,7 @@ export interface Guest {
   meal_preference: string;
   plus_ones: PlusOne[];
   notes: string;
+  assigned_seat?: number;
 }
 
 export interface Seat {
@@ -39,8 +40,6 @@ export interface Table {
   name: string;
   capacity: number;
   assigned_guests: string[]; // Array of guest IDs assigned to this table
-  x?: number;
-  y?: number;
 }
 
 export interface TodoItem {

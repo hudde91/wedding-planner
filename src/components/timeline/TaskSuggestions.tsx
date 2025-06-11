@@ -8,7 +8,7 @@ interface TaskSuggestionsProps {
   onAddSuggestedTask: (task: TimelineTodo) => void;
   onClose: () => void;
 }
-
+// TODO: Replace all emoji icons with more elegant and luxorius SVG icons
 const TaskSuggestions: Component<TaskSuggestionsProps> = (props) => {
   const [selectedTasks, setSelectedTasks] = createSignal<Set<number>>(
     new Set()

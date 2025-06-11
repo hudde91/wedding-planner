@@ -11,11 +11,10 @@ const Overview: Component<OverviewProps> = (props) => {
   const [isLoaded, setIsLoaded] = createSignal(false);
   const [currentImageIndex, setCurrentImageIndex] = createSignal(0);
 
-  // TODO: Image number 3 is not loading, check the URL or replace with a similar image
   const heroImages = [
     "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&h=600&fit=crop&auto=format",
     "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&h=600&fit=crop&auto=format",
-    "https://images.unsplash.com/photo-1465495976277-4387d4b0e4a6?w=1200&h=600&fit=crop&auto=format",
+    "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=1200&h=600&fit=crop&auto=format",
   ];
 
   onMount(() => {
@@ -700,11 +699,10 @@ const Overview: Component<OverviewProps> = (props) => {
 
             {/* // TODO: stats().daysUntilWedding < 90 gives Object is possibly 'null' error. Fix this  */}
             <Show
-              when={
-                stats().todoProgress < 25 &&
-                stats().daysUntilWedding !== null &&
-                stats().daysUntilWedding < 90
-              }
+              when={(() => {
+                const days = stats().daysUntilWedding;
+                return stats().todoProgress < 25 && days !== null && days < 90;
+              })()}
             >
               <div class="flex items-start space-x-3 p-4 bg-white/60 backdrop-blur-sm rounded-lg border border-white/50">
                 <div class="w-8 h-8 bg-gradient-to-br from-rose-400 to-pink-400 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">

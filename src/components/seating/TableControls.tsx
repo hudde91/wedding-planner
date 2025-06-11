@@ -11,6 +11,7 @@ const TableControls: Component<TableControlsProps> = (props) => {
 
   const handleAddTable = () => {
     if (tableName().trim()) {
+      // TODO: Fix below comment so it actually adds the table with the given name, capacity and shape of the table
       // You'll need to modify this to pass the actual form data
       props.onAddTable();
       setTableName("");
@@ -23,17 +24,17 @@ const TableControls: Component<TableControlsProps> = (props) => {
     { name: "Head Table", capacity: 8, description: "For the wedding party" },
     { name: "Family Table", capacity: 10, description: "Close family members" },
     { name: "Friends Table", capacity: 8, description: "College friends" },
-    {
-      name: "Work Colleagues",
-      capacity: 6,
-      description: "Professional contacts",
-    },
-    {
-      name: "Kids Table",
-      capacity: 6,
-      description: "Children and young guests",
-    },
-    { name: "Plus Ones", capacity: 8, description: "Partners and dates" },
+    // {
+    //   name: "Work Colleagues",
+    //   capacity: 6,
+    //   description: "Professional contacts",
+    // },
+    // {
+    //   name: "Kids Table",
+    //   capacity: 6,
+    //   description: "Children and young guests",
+    // },
+    // { name: "Plus Ones", capacity: 8, description: "Partners and dates" },
   ];
 
   return (
@@ -213,7 +214,6 @@ const TableControls: Component<TableControlsProps> = (props) => {
           <div class="text-sm">
             <p class="font-medium text-blue-800 mb-1">Seating Planning Tips</p>
             <ul class="text-blue-700 font-light space-y-1 text-xs">
-              <li>• Plan 8-10 guests per round table, 6-8 for rectangular</li>
               <li>• Consider mixing friend groups for conversation</li>
               <li>• Keep families with young children near exits</li>
               <li>• Place elderly guests away from loud speakers</li>

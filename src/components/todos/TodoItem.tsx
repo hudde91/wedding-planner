@@ -370,6 +370,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
               {/* Form Sections */}
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Cost Section */}
+                {/* TODO: This cost section looks bad in desktop view since it only contains on inputfield ned to Vendor sections with 4 input fields */}
                 <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-6 border border-emerald-200/50">
                   <div class="flex items-center space-x-3 mb-4">
                     <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">

@@ -266,31 +266,31 @@ const TableCard: Component<TableCardProps> = (props) => {
       <div class="p-6">
         <Show
           when={props.guests.length > 0}
-          fallback={
-            <div class="text-center py-8">
-              <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <svg
-                  class="w-8 h-8 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-              </div>
-              <h4 class="text-sm font-medium text-gray-900 mb-1">
-                No guests assigned
-              </h4>
-              <p class="text-xs text-gray-500 font-light">
-                Drag guests here to assign them to this table
-              </p>
-            </div>
-          }
+          // fallback={
+          //   <div class="text-center py-8">
+          //     <div class="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center mx-auto mb-4">
+          //       <svg
+          //         class="w-8 h-8 text-gray-400"
+          //         fill="none"
+          //         stroke="currentColor"
+          //         viewBox="0 0 24 24"
+          //       >
+          //         <path
+          //           stroke-linecap="round"
+          //           stroke-linejoin="round"
+          //           stroke-width="1.5"
+          //           d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+          //         />
+          //       </svg>
+          //     </div>
+          //     <h4 class="text-sm font-medium text-gray-900 mb-1">
+          //       No guests assigned
+          //     </h4>
+          //     <p class="text-xs text-gray-500 font-light">
+          //       Drag guests here to assign them to this table
+          //     </p>
+          //   </div>
+          // }
         >
           <div class="space-y-3">
             <h4 class="text-sm font-medium text-gray-700 flex items-center">
