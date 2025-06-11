@@ -4,632 +4,312 @@ export interface TimelinePhase {
   id: string;
   name: string;
   description: string;
-  startMonths: number; // Months before wedding (12 = 12 months before)
-  endMonths: number; // Months before wedding (6 = 6 months before)
+  startMonths: number; // Months before wedding this phase should start
+  endMonths: number; // Months before wedding this phase ends
+  minMonthsBefore: number; // Minimum months before wedding this phase should start
+  maxMonthsBefore: number; // Maximum months before wedding this phase ends
   color: string;
-  icon: string;
-  priority: "high" | "medium" | "low";
+  priority: "critical" | "high" | "medium" | "low";
   tips?: string[];
+  isFlexible: boolean; // Can this phase be compressed/extended?
+  icon: string;
 }
 
 export interface TimelineTodo extends TodoItem {
-  timelinePhase?: string; // Reference to TimelinePhase.id
-  recommendedMonths?: number; // Recommended months before wedding
-  isTimelineSuggestion?: boolean; // Auto-suggested vs user-created
-  urgency?: "low" | "medium" | "high" | "critical";
+  timelinePhase?: string;
+  recommendedMonths?: number;
+  urgency?: "critical" | "high" | "medium" | "low";
 }
 
-interface DefaultTask {
-  text: string;
-  phase: string;
-  months: number;
-  urgency?: "low" | "medium" | "high" | "critical";
-  tips?: string;
+export interface SmartTodoItem extends TodoItem {
+  aiCategory?: string;
+  suggestedPhase?: string;
+  urgencyLevel?: "critical" | "high" | "medium" | "low";
+  estimatedDuration?: number; // Days to complete
+  dependencies?: string[]; // Other tasks this depends on
+  aiSuggestions?: string[];
 }
 
-class TimelineService {
-  // Wedding planning phases with detailed information
-  private static phases: TimelinePhase[] = [
-    {
-      id: "planning-start",
-      name: "12+ Months Before",
-      description: "Big decisions and initial bookings",
-      startMonths: 18,
-      endMonths: 12,
-      color: "bg-purple-50 border-purple-200 text-purple-800",
-      icon: "🎯",
-      priority: "high",
-      tips: [
-        "Book your venue as early as possible - popular venues fill up fast",
-        "Set your budget before making any major decisions",
-        "Start your guest list to determine venue size needs",
+export interface AdaptivePhase extends TimelinePhase {
+  adaptedStartDate: Date;
+  adaptedEndDate: Date;
+  compressionLevel: number; // 0-1, how much this phase has been compressed
+  urgencyBoost: number; // Priority boost due to time constraints
+}
+
+class SmartTimelineService {
+  // Core wedding planning categories that work across languages
+  private static readonly TASK_CATEGORIES = {
+    venue: {
+      keywords: [
+        "venue",
+        "location",
+        "church",
+        "hall",
+        "reception",
+        "ceremony",
+        "site",
       ],
+      priority: "critical",
+      minLead: 12,
+      estimatedDays: 14,
     },
+    photography: {
+      keywords: ["photo", "photographer", "picture", "image", "shot", "camera"],
+      priority: "critical",
+      minLead: 8,
+      estimatedDays: 7,
+    },
+    catering: {
+      keywords: [
+        "food",
+        "cater",
+        "menu",
+        "meal",
+        "dinner",
+        "lunch",
+        "eat",
+        "cook",
+      ],
+      priority: "critical",
+      minLead: 6,
+      estimatedDays: 10,
+    },
+    attire: {
+      keywords: [
+        "dress",
+        "suit",
+        "tux",
+        "gown",
+        "outfit",
+        "wear",
+        "clothing",
+        "attire",
+      ],
+      priority: "high",
+      minLead: 6,
+      estimatedDays: 21,
+    },
+    flowers: {
+      keywords: [
+        "flower",
+        "bouquet",
+        "floral",
+        "arrangement",
+        "decoration",
+        "bloom",
+      ],
+      priority: "high",
+      minLead: 3,
+      estimatedDays: 5,
+    },
+    music: {
+      keywords: ["music", "band", "dj", "song", "dance", "sound", "audio"],
+      priority: "high",
+      minLead: 4,
+      estimatedDays: 7,
+    },
+    invitations: {
+      keywords: [
+        "invitation",
+        "invite",
+        "card",
+        "announce",
+        "rsvp",
+        "guest list",
+      ],
+      priority: "medium",
+      minLead: 3,
+      estimatedDays: 10,
+    },
+    transportation: {
+      keywords: ["transport", "car", "limo", "ride", "travel", "vehicle"],
+      priority: "medium",
+      minLead: 2,
+      estimatedDays: 3,
+    },
+    accommodation: {
+      keywords: ["hotel", "stay", "lodge", "room", "accommodation", "sleep"],
+      priority: "medium",
+      minLead: 4,
+      estimatedDays: 5,
+    },
+    legal: {
+      keywords: [
+        "license",
+        "legal",
+        "document",
+        "certificate",
+        "permit",
+        "official",
+      ],
+      priority: "critical",
+      minLead: 1,
+      estimatedDays: 2,
+    },
+    honeymoon: {
+      keywords: ["honeymoon", "vacation", "trip", "travel", "getaway"],
+      priority: "low",
+      minLead: 3,
+      estimatedDays: 7,
+    },
+    beauty: {
+      keywords: ["hair", "makeup", "beauty", "nail", "spa", "style"],
+      priority: "medium",
+      minLead: 2,
+      estimatedDays: 5,
+    },
+  };
+
+  // Adaptive phases that compress based on available time
+  private static readonly ADAPTIVE_PHASES: TimelinePhase[] = [
     {
-      id: "major-planning",
-      name: "6-12 Months Before",
-      description: "Major vendors and key decisions",
+      id: "foundation",
+      name: "Foundation Planning",
+      description: "Essential decisions and major bookings",
       startMonths: 12,
       endMonths: 6,
+      minMonthsBefore: 12,
+      maxMonthsBefore: 6,
+      color: "bg-purple-50 border-purple-200 text-purple-800",
+      priority: "critical",
+      isFlexible: false,
+      icon: "🏛️",
+      tips: [
+        "Book venue and major vendors first - they have the longest lead times",
+        "Set your budget early to guide all other decisions",
+        "Create your guest list to determine venue capacity needs",
+      ],
+    },
+    {
+      id: "vendor-selection",
+      name: "Vendor Selection",
+      description: "Secure key service providers",
+      startMonths: 8,
+      endMonths: 4,
+      minMonthsBefore: 8,
+      maxMonthsBefore: 4,
       color: "bg-blue-50 border-blue-200 text-blue-800",
-      icon: "📋",
       priority: "high",
+      isFlexible: true,
+      icon: "🤝",
       tips: [
-        "Book major vendors (photographer, caterer, florist)",
-        "Order your wedding dress - alterations take time",
-        "Send save-the-dates so guests can plan ahead",
+        "Research vendors thoroughly and check references",
+        "Get contracts in writing with clear terms",
+        "Book tastings and consultations early",
       ],
     },
     {
-      id: "detail-planning",
-      name: "3-6 Months Before",
-      description: "Detailed planning and smaller vendors",
-      startMonths: 6,
-      endMonths: 3,
+      id: "detailed-planning",
+      name: "Detailed Planning",
+      description: "Finalize specifics and design elements",
+      startMonths: 4,
+      endMonths: 2,
+      minMonthsBefore: 4,
+      maxMonthsBefore: 2,
       color: "bg-green-50 border-green-200 text-green-800",
-      icon: "✅",
       priority: "medium",
+      isFlexible: true,
+      icon: "📋",
       tips: [
-        "Finalize menu and cake details",
-        "Book honeymoon and plan time off work",
-        "Order invitations and plan wording",
+        "Focus on design cohesion across all elements",
+        "Confirm timeline and logistics with all vendors",
+        "Order stationery and finalize menu details",
       ],
     },
     {
-      id: "final-details",
-      name: "1-3 Months Before",
-      description: "Invitations and final confirmations",
-      startMonths: 3,
-      endMonths: 1,
-      color: "bg-yellow-50 border-yellow-200 text-yellow-800",
-      icon: "⚡",
-      priority: "medium",
-      tips: [
-        "Send invitations 6-8 weeks before wedding",
-        "Confirm details with all vendors",
-        "Start final dress fittings",
-      ],
-    },
-    {
-      id: "final-countdown",
-      name: "Final Month",
-      description: "Last-minute preparations and confirmations",
-      startMonths: 1,
+      id: "final-preparations",
+      name: "Final Preparations",
+      description: "Last-minute coordination and confirmations",
+      startMonths: 2,
       endMonths: 0.25,
+      minMonthsBefore: 2,
+      maxMonthsBefore: 0.25,
       color: "bg-orange-50 border-orange-200 text-orange-800",
-      icon: "🏃‍♀️",
       priority: "high",
+      isFlexible: false,
+      icon: "⚡",
       tips: [
-        "Confirm final guest count with caterer",
-        "Create detailed day-of timeline",
-        "Delegate tasks to wedding party",
+        "Confirm all vendor arrival times and details",
+        "Delegate day-of responsibilities to trusted people",
+        "Prepare emergency kit and backup plans",
       ],
     },
     {
       id: "wedding-week",
       name: "Wedding Week",
-      description: "Final preparations and day-of coordination",
+      description: "Final countdown and day-of execution",
       startMonths: 0.25,
-      endMonths: -0.1,
+      endMonths: 0,
+      minMonthsBefore: 0.25,
+      maxMonthsBefore: 0,
       color: "bg-pink-50 border-pink-200 text-pink-800",
-      icon: "💒",
-      priority: "high",
+      priority: "critical",
+      isFlexible: false,
+      icon: "💐",
       tips: [
-        "Confirm all vendor arrival times",
-        "Prepare wedding emergency kit",
-        "Delegate day-of responsibilities",
+        "Focus on relaxation and final preparations",
+        "Trust your planning and enjoy the moment",
+        "Have your support team handle any last-minute issues",
       ],
     },
   ];
 
-  // Comprehensive wedding planning tasks with detailed information
-  private static defaultTasks: DefaultTask[] = [
-    // 12+ Months Before - Foundation Phase
-    {
-      text: "Set wedding date and book venue",
-      phase: "planning-start",
-      months: 14,
-      urgency: "critical",
-      tips: "Popular venues book 12-18 months in advance. Have 2-3 backup dates ready.",
-    },
-    {
-      text: "Determine overall wedding budget",
-      phase: "planning-start",
-      months: 14,
-      urgency: "critical",
-      tips: "Allocate: 40-50% venue/catering, 10-15% photography, 8-10% flowers/decor.",
-    },
-    {
-      text: "Create preliminary guest list",
-      phase: "planning-start",
-      months: 13,
-      urgency: "high",
-      tips: "Start with immediate family and close friends. Venue capacity will determine final size.",
-    },
-    {
-      text: "Book wedding photographer",
-      phase: "planning-start",
-      months: 12,
-      urgency: "critical",
-      tips: "Top photographers book earliest. View full wedding galleries, not just highlights.",
-    },
-    {
-      text: "Book wedding videographer",
-      phase: "planning-start",
-      months: 12,
-      urgency: "high",
-      tips: "Many couples regret not having video. Book early for package deals with photographer.",
-    },
-    {
-      text: "Choose wedding party",
-      phase: "planning-start",
-      months: 11,
-      urgency: "medium",
-      tips: "Consider logistics and costs for your wedding party. Smaller parties are easier to coordinate.",
-    },
-    {
-      text: "Start dress shopping",
-      phase: "planning-start",
-      months: 11,
-      urgency: "high",
-      tips: "Dresses can take 6+ months to arrive, plus time for alterations.",
-    },
-
-    // 6-12 Months Before - Major Planning Phase
-    {
-      text: "Order wedding dress",
-      phase: "major-planning",
-      months: 9,
-      urgency: "critical",
-      tips: "Order by this deadline to allow time for shipping and alterations.",
-    },
-    {
-      text: "Book caterer and finalize menu",
-      phase: "major-planning",
-      months: 8,
-      urgency: "critical",
-      tips: "Popular caterers book early. Schedule tastings and consider dietary restrictions.",
-    },
-    {
-      text: "Book wedding florist",
-      phase: "major-planning",
-      months: 8,
-      urgency: "high",
-      tips: "Discuss seasonal flower availability and budget for ceremony vs reception flowers.",
-    },
-    {
-      text: "Book wedding band or DJ",
-      phase: "major-planning",
-      months: 8,
-      urgency: "high",
-      tips: "Good entertainment books early. Ask for videos of actual weddings, not just demo reels.",
-    },
-    {
-      text: "Send save-the-dates",
-      phase: "major-planning",
-      months: 7,
-      urgency: "medium",
-      tips: "Include wedding website URL. Send earlier for destination weddings (8-12 months).",
-    },
-    {
-      text: "Book wedding transportation",
-      phase: "major-planning",
-      months: 7,
-      urgency: "medium",
-      tips: "Consider guest transportation from hotels. Book luxury cars early for popular dates.",
-    },
-    {
-      text: "Choose and order wedding rings",
-      phase: "major-planning",
-      months: 6,
-      urgency: "high",
-      tips: "Custom rings need more time. Consider ring insurance and sizing.",
-    },
-    {
-      text: "Book wedding officiant",
-      phase: "major-planning",
-      months: 6,
-      urgency: "high",
-      tips: "Popular officiants book early. Discuss ceremony style and any requirements.",
-    },
-
-    // 3-6 Months Before - Detail Planning Phase
-    {
-      text: "Order wedding cake",
-      phase: "detail-planning",
-      months: 5,
-      urgency: "high",
-      tips: "Schedule tastings. Consider groom's cake and dietary restrictions.",
-    },
-    {
-      text: "Plan and book honeymoon",
-      phase: "detail-planning",
-      months: 5,
-      urgency: "medium",
-      tips: "Popular destinations book early. Check passport expiration dates.",
-    },
-    {
-      text: "Register for wedding gifts",
-      phase: "detail-planning",
-      months: 4,
-      urgency: "medium",
-      tips: "Register at 2-3 stores with different price points. Include gift cards option.",
-    },
-    {
-      text: "Order wedding invitations",
-      phase: "detail-planning",
-      months: 4,
-      urgency: "high",
-      tips: "Allow time for proofing and printing. Order 10-20% extra for keepsakes.",
-    },
-    {
-      text: "Schedule engagement party",
-      phase: "detail-planning",
-      months: 4,
-      urgency: "low",
-      tips: "Optional celebration. Keep it simple if wedding planning is intensive.",
-    },
-    {
-      text: "Book hair and makeup artists",
-      phase: "detail-planning",
-      months: 4,
-      urgency: "high",
-      tips: "Schedule trial runs. Consider timing for wedding party services.",
-    },
-    {
-      text: "Plan bachelor/bachelorette parties",
-      phase: "detail-planning",
-      months: 3,
-      urgency: "low",
-      tips: "Coordinate with wedding party schedules. Plan 2-4 weeks before wedding.",
-    },
-
-    // 1-3 Months Before - Final Details Phase
-    {
-      text: "Send wedding invitations",
-      phase: "final-details",
-      months: 2,
-      urgency: "critical",
-      tips: "Mail 6-8 weeks before wedding. Include RSVP deadline 3-4 weeks before.",
-    },
-    {
-      text: "Schedule dress fittings",
-      phase: "final-details",
-      months: 2,
-      urgency: "high",
-      tips: "Plan 2-3 fittings. Bring your actual wedding shoes and undergarments.",
-    },
-    {
-      text: "Order wedding party attire",
-      phase: "final-details",
-      months: 2,
-      urgency: "high",
-      tips: "Coordinate colors and styles. Allow time for alterations.",
-    },
-    {
-      text: "Plan rehearsal dinner",
-      phase: "final-details",
-      months: 2,
-      urgency: "medium",
-      tips: "Include wedding party, immediate family, and out-of-town guests.",
-    },
-    {
-      text: "Apply for marriage license",
-      phase: "final-details",
-      months: 1,
-      urgency: "critical",
-      tips: "Check local requirements for timing and documentation needed.",
-    },
-    {
-      text: "Finalize guest count with vendors",
-      phase: "final-details",
-      months: 1,
-      urgency: "critical",
-      tips: "Most vendors need final count 1-2 weeks before wedding.",
-    },
-
-    // Final Month - Countdown Phase
-    {
-      text: "Confirm all vendor details and timing",
-      phase: "final-countdown",
-      months: 0.75,
-      urgency: "critical",
-      tips: "Create detailed timeline and share with all vendors.",
-    },
-    {
-      text: "Create final seating chart",
-      phase: "final-countdown",
-      months: 0.5,
-      urgency: "high",
-      tips: "Use your wedding planner app! Consider family dynamics and friendships.",
-    },
-    {
-      text: "Prepare wedding favors",
-      phase: "final-countdown",
-      months: 0.5,
-      urgency: "low",
-      tips: "Optional. Simple and personal favors work best.",
-    },
-    {
-      text: "Pack for honeymoon",
-      phase: "final-countdown",
-      months: 0.3,
-      urgency: "medium",
-      tips: "Check weather forecasts and activities. Pack essentials in carry-on.",
-    },
-    {
-      text: "Prepare wedding emergency kit",
-      phase: "final-countdown",
-      months: 0.3,
-      urgency: "medium",
-      tips: "Include stain remover, safety pins, tissues, pain reliever, snacks.",
-    },
-    {
-      text: "Write wedding vows",
-      phase: "final-countdown",
-      months: 0.25,
-      urgency: "high",
-      tips: "Keep them personal but not too long. Practice reading them aloud.",
-    },
-
-    // Wedding Week - Final Phase
-    {
-      text: "Rehearsal and rehearsal dinner",
-      phase: "wedding-week",
-      months: 0.15,
-      urgency: "critical",
-      tips: "Practice ceremony timing. Keep rehearsal dinner relaxed and fun.",
-    },
-    {
-      text: "Final venue walkthrough",
-      phase: "wedding-week",
-      months: 0.1,
-      urgency: "high",
-      tips: "Confirm setup details and emergency plans with venue coordinator.",
-    },
-    {
-      text: "Delegate day-of responsibilities",
-      phase: "wedding-week",
-      months: 0.05,
-      urgency: "high",
-      tips: "Assign specific people to handle vendor questions and timeline.",
-    },
-    {
-      text: "Wedding day!",
-      phase: "wedding-week",
-      months: 0,
-      urgency: "critical",
-      tips: "Relax and enjoy your special day! Trust your planning and team.",
-    },
-  ];
-
-  // Additional seasonal and style-specific tasks
-  private static seasonalTasks: Record<string, DefaultTask[]> = {
-    spring: [
-      {
-        text: "Consider allergy medications for outdoor ceremony",
-        phase: "final-countdown",
-        months: 0.5,
-      },
-      {
-        text: "Plan for spring weather backup (rain plan)",
-        phase: "detail-planning",
-        months: 3,
-      },
-    ],
-    summer: [
-      {
-        text: "Plan heat management (fans, shade, cold drinks)",
-        phase: "detail-planning",
-        months: 3,
-      },
-      {
-        text: "Consider earlier ceremony time to avoid heat",
-        phase: "major-planning",
-        months: 6,
-      },
-    ],
-    fall: [
-      {
-        text: "Book venues early - popular season",
-        phase: "planning-start",
-        months: 15,
-      },
-      {
-        text: "Consider seasonal flowers and colors",
-        phase: "major-planning",
-        months: 8,
-      },
-    ],
-    winter: [
-      {
-        text: "Plan for winter weather contingencies",
-        phase: "detail-planning",
-        months: 3,
-      },
-      {
-        text: "Consider guest travel difficulties",
-        phase: "final-details",
-        months: 2,
-      },
-    ],
-  };
-
   /**
-   * Get all wedding planning phases
+   * Get all timeline phases
    */
   static getPhases(): TimelinePhase[] {
-    return this.phases;
+    return this.ADAPTIVE_PHASES;
   }
 
   /**
-   * Get a specific phase by ID
+   * Get a phase by ID
    */
   static getPhaseById(id: string): TimelinePhase | undefined {
-    return this.phases.find((phase) => phase.id === id);
+    return this.ADAPTIVE_PHASES.find((phase) => phase.id === id);
   }
 
   /**
-   * Categorize existing todos into timeline phases
+   * Calculate months until wedding
    */
-  static categorizeExistingTodos(todos: TodoItem[]): Map<string, TodoItem[]> {
-    const categorized = new Map<string, TodoItem[]>();
+  static calculateMonthsUntilWedding(weddingDate: string): number {
+    const wedding = new Date(weddingDate);
+    const now = new Date();
 
-    // Initialize all phases with empty arrays
-    this.phases.forEach((phase) => {
-      categorized.set(phase.id, []);
-    });
+    const yearDiff = wedding.getFullYear() - now.getFullYear();
+    const monthDiff = wedding.getMonth() - now.getMonth();
+    const dayDiff = wedding.getDate() - now.getDate();
 
-    // Add uncategorized phase for todos that don't fit
-    categorized.set("uncategorized", []);
+    let totalMonths = yearDiff * 12 + monthDiff;
 
-    todos.forEach((todo) => {
-      const phase = this.suggestPhaseForTodo(todo.text);
-      const existingTodos = categorized.get(phase.id) || [];
-      categorized.set(phase.id, [...existingTodos, todo]);
-    });
+    if (dayDiff < 0) {
+      totalMonths -= 0.5;
+    } else if (dayDiff > 15) {
+      totalMonths += 0.5;
+    }
 
-    return categorized;
+    return Math.max(0, totalMonths);
   }
 
   /**
-   * Suggest the most appropriate phase for a todo based on its text
+   * Get phase status based on current timeline
    */
-  static suggestPhaseForTodo(todoText: string): TimelinePhase {
-    const text = todoText.toLowerCase().trim();
-
-    // High-priority early tasks
-    const planningStartKeywords = [
-      "venue",
-      "date",
-      "budget",
-      "photographer",
-      "videographer",
-      "guest list",
-      "wedding party",
-      "dress shopping",
-      "location",
-      "church",
-      "hall",
-    ];
-
-    // Major vendor and planning tasks
-    const majorPlanningKeywords = [
-      "dress",
-      "gown",
-      "caterer",
-      "catering",
-      "menu",
-      "florist",
-      "flowers",
-      "dj",
-      "band",
-      "music",
-      "save the date",
-      "transportation",
-      "rings",
-      "officiant",
-      "priest",
-      "minister",
-      "pastor",
-    ];
-
-    // Detailed planning tasks
-    const detailPlanningKeywords = [
-      "cake",
-      "honeymoon",
-      "registry",
-      "gifts",
-      "invitation",
-      "invitations",
-      "engagement party",
-      "hair",
-      "makeup",
-      "bachelor",
-      "bachelorette",
-    ];
-
-    // Final preparation tasks
-    const finalDetailsKeywords = [
-      "send invitation",
-      "mail invitation",
-      "fitting",
-      "alterations",
-      "wedding party attire",
-      "rehearsal dinner",
-      "marriage license",
-      "guest count",
-      "rsvp",
-      "final count",
-    ];
-
-    // Last-minute tasks
-    const finalCountdownKeywords = [
-      "confirm",
-      "seating chart",
-      "seating",
-      "favors",
-      "pack",
-      "honeymoon pack",
-      "emergency kit",
-      "vows",
-      "timeline",
-      "day of",
-    ];
-
-    // Wedding week tasks
-    const weddingWeekKeywords = [
-      "rehearsal",
-      "walkthrough",
-      "wedding day",
-      "ceremony",
-      "reception",
-      "delegate",
-      "day-of",
-      "final check",
-    ];
-
-    // Check each phase in order of specificity
-    if (weddingWeekKeywords.some((keyword) => text.includes(keyword))) {
-      return this.phases.find((p) => p.id === "wedding-week") || this.phases[0];
-    }
-
-    if (finalCountdownKeywords.some((keyword) => text.includes(keyword))) {
-      return (
-        this.phases.find((p) => p.id === "final-countdown") || this.phases[0]
-      );
-    }
-
-    if (finalDetailsKeywords.some((keyword) => text.includes(keyword))) {
-      return (
-        this.phases.find((p) => p.id === "final-details") || this.phases[0]
-      );
-    }
-
-    if (detailPlanningKeywords.some((keyword) => text.includes(keyword))) {
-      return (
-        this.phases.find((p) => p.id === "detail-planning") || this.phases[0]
-      );
-    }
-
-    if (majorPlanningKeywords.some((keyword) => text.includes(keyword))) {
-      return (
-        this.phases.find((p) => p.id === "major-planning") || this.phases[0]
-      );
-    }
-
-    if (planningStartKeywords.some((keyword) => text.includes(keyword))) {
-      return (
-        this.phases.find((p) => p.id === "planning-start") || this.phases[0]
-      );
-    }
-
-    // Default to major planning phase
-    return this.phases.find((p) => p.id === "major-planning") || this.phases[0];
+  static getPhaseStatus(
+    phase: TimelinePhase,
+    monthsUntilWedding: number
+  ): "upcoming" | "current" | "past" | "overdue" {
+    if (monthsUntilWedding > phase.startMonths) return "upcoming";
+    if (
+      monthsUntilWedding >= phase.endMonths &&
+      monthsUntilWedding <= phase.startMonths
+    )
+      return "current";
+    if (monthsUntilWedding >= 0) return "past";
+    return "overdue";
   }
 
   /**
-   * Generate suggested todos based on wedding date and existing todos
+   * Generate suggested todos based on timeline
    */
   static generateSuggestedTodos(
     weddingDate: string,
@@ -637,635 +317,614 @@ class TimelineService {
   ): TimelineTodo[] {
     if (!weddingDate) return [];
 
+    const monthsUntilWedding = this.calculateMonthsUntilWedding(weddingDate);
     const existingTexts = new Set(
-      existingTodos.map((todo) => todo.text.toLowerCase().trim())
+      existingTodos.map((todo) => todo.text.toLowerCase())
     );
-
     const suggestions: TimelineTodo[] = [];
-    const monthsUntil = this.calculateMonthsUntilWedding(weddingDate);
 
-    // Add seasonal tasks based on wedding date
-    const season = this.getWeddingSeason(weddingDate);
-    const seasonalTasksForSeason = this.seasonalTasks[season] || [];
-    const allTasks = [...this.defaultTasks, ...seasonalTasksForSeason];
+    // Basic wedding planning tasks
+    const basicTasks = [
+      {
+        text: "Set wedding budget",
+        phase: "foundation",
+        months: 12,
+        urgency: "critical" as const,
+      },
+      {
+        text: "Book wedding venue",
+        phase: "foundation",
+        months: 12,
+        urgency: "critical" as const,
+      },
+      {
+        text: "Create guest list",
+        phase: "foundation",
+        months: 10,
+        urgency: "high" as const,
+      },
+      {
+        text: "Hire wedding photographer",
+        phase: "vendor-selection",
+        months: 8,
+        urgency: "critical" as const,
+      },
+      {
+        text: "Choose wedding caterer",
+        phase: "vendor-selection",
+        months: 6,
+        urgency: "critical" as const,
+      },
+      {
+        text: "Select wedding dress/suit",
+        phase: "vendor-selection",
+        months: 6,
+        urgency: "high" as const,
+      },
+      {
+        text: "Book wedding band/DJ",
+        phase: "vendor-selection",
+        months: 6,
+        urgency: "high" as const,
+      },
+      {
+        text: "Order wedding invitations",
+        phase: "detailed-planning",
+        months: 4,
+        urgency: "medium" as const,
+      },
+      {
+        text: "Choose wedding flowers",
+        phase: "detailed-planning",
+        months: 3,
+        urgency: "medium" as const,
+      },
+      {
+        text: "Plan wedding menu",
+        phase: "detailed-planning",
+        months: 3,
+        urgency: "medium" as const,
+      },
+      {
+        text: "Book wedding transportation",
+        phase: "detailed-planning",
+        months: 2,
+        urgency: "medium" as const,
+      },
+      {
+        text: "Get marriage license",
+        phase: "final-preparations",
+        months: 1,
+        urgency: "critical" as const,
+      },
+      {
+        text: "Confirm vendor details",
+        phase: "final-preparations",
+        months: 1,
+        urgency: "high" as const,
+      },
+      {
+        text: "Pack for honeymoon",
+        phase: "wedding-week",
+        months: 0,
+        urgency: "medium" as const,
+      },
+    ];
 
-    allTasks.forEach((task, index) => {
-      const taskTextLower = task.text.toLowerCase().trim();
+    // Filter out existing tasks and add relevant suggestions
+    basicTasks.forEach((task, index) => {
+      const isRelevant = monthsUntilWedding >= task.months - 1; // Include tasks that are close to being relevant
+      const alreadyExists = existingTexts.has(task.text.toLowerCase());
 
-      // Skip if task already exists
-      if (existingTexts.has(taskTextLower)) {
-        return;
+      if (isRelevant && !alreadyExists) {
+        suggestions.push({
+          id: Date.now() + index,
+          text: task.text,
+          completed: false,
+          timelinePhase: task.phase,
+          recommendedMonths: task.months,
+          urgency: task.urgency,
+        });
       }
-
-      // Skip if similar task exists (fuzzy matching)
-      const similarExists = Array.from(existingTexts).some((existingText) => {
-        return this.calculateSimilarity(taskTextLower, existingText) > 0.7;
-      });
-
-      if (similarExists) {
-        return;
-      }
-
-      // Determine urgency based on timing
-      let urgency: "low" | "medium" | "high" | "critical" =
-        task.urgency || "medium";
-      if (monthsUntil <= task.months && monthsUntil > task.months - 1) {
-        urgency = "critical"; // Task is due now
-      } else if (monthsUntil <= task.months + 1) {
-        urgency = "high"; // Task is due soon
-      }
-
-      suggestions.push({
-        id: Date.now() + index + Math.random(), // Ensure unique ID
-        text: task.text,
-        completed: false,
-        timelinePhase: task.phase,
-        recommendedMonths: task.months,
-        isTimelineSuggestion: true,
-        urgency: urgency,
-      });
     });
 
-    // Sort suggestions by urgency and timing
-    return suggestions.sort((a, b) => {
-      const urgencyOrder = { critical: 4, high: 3, medium: 2, low: 1 };
-      const aUrgency = urgencyOrder[a.urgency || "medium"];
-      const bUrgency = urgencyOrder[b.urgency || "medium"];
+    return suggestions;
+  }
 
-      if (aUrgency !== bUrgency) {
-        return bUrgency - aUrgency; // Higher urgency first
+  /**
+   * AI-powered task categorization using semantic analysis
+   */
+  static categorizeTodoWithAI(todo: TodoItem): SmartTodoItem {
+    const text = todo.text.toLowerCase();
+    let bestMatch = { category: "general", confidence: 0 };
+
+    // Analyze against each category
+    for (const [categoryName, categoryData] of Object.entries(
+      this.TASK_CATEGORIES
+    )) {
+      let confidence = 0;
+      let matchCount = 0;
+
+      // Check for keyword matches
+      for (const keyword of categoryData.keywords) {
+        if (text.includes(keyword)) {
+          matchCount++;
+          confidence += 1;
+        }
+
+        // Check for partial matches and similar words
+        if (this.calculateSimilarity(text, keyword) > 0.7) {
+          confidence += 0.5;
+        }
       }
 
-      // Then sort by timing (tasks due sooner first)
-      const aMonths = a.recommendedMonths || 0;
-      const bMonths = b.recommendedMonths || 0;
-      return Math.abs(monthsUntil - aMonths) - Math.abs(monthsUntil - bMonths);
-    });
-  }
+      // Normalize confidence based on number of keywords
+      confidence = confidence / categoryData.keywords.length;
 
-  /**
-   * Calculate months until wedding date
-   */
-  static calculateMonthsUntilWedding(weddingDate: string): number {
-    if (!weddingDate) return 0;
-
-    try {
-      const wedding = new Date(weddingDate);
-      const now = new Date();
-
-      // Calculate difference in months more accurately
-      const yearDiff = wedding.getFullYear() - now.getFullYear();
-      const monthDiff = wedding.getMonth() - now.getMonth();
-      const dayDiff = wedding.getDate() - now.getDate();
-
-      let totalMonths = yearDiff * 12 + monthDiff;
-
-      // Adjust for partial months
-      if (dayDiff < 0) {
-        totalMonths -= 0.5;
-      } else if (dayDiff > 15) {
-        totalMonths += 0.5;
+      if (confidence > bestMatch.confidence) {
+        bestMatch = { category: categoryName, confidence };
       }
-
-      return Math.max(0, totalMonths);
-    } catch (error) {
-      console.error("Error calculating months until wedding:", error);
-      return 0;
     }
-  }
 
-  /**
-   * Get the current status of a phase based on wedding timing
-   */
-  static getPhaseStatus(
-    phase: TimelinePhase,
-    monthsUntilWedding: number
-  ): "upcoming" | "current" | "past" | "overdue" {
-    if (monthsUntilWedding > phase.startMonths) {
-      return "upcoming";
-    } else if (monthsUntilWedding >= phase.endMonths) {
-      return "current";
-    } else if (monthsUntilWedding >= 0) {
-      return "past";
-    } else {
-      return "overdue";
-    }
-  }
-
-  /**
-   * Get wedding season from date
-   */
-  private static getWeddingSeason(weddingDate: string): string {
-    try {
-      const date = new Date(weddingDate);
-      const month = date.getMonth(); // 0-11
-
-      if (month >= 2 && month <= 4) return "spring"; // Mar-May
-      if (month >= 5 && month <= 7) return "summer"; // Jun-Aug
-      if (month >= 8 && month <= 10) return "fall"; // Sep-Nov
-      return "winter"; // Dec-Feb
-    } catch {
-      return "spring";
-    }
-  }
-
-  /**
-   * Calculate text similarity for fuzzy matching
-   */
-  private static calculateSimilarity(str1: string, str2: string): number {
-    const words1 = str1.split(" ").filter((w) => w.length > 2);
-    const words2 = str2.split(" ").filter((w) => w.length > 2);
-
-    if (words1.length === 0 || words2.length === 0) return 0;
-
-    const commonWords = words1.filter((word) =>
-      words2.some((word2) => word.includes(word2) || word2.includes(word))
+    // Generate AI suggestions based on category
+    const suggestions = this.generateAISuggestions(
+      todo.text,
+      bestMatch.category
     );
 
-    return commonWords.length / Math.max(words1.length, words2.length);
+    return {
+      ...todo,
+      aiCategory: bestMatch.category,
+      urgencyLevel:
+        (this.TASK_CATEGORIES[
+          bestMatch.category as keyof typeof this.TASK_CATEGORIES
+        ]?.priority as any) || "medium",
+      estimatedDuration:
+        this.TASK_CATEGORIES[
+          bestMatch.category as keyof typeof this.TASK_CATEGORIES
+        ]?.estimatedDays || 7,
+      aiSuggestions: suggestions,
+    };
   }
 
   /**
-   * Get tasks that are overdue based on current timing
+   * Generate adaptive phases based on available time until wedding
    */
-  static getOverdueTasks(todos: TodoItem[], weddingDate: string): TodoItem[] {
+  static generateAdaptiveTimeline(
+    weddingDate: string,
+    currentTodos: TodoItem[]
+  ): AdaptivePhase[] {
     if (!weddingDate) return [];
 
-    const monthsUntil = this.calculateMonthsUntilWedding(weddingDate);
-    const categorized = this.categorizeExistingTodos(todos);
-    const overdue: TodoItem[] = [];
+    const monthsUntilWedding = this.calculateMonthsUntilWedding(weddingDate);
+    const wedding = new Date(weddingDate);
 
-    this.phases.forEach((phase) => {
-      const status = this.getPhaseStatus(phase, monthsUntil);
-      if (status === "past" || status === "overdue") {
-        const phaseTodos = categorized.get(phase.id) || [];
-        const incompleteTodos = phaseTodos.filter((todo) => !todo.completed);
-        overdue.push(...incompleteTodos);
+    return this.ADAPTIVE_PHASES.map((phase) => {
+      let adaptedPhase: AdaptivePhase;
+
+      if (monthsUntilWedding >= phase.minMonthsBefore) {
+        // Normal timeline - no compression needed
+        adaptedPhase = {
+          ...phase,
+          adaptedStartDate: new Date(
+            wedding.getTime() - phase.maxMonthsBefore * 30 * 24 * 60 * 60 * 1000
+          ),
+          adaptedEndDate: new Date(
+            wedding.getTime() - phase.minMonthsBefore * 30 * 24 * 60 * 60 * 1000
+          ),
+          compressionLevel: 0,
+          urgencyBoost: 0,
+        };
+      } else if (
+        monthsUntilWedding <= phase.minMonthsBefore &&
+        phase.isFlexible
+      ) {
+        // Compressed timeline - phase needs to be squeezed
+        const compressionRatio = Math.max(
+          0.3,
+          monthsUntilWedding / phase.minMonthsBefore
+        );
+        const compressedDuration =
+          (phase.maxMonthsBefore - phase.minMonthsBefore) * compressionRatio;
+
+        adaptedPhase = {
+          ...phase,
+          adaptedStartDate: new Date(
+            wedding.getTime() -
+              (phase.minMonthsBefore * compressionRatio + compressedDuration) *
+                30 *
+                24 *
+                60 *
+                60 *
+                1000
+          ),
+          adaptedEndDate: new Date(
+            wedding.getTime() -
+              phase.minMonthsBefore *
+                compressionRatio *
+                30 *
+                24 *
+                60 *
+                60 *
+                1000
+          ),
+          compressionLevel: 1 - compressionRatio,
+          urgencyBoost: Math.floor((1 - compressionRatio) * 2), // 0-2 urgency boost
+        };
+      } else {
+        // Phase should have been completed already - mark as overdue
+        adaptedPhase = {
+          ...phase,
+          adaptedStartDate: new Date(), // Start now
+          adaptedEndDate: new Date(Date.now() + 0.5 * 30 * 24 * 60 * 60 * 1000), // Complete in 2 weeks
+          compressionLevel: 1,
+          urgencyBoost: 2,
+        };
       }
-    });
 
-    return overdue;
+      return adaptedPhase;
+    });
   }
 
   /**
-   * Get current priority tasks based on timeline
+   * Smart task suggestions based on AI analysis and timeline compression
    */
-  static getCurrentPriorityTasks(
-    todos: TodoItem[],
-    weddingDate: string
-  ): TodoItem[] {
+  static generateSmartSuggestions(
+    weddingDate: string,
+    existingTodos: TodoItem[],
+    adaptivePhases: AdaptivePhase[]
+  ): SmartTodoItem[] {
     if (!weddingDate) return [];
 
-    const monthsUntil = this.calculateMonthsUntilWedding(weddingDate);
-    const categorized = this.categorizeExistingTodos(todos);
-    const priority: TodoItem[] = [];
+    const monthsUntilWedding = this.calculateMonthsUntilWedding(weddingDate);
+    const existingCategories = new Set(
+      existingTodos.map((todo) => this.categorizeTodoWithAI(todo).aiCategory)
+    );
 
-    this.phases.forEach((phase) => {
-      const status = this.getPhaseStatus(phase, monthsUntil);
-      if (status === "current") {
-        const phaseTodos = categorized.get(phase.id) || [];
-        const incompleteTodos = phaseTodos.filter((todo) => !todo.completed);
-        priority.push(...incompleteTodos);
+    const suggestions: SmartTodoItem[] = [];
+    const currentPhase = this.getCurrentPhase(adaptivePhases);
+
+    // Generate category-based suggestions
+    for (const [categoryName, categoryData] of Object.entries(
+      this.TASK_CATEGORIES
+    )) {
+      if (existingCategories.has(categoryName)) continue;
+
+      // Check if this category is relevant given the timeline
+      if (
+        monthsUntilWedding < categoryData.minLead &&
+        categoryData.priority === "critical"
+      ) {
+        // Critical task that's urgent
+        suggestions.push({
+          id: Date.now() + Math.random(),
+          text: this.generateCategoryTask(categoryName),
+          completed: false,
+          aiCategory: categoryName,
+          urgencyLevel: "critical",
+          estimatedDuration: Math.max(
+            1,
+            Math.floor(categoryData.estimatedDays * 0.5)
+          ), // Compressed time
+          aiSuggestions: [
+            `This is urgent - normally needs ${categoryData.minLead} months lead time`,
+            "Consider hiring a wedding planner to expedite this process",
+            "Look for vendors with immediate availability",
+          ],
+        });
+      } else if (monthsUntilWedding >= categoryData.minLead) {
+        // Normal timeline suggestion
+        suggestions.push({
+          id: Date.now() + Math.random(),
+          text: this.generateCategoryTask(categoryName),
+          completed: false,
+          aiCategory: categoryName,
+          urgencyLevel: categoryData.priority as any,
+          estimatedDuration: categoryData.estimatedDays,
+          aiSuggestions: this.generateAISuggestions(categoryName, categoryName),
+        });
       }
-    });
+    }
 
-    return priority;
+    // Add phase-specific urgent tasks if timeline is compressed
+    if (currentPhase && currentPhase.compressionLevel > 0.5) {
+      suggestions.push({
+        id: Date.now() + Math.random() + 1000,
+        text: "Consider hiring a wedding coordinator for timeline management",
+        completed: false,
+        aiCategory: "planning",
+        urgencyLevel: "high",
+        estimatedDuration: 1,
+        aiSuggestions: [
+          "A professional can help compress your timeline effectively",
+          "They have vendor networks for quick bookings",
+          "Can handle multiple tasks simultaneously",
+        ],
+      });
+    }
+
+    return suggestions.slice(0, 12); // Limit to most important suggestions
   }
 
   /**
-   * Generate timeline insights and recommendations
+   * Categorize existing todos using AI analysis
+   */
+  static categorizeExistingTodos(
+    todos: TodoItem[]
+  ): Map<string, SmartTodoItem[]> {
+    const categorized = new Map<string, SmartTodoItem[]>();
+
+    // Initialize with empty arrays for each phase
+    this.ADAPTIVE_PHASES.forEach((phase) => {
+      categorized.set(phase.id, []);
+    });
+
+    // Categorize each todo
+    todos.forEach((todo) => {
+      const smartTodo = this.categorizeTodoWithAI(todo);
+      const phase = this.suggestPhaseForTask(smartTodo);
+
+      const existing = categorized.get(phase) || [];
+      categorized.set(phase, [...existing, smartTodo]);
+    });
+
+    return categorized;
+  }
+
+  /**
+   * Get current phase based on adaptive timeline
+   */
+  static getCurrentPhase(
+    adaptivePhases: AdaptivePhase[]
+  ): AdaptivePhase | null {
+    const now = new Date();
+
+    return (
+      adaptivePhases.find(
+        (phase) => now >= phase.adaptedStartDate && now <= phase.adaptedEndDate
+      ) || null
+    );
+  }
+
+  /**
+   * Generate timeline insights with AI recommendations
    */
   static generateTimelineInsights(
     todos: TodoItem[],
-    weddingDate: string
-  ): {
-    overallProgress: number;
-    currentPhase: TimelinePhase | null;
-    overdueTasks: TodoItem[];
-    priorityTasks: TodoItem[];
-    recommendations: string[];
-  } {
-    if (!weddingDate) {
-      return {
-        overallProgress: 0,
-        currentPhase: null,
-        overdueTasks: [],
-        priorityTasks: [],
-        recommendations: [
-          "Set your wedding date to get personalized timeline insights!",
-        ],
-      };
-    }
+    weddingDate: string,
+    adaptivePhases: AdaptivePhase[]
+  ) {
+    const currentPhase = this.getCurrentPhase(adaptivePhases);
+    const monthsUntilWedding = this.calculateMonthsUntilWedding(weddingDate);
 
-    const monthsUntil = this.calculateMonthsUntilWedding(weddingDate);
-    const overdueTasks = this.getOverdueTasks(todos, weddingDate);
-    const priorityTasks = this.getCurrentPriorityTasks(todos, weddingDate);
+    // Analyze task completion vs timeline
+    const smartTodos = todos.map((todo) => this.categorizeTodoWithAI(todo));
+    const criticalTasks = smartTodos.filter(
+      (todo) => todo.urgencyLevel === "critical"
+    );
+    const completedCritical = criticalTasks.filter((todo) => todo.completed);
 
-    // Find current phase
-    const currentPhase =
-      this.phases.find(
-        (phase) => this.getPhaseStatus(phase, monthsUntil) === "current"
-      ) || null;
+    // Calculate overdue tasks based on phases
+    const overdueTasks = smartTodos.filter((todo) => {
+      const todoPhase = this.suggestPhaseForTask(todo);
+      const phase = adaptivePhases.find((p) => p.id === todoPhase);
+      if (!phase) return false;
 
-    // Calculate overall progress
-    const totalTasks = todos.length;
-    const completedTasks = todos.filter((todo) => todo.completed).length;
+      const now = new Date();
+      return !todo.completed && now > phase.adaptedEndDate;
+    });
+
+    // Calculate priority tasks (critical + high urgency incomplete tasks)
+    const priorityTasks = smartTodos.filter(
+      (todo) =>
+        !todo.completed &&
+        (todo.urgencyLevel === "critical" || todo.urgencyLevel === "high")
+    );
+
     const overallProgress =
-      totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+      todos.length > 0
+        ? (todos.filter((t) => t.completed).length / todos.length) * 100
+        : 0;
 
-    // Generate recommendations
+    // Generate AI recommendations
     const recommendations: string[] = [];
 
-    if (overdueTasks.length > 0) {
+    if (monthsUntilWedding < 6 && overallProgress < 50) {
       recommendations.push(
-        `You have ${overdueTasks.length} overdue task${
-          overdueTasks.length === 1 ? "" : "s"
-        }. Focus on these first!`
+        "Consider hiring a wedding planner - your timeline is compressed and you need to accelerate planning"
       );
     }
 
-    if (priorityTasks.length > 0) {
+    if (
+      criticalTasks.length > completedCritical.length &&
+      monthsUntilWedding < 3
+    ) {
       recommendations.push(
-        `${priorityTasks.length} task${
-          priorityTasks.length === 1 ? "" : "s"
-        } are due in your current phase. Stay on track!`
+        "Focus on critical tasks first - venue, catering, and photography cannot be delayed"
       );
     }
 
-    if (monthsUntil <= 1 && priorityTasks.length === 0) {
+    if (currentPhase && currentPhase.compressionLevel > 0.7) {
       recommendations.push(
-        "You're in the final stretch! Focus on day-of coordination and final confirmations."
+        "Your timeline is very compressed - prioritize must-have items and consider simplifying some elements"
       );
     }
 
-    if (overallProgress < 50 && monthsUntil <= 3) {
-      recommendations.push(
-        "Consider hiring a wedding planner to help catch up on tasks."
-      );
-    }
+    const timelineStress = this.calculateTimelineStress(
+      adaptivePhases,
+      smartTodos
+    );
 
-    if (recommendations.length === 0) {
+    if (timelineStress > 0.8) {
       recommendations.push(
-        "Great job staying on track with your wedding planning!"
+        "High timeline stress detected - focus on vendor availability and consider flexible options"
       );
     }
 
     return {
       overallProgress,
       currentPhase,
-      overdueTasks,
-      priorityTasks,
       recommendations,
+      timelineStress,
+      criticalTasksRemaining: criticalTasks.length - completedCritical.length,
+      adaptivePhases,
+      overdueTasks, // Added missing property
+      priorityTasks, // Added missing property
     };
   }
 
-  /**
-   * Export timeline data for sharing or backup
-   */
-  static exportTimelineData(
-    todos: TodoItem[],
-    weddingDate: string
-  ): {
-    metadata: {
-      exportDate: string;
-      weddingDate: string;
-      monthsUntilWedding: number;
-      totalTasks: number;
-      completedTasks: number;
-    };
-    phases: Array<{
-      phase: TimelinePhase;
-      todos: TodoItem[];
-      progress: number;
-      status: string;
-    }>;
-    insights: ReturnType<typeof TimelineService.generateTimelineInsights>;
-  } {
-    const categorized = this.categorizeExistingTodos(todos);
-    const monthsUntil = this.calculateMonthsUntilWedding(weddingDate);
-    const insights = this.generateTimelineInsights(todos, weddingDate);
+  // Helper methods
+  private static calculateSimilarity(str1: string, str2: string): number {
+    const words1 = str1.split(" ").filter((w) => w.length > 2);
+    const words2 = str2.split(" ").filter((w) => w.length > 2);
 
-    const phases = this.phases.map((phase) => {
-      const phaseTodos = categorized.get(phase.id) || [];
-      const completed = phaseTodos.filter((todo) => todo.completed).length;
-      const progress =
-        phaseTodos.length > 0 ? (completed / phaseTodos.length) * 100 : 0;
-      const status = this.getPhaseStatus(phase, monthsUntil);
+    if (words1.length === 0 || words2.length === 0) return 0;
 
-      return {
-        phase,
-        todos: phaseTodos,
-        progress: Math.round(progress),
-        status,
-      };
-    });
+    const commonWords = words1.filter((word1) =>
+      words2.some(
+        (word2) =>
+          word1.includes(word2) ||
+          word2.includes(word1) ||
+          this.levenshteinDistance(word1, word2) <= 2
+      )
+    );
 
-    return {
-      metadata: {
-        exportDate: new Date().toISOString(),
-        weddingDate,
-        monthsUntilWedding: monthsUntil,
-        totalTasks: todos.length,
-        completedTasks: todos.filter((todo) => todo.completed).length,
-      },
-      phases,
-      insights,
-    };
+    return commonWords.length / Math.max(words1.length, words2.length);
   }
 
-  /**
-   * Get phase-specific tips and advice
-   */
-  static getPhaseAdvice(phaseId: string, monthsUntilWedding: number): string[] {
-    const phase = this.getPhaseById(phaseId);
-    if (!phase) return [];
+  private static levenshteinDistance(str1: string, str2: string): number {
+    const matrix = [];
 
-    const status = this.getPhaseStatus(phase, monthsUntilWedding);
-    const baseTips = phase.tips || [];
-    const statusTips: string[] = [];
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
 
-    switch (status) {
-      case "current":
-        statusTips.push(
-          "🎯 This is your current focus phase - prioritize these tasks!"
-        );
-        break;
-      case "overdue":
-        statusTips.push(
-          "⚠️ These tasks are overdue - consider delegating or hiring help."
-        );
-        break;
-      case "upcoming":
-        statusTips.push(
-          "⏳ You can start planning these tasks, but focus on current phase first."
-        );
-        break;
-      case "past":
-        if (monthsUntilWedding > 0) {
-          statusTips.push(
-            "✅ Great job completing this phase! Any remaining tasks are still important."
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
           );
         }
-        break;
-    }
-
-    return [...statusTips, ...baseTips];
-  }
-
-  /**
-   * Calculate estimated completion date for remaining tasks
-   */
-  static estimateCompletionDate(
-    todos: TodoItem[],
-    weddingDate: string
-  ): {
-    estimatedCompletionDate: string;
-    tasksPerWeek: number;
-    isOnTrack: boolean;
-    recommendation: string;
-  } {
-    if (!weddingDate) {
-      return {
-        estimatedCompletionDate: "",
-        tasksPerWeek: 0,
-        isOnTrack: false,
-        recommendation: "Set your wedding date to get completion estimates",
-      };
-    }
-
-    const incompleteTasks = todos.filter((todo) => !todo.completed);
-    const monthsUntil = this.calculateMonthsUntilWedding(weddingDate);
-    const weeksUntil = monthsUntil * 4.33; // Average weeks per month
-
-    if (incompleteTasks.length === 0) {
-      return {
-        estimatedCompletionDate: new Date().toISOString().split("T")[0],
-        tasksPerWeek: 0,
-        isOnTrack: true,
-        recommendation:
-          "🎉 All tasks completed! You're ready for your wedding!",
-      };
-    }
-
-    if (weeksUntil <= 0) {
-      return {
-        estimatedCompletionDate: weddingDate,
-        tasksPerWeek: incompleteTasks.length,
-        isOnTrack: false,
-        recommendation: "⚠️ Wedding is here! Focus on essential tasks only.",
-      };
-    }
-
-    // Estimate realistic completion rate (2-3 tasks per week is reasonable)
-    const realisticTasksPerWeek = 2.5;
-    const estimatedWeeks = Math.ceil(
-      incompleteTasks.length / realisticTasksPerWeek
-    );
-    const estimatedDate = new Date();
-    estimatedDate.setDate(estimatedDate.getDate() + estimatedWeeks * 7);
-
-    const tasksPerWeek = Math.ceil(incompleteTasks.length / weeksUntil);
-    const isOnTrack = tasksPerWeek <= 3; // 3 tasks per week is manageable
-
-    let recommendation = "";
-    if (isOnTrack) {
-      recommendation = `✅ You're on track! Complete ${tasksPerWeek} task${
-        tasksPerWeek === 1 ? "" : "s"
-      } per week.`;
-    } else if (tasksPerWeek <= 5) {
-      recommendation = `⚡ You need to complete ${tasksPerWeek} tasks per week. Consider delegating some tasks.`;
-    } else {
-      recommendation = `🚨 ${tasksPerWeek} tasks per week is challenging. Consider hiring a wedding planner or postponing non-essential tasks.`;
-    }
-
-    return {
-      estimatedCompletionDate: estimatedDate.toISOString().split("T")[0],
-      tasksPerWeek,
-      isOnTrack,
-      recommendation,
-    };
-  }
-
-  /**
-   * Get wedding planning milestones and checkpoints
-   */
-  static getMilestones(weddingDate: string): Array<{
-    date: string;
-    milestone: string;
-    description: string;
-    importance: "high" | "medium" | "low";
-  }> {
-    if (!weddingDate) return [];
-
-    const wedding = new Date(weddingDate);
-    const milestones: Array<{
-      date: string;
-      milestone: string;
-      description: string;
-      importance: "high" | "medium" | "low";
-    }> = [];
-
-    // Calculate milestone dates
-    const addMilestone = (
-      monthsBefore: number,
-      milestone: string,
-      description: string,
-      importance: "high" | "medium" | "low" = "medium"
-    ) => {
-      const milestoneDate = new Date(wedding);
-      milestoneDate.setMonth(milestoneDate.getMonth() - monthsBefore);
-
-      milestones.push({
-        date: milestoneDate.toISOString().split("T")[0],
-        milestone,
-        description,
-        importance,
-      });
-    };
-
-    addMilestone(
-      12,
-      "Venue Booking Deadline",
-      "Latest to book popular venues",
-      "high"
-    );
-    addMilestone(
-      10,
-      "Major Vendor Booking",
-      "Photographer, caterer, florist",
-      "high"
-    );
-    addMilestone(
-      8,
-      "Dress Ordering Deadline",
-      "Allow time for delivery and alterations",
-      "high"
-    );
-    addMilestone(
-      6,
-      "Save-the-Date Deadline",
-      "Send to guests for planning",
-      "medium"
-    );
-    addMilestone(
-      3,
-      "Invitation Ordering",
-      "Design and print invitations",
-      "medium"
-    );
-    addMilestone(
-      2,
-      "Invitation Mailing",
-      "Send 6-8 weeks before wedding",
-      "high"
-    );
-    addMilestone(
-      1,
-      "Final Preparations",
-      "Confirm details, final fittings",
-      "high"
-    );
-    addMilestone(
-      0.25,
-      "Wedding Week",
-      "Final confirmations and relaxation",
-      "high"
-    );
-
-    return milestones.sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-  }
-
-  /**
-   * Validate wedding timeline and identify potential issues
-   */
-  static validateTimeline(
-    todos: TodoItem[],
-    weddingDate: string
-  ): {
-    isValid: boolean;
-    warnings: string[];
-    errors: string[];
-    suggestions: string[];
-  } {
-    const warnings: string[] = [];
-    const errors: string[] = [];
-    const suggestions: string[] = [];
-
-    if (!weddingDate) {
-      errors.push("Wedding date is required for timeline validation");
-      return { isValid: false, warnings, errors, suggestions };
-    }
-
-    const monthsUntil = this.calculateMonthsUntilWedding(weddingDate);
-    const overdueTasks = this.getOverdueTasks(todos, weddingDate);
-    const categorized = this.categorizeExistingTodos(todos);
-
-    // Check for overdue tasks
-    if (overdueTasks.length > 0) {
-      warnings.push(
-        `${overdueTasks.length} task${
-          overdueTasks.length === 1 ? " is" : "s are"
-        } overdue`
-      );
-    }
-
-    // Check for missing critical early tasks
-    if (monthsUntil < 12) {
-      const planningStartTasks = categorized.get("planning-start") || [];
-      const completedEarlyTasks = planningStartTasks.filter(
-        (todo) => todo.completed
-      );
-
-      if (completedEarlyTasks.length < planningStartTasks.length * 0.8) {
-        warnings.push("Some critical early planning tasks may be incomplete");
       }
     }
 
-    // Check timeline pressure
-    const incompleteTasks = todos.filter((todo) => !todo.completed);
-    if (monthsUntil <= 1 && incompleteTasks.length > 10) {
-      errors.push("Too many tasks remaining for the final month");
-      suggestions.push(
-        "Consider hiring a wedding planner or day-of coordinator"
-      );
+    return matrix[str2.length][str1.length];
+  }
+
+  private static generateCategoryTask(category: string): string {
+    const taskTemplates = {
+      venue: "Book wedding venue and ceremony location",
+      photography: "Hire wedding photographer and videographer",
+      catering: "Choose caterer and finalize wedding menu",
+      attire: "Select and order wedding dress/suit",
+      flowers: "Choose florist and design floral arrangements",
+      music: "Book wedding band or DJ for reception",
+      invitations: "Design and order wedding invitations",
+      transportation: "Arrange wedding day transportation",
+      accommodation: "Book hotel rooms for out-of-town guests",
+      legal: "Obtain marriage license and legal documents",
+      honeymoon: "Plan and book honeymoon destination",
+      beauty: "Schedule hair and makeup trial sessions",
+    };
+
+    return (
+      taskTemplates[category as keyof typeof taskTemplates] ||
+      "Complete wedding planning task"
+    );
+  }
+
+  private static generateAISuggestions(
+    taskText: string,
+    category: string
+  ): string[] {
+    const suggestions = {
+      venue: [
+        "Book 12-18 months in advance for popular venues",
+        "Visit venues in person and check availability for your preferred date",
+        "Consider backup dates and venues in case of availability issues",
+      ],
+      photography: [
+        "Review full wedding portfolios, not just highlight reels",
+        "Meet photographers in person to ensure personality fit",
+        "Book engagement session to test working relationship",
+      ],
+      catering: [
+        "Schedule tastings and consider dietary restrictions",
+        "Get detailed quotes including service fees and gratuity",
+        "Discuss setup and cleanup responsibilities",
+      ],
+      general: [
+        "Research multiple options before making decisions",
+        "Read reviews and ask for references",
+        "Get all agreements in writing with clear terms",
+      ],
+    };
+
+    return (
+      suggestions[category as keyof typeof suggestions] || suggestions.general
+    );
+  }
+
+  private static suggestPhaseForTask(smartTodo: SmartTodoItem): string {
+    const category = smartTodo.aiCategory;
+    const urgency = smartTodo.urgencyLevel;
+
+    // Map categories to phases based on priority and lead time
+    if (urgency === "critical") {
+      if (["venue", "photography", "catering"].includes(category || "")) {
+        return "foundation";
+      }
+      return "vendor-selection";
     }
 
-    // Check for missing essential vendors
-    const essentialVendorTasks = [
-      "photographer",
-      "venue",
-      "caterer",
-      "officiant",
-    ];
-
-    const todoTexts = todos.map((todo) => todo.text.toLowerCase());
-    essentialVendorTasks.forEach((vendor) => {
-      const hasVendorTask = todoTexts.some((text) => text.includes(vendor));
-      if (!hasVendorTask && monthsUntil < 6) {
-        warnings.push(`No ${vendor} task found - this is typically essential`);
+    if (urgency === "high") {
+      if (["attire", "music", "flowers"].includes(category || "")) {
+        return "vendor-selection";
       }
+      return "detailed-planning";
+    }
+
+    if (["legal", "beauty"].includes(category || "")) {
+      return "final-preparations";
+    }
+
+    return "detailed-planning";
+  }
+
+  private static calculateTimelineStress(
+    adaptivePhases: AdaptivePhase[],
+    smartTodos: SmartTodoItem[]
+  ): number {
+    let totalStress = 0;
+    let phaseCount = 0;
+
+    adaptivePhases.forEach((phase) => {
+      const phaseStress = phase.compressionLevel + phase.urgencyBoost * 0.3;
+      totalStress += Math.min(1, phaseStress);
+      phaseCount++;
     });
 
-    // Provide suggestions based on timeline
-    if (monthsUntil > 12) {
-      suggestions.push(
-        "You have plenty of time! Focus on major decisions first"
-      );
-    } else if (monthsUntil > 6) {
-      suggestions.push("Time to book major vendors and finalize key details");
-    } else if (monthsUntil > 3) {
-      suggestions.push("Focus on invitations and final vendor confirmations");
-    } else if (monthsUntil > 1) {
-      suggestions.push(
-        "Final month! Confirm all details and prepare for the big day"
-      );
-    }
+    // Factor in critical tasks not completed
+    const criticalTasks = smartTodos.filter(
+      (todo) => todo.urgencyLevel === "critical"
+    );
+    const incompleteCritical = criticalTasks.filter((todo) => !todo.completed);
+    const criticalStress =
+      criticalTasks.length > 0
+        ? incompleteCritical.length / criticalTasks.length
+        : 0;
 
-    const isValid = errors.length === 0;
-    return { isValid, warnings, errors, suggestions };
+    return Math.min(1, (totalStress / phaseCount) * 0.7 + criticalStress * 0.3);
   }
 }
 
-export default TimelineService;
+export default SmartTimelineService;

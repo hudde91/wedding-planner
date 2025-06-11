@@ -11,6 +11,7 @@ const Overview: Component<OverviewProps> = (props) => {
   const [isLoaded, setIsLoaded] = createSignal(false);
   const [currentImageIndex, setCurrentImageIndex] = createSignal(0);
 
+  // TODO: Image number 3 is not loading, check the URL or replace with a similar image
   const heroImages = [
     "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&h=600&fit=crop&auto=format",
     "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&h=600&fit=crop&auto=format",
@@ -177,6 +178,7 @@ const Overview: Component<OverviewProps> = (props) => {
         <div class="absolute bottom-6 right-6 flex space-x-2">
           {heroImages.map((_, index) => (
             <button
+              aria-label={`Show hero image ${index + 1}`}
               onClick={() => setCurrentImageIndex(index)}
               class={`w-2 h-2 rounded-full transition-all duration-300 ${
                 index === currentImageIndex()
@@ -696,6 +698,7 @@ const Overview: Component<OverviewProps> = (props) => {
               </div>
             </Show>
 
+            {/* // TODO: stats().daysUntilWedding < 90 gives Object is possibly 'null' error. Fix this  */}
             <Show
               when={
                 stats().todoProgress < 25 &&

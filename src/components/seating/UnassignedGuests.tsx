@@ -7,6 +7,12 @@ interface UnassignedGuestsProps {
   onAssignGuest: (guestId: string, tableId: string) => void;
 }
 
+// TODO: This does not looks good in the UI, needs to be improved
+// It looks cramped and not very user-friendly
+
+// TODO: The logic to set table form got lost in the refactoring. Check in TableForm.tsx and TableComponent.tsx
+// The logic set place guests at table (without drag and drop) is good but I want to be able to place them around the table and be able to select specific seat as we could previously with SeatComponent.tsx.
+// But I wanna be able to do it without drag and drop, just by clicking on the guest and then clicking on the table and then clicking on the seat.
 const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
   const [selectedGuest, setSelectedGuest] = createSignal<string | null>(null);
   const [showAssignModal, setShowAssignModal] = createSignal(false);
