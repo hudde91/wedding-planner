@@ -24,6 +24,8 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     setTimeout(() => setIsLoaded(true), 100);
   });
 
+  // TODO: When adding a new table, allow specifying shape (round/rectangular)
+  // see how it's done in TableComponent.tsx, TableForm.tsx, and SeatComponent.tsx
   const addTable = (tableData?: TableData) => {
     const newTable: Table = {
       id: nanoid(),
