@@ -30,16 +30,50 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
       table.assigned_guests?.includes(guest.id)
     );
 
+    // Calculate total attendees (main guests + plus ones)
+    const totalAttendees = assignedGuests.reduce((sum, guest) => {
+      return sum + 1 + (guest.plus_ones?.length || 0);
+    }, 0);
+
     for (let i = 1; i <= table.capacity; i++) {
-      const occupyingGuest = assignedGuests.find(
-        (guest) => guest.assigned_seat === i
-      );
+      // For now, mark seats as occupied based on total attendees
+      // This is a simplified approach - in a more sophisticated system,
+      // you'd track specific seat assignments
+      const isOccupied = i <= totalAttendees;
+      const occupyingGuestIndex = i - 1;
+      let occupyingGuest = null;
+      let guestName = "";
+
+      if (isOccupied && occupyingGuestIndex < assignedGuests.length) {
+        occupyingGuest = assignedGuests[occupyingGuestIndex];
+        guestName = occupyingGuest.name;
+      } else if (isOccupied) {
+        // This would be a plus one - find which guest it belongs to
+        let currentIndex = 0;
+        for (const guest of assignedGuests) {
+          if (occupyingGuestIndex === currentIndex) {
+            guestName = guest.name;
+            break;
+          }
+          currentIndex++;
+
+          for (let j = 0; j < (guest.plus_ones?.length || 0); j++) {
+            if (occupyingGuestIndex === currentIndex) {
+              const plusOne = guest.plus_ones[j];
+              guestName = plusOne.name || `${guest.name}'s +1`;
+              break;
+            }
+            currentIndex++;
+          }
+          if (guestName) break;
+        }
+      }
 
       seats.push({
         number: i,
-        isOccupied: !!occupyingGuest,
+        isOccupied,
         occupiedBy: occupyingGuest?.id,
-        guestName: occupyingGuest?.name,
+        guestName,
       });
     }
     return seats;
@@ -365,7 +399,9 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                   const seats = generateSeats()(table);
                   const availableSeats = getTableAvailableSeats(table);
                   const isTableSelected = selectedTable() === table.id;
-                  const canSelectTable = selectedGuest() && !selectedTable();
+                  // Fix: Convert to proper boolean values
+                  const canSelectTable =
+                    selectedGuest() !== null && selectedTable() === null;
                   const hasAvailableSeats = availableSeats > 0;
                   console.log("canSelectTable:", canSelectTable);
                   console.log("hasAvailableSeats:", hasAvailableSeats);

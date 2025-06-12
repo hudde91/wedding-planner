@@ -35,12 +35,14 @@ export interface Seat {
   guestName: string;
 }
 
-// TODO: Add shape to Table. Should either be "round" or "rectangular"
 export interface Table {
   id: string;
   name: string;
   capacity: number;
   assigned_guests: string[]; // Array of guest IDs assigned to this table
+  shape?: TableShape; // Added shape property
+  x?: number; // Optional positioning
+  y?: number; // Optional positioning
 }
 
 export interface TodoItem {
