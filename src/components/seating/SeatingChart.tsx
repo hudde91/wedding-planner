@@ -11,6 +11,11 @@ interface SeatingChartProps {
   onUpdateTables: (tables: Table[]) => void;
 }
 
+interface TableData {
+  name: string;
+  capacity: number;
+}
+
 const SeatingChart: Component<SeatingChartProps> = (props) => {
   const [isLoaded, setIsLoaded] = createSignal(false);
   const [viewMode, setViewMode] = createSignal<"visual" | "list">("visual");
@@ -19,11 +24,11 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     setTimeout(() => setIsLoaded(true), 100);
   });
 
-  const addTable = () => {
+  const addTable = (tableData?: TableData) => {
     const newTable: Table = {
       id: nanoid(),
-      name: `Table ${props.tables.length + 1}`,
-      capacity: 8,
+      name: tableData?.name || `Table ${props.tables.length + 1}`,
+      capacity: tableData?.capacity || 8,
       assigned_guests: [],
     };
 
@@ -50,8 +55,11 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     props.onUpdateTables(updatedTables);
   };
 
-  // TODO: Does not work, need to use seatNumber from callback
-  const assignGuestToTable = (guestId: string, tableId: string) => {
+  const assignGuestToTable = (
+    guestId: string,
+    tableId: string,
+    seatNumber?: number
+  ) => {
     const updatedTables = props.tables.map((table) => {
       // Remove guest from any other table first
       const assigned_guests = table.assigned_guests.filter(

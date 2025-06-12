@@ -100,9 +100,12 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
     return seats.filter((seat) => !seat.isOccupied).length;
   };
 
-  // TODO: Do not set a guest's party size, we should only assign one guest to a seat
   const getGuestPartySize = (guest: Guest) => {
-    return 1 + guest.plus_ones.length;
+    return {
+      mainGuest: 1,
+      plusOnes: guest.plus_ones.length,
+      total: 1 + guest.plus_ones.length,
+    };
   };
 
   return (
@@ -143,16 +146,21 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                       />
                     </svg>
                     <span class="font-medium">
-                      Party of{" "}
-                      {getSelectedGuestData()
-                        ? getGuestPartySize(getSelectedGuestData()!)
-                        : 0}
+                      Main guest +{" "}
+                      {getSelectedGuestData()?.plus_ones?.length || 0} plus ones
                     </span>
                   </div>
+                  <Show
+                    when={getSelectedGuestData()?.plus_ones?.length && 0 > 0}
+                  >
+                    <div class="text-amber-600 text-sm font-medium bg-amber-50 px-3 py-1 rounded-full">
+                      ⚠️ Plus ones need separate seats
+                    </div>
+                  </Show>
                   <Show when={!selectedTable()}>
                     <div class="text-gray-600 font-light">
                       → Choose a table below
@@ -160,7 +168,7 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                   </Show>
                   <Show when={selectedTable()}>
                     <div class="text-purple-700 font-medium">
-                      → Select specific seat
+                      → Select specific seat for main guest
                     </div>
                   </Show>
                 </div>
@@ -248,64 +256,72 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
               >
                 <div class="space-y-3">
                   <For each={props.guests}>
-                    {(guest) => (
-                      <button
-                        onClick={() => handleGuestClick(guest.id)}
-                        class={`w-full p-4 rounded-xl text-left transition-all duration-300 transform hover:scale-[1.02] ${
-                          selectedGuest() === guest.id
-                            ? "bg-gradient-to-r from-purple-100 to-violet-100 border-2 border-purple-300 shadow-lg"
-                            : "bg-gradient-to-r from-white to-amber-50/30 border border-amber-200/40 hover:border-amber-300/60 hover:shadow-md"
-                        }`}
-                      >
-                        <div class="flex items-center space-x-4">
-                          <div
-                            class={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md ${
-                              selectedGuest() === guest.id
-                                ? "bg-gradient-to-br from-purple-400 to-violet-500"
-                                : "bg-gradient-to-br from-amber-400 to-orange-500"
-                            }`}
-                          >
-                            {guest.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")
-                              .toUpperCase()}
-                          </div>
-                          <div class="flex-1 min-w-0">
-                            <h4 class="font-medium text-gray-900 truncate">
-                              {guest.name}
-                            </h4>
-                            <div class="flex items-center space-x-3 mt-1">
-                              <span class="text-xs text-gray-600">
-                                Party of {getGuestPartySize(guest)}
-                              </span>
-                              <Show when={guest.meal_preference}>
-                                <span class="text-xs text-gray-500">
-                                  • {guest.meal_preference}
+                    {(guest) => {
+                      const partyInfo = getGuestPartySize(guest);
+                      return (
+                        <button
+                          onClick={() => handleGuestClick(guest.id)}
+                          class={`w-full p-4 rounded-xl text-left transition-all duration-300 transform hover:scale-[1.02] ${
+                            selectedGuest() === guest.id
+                              ? "bg-gradient-to-r from-purple-100 to-violet-100 border-2 border-purple-300 shadow-lg"
+                              : "bg-gradient-to-r from-white to-amber-50/30 border border-amber-200/40 hover:border-amber-300/60 hover:shadow-md"
+                          }`}
+                        >
+                          <div class="flex items-center space-x-4">
+                            <div
+                              class={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-md ${
+                                selectedGuest() === guest.id
+                                  ? "bg-gradient-to-br from-purple-400 to-violet-500"
+                                  : "bg-gradient-to-br from-amber-400 to-orange-500"
+                              }`}
+                            >
+                              {guest.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                              <h4 class="font-medium text-gray-900 truncate">
+                                {guest.name}
+                              </h4>
+                              <div class="flex items-center space-x-3 mt-1">
+                                <span class="text-xs text-gray-600">
+                                  Main guest
                                 </span>
-                              </Show>
+                                <Show when={partyInfo.plusOnes > 0}>
+                                  <span class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
+                                    +{partyInfo.plusOnes} plus ones
+                                  </span>
+                                </Show>
+                                <Show when={guest.meal_preference}>
+                                  <span class="text-xs text-gray-500">
+                                    • {guest.meal_preference}
+                                  </span>
+                                </Show>
+                              </div>
                             </div>
+                            <Show when={selectedGuest() === guest.id}>
+                              <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                                <svg
+                                  class="w-4 h-4 text-white"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                              </div>
+                            </Show>
                           </div>
-                          <Show when={selectedGuest() === guest.id}>
-                            <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
-                              <svg
-                                class="w-4 h-4 text-white"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </div>
-                          </Show>
-                        </div>
-                      </button>
-                    )}
+                        </button>
+                      );
+                    }}
                   </For>
                 </div>
               </Show>
@@ -350,19 +366,18 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                   const availableSeats = getTableAvailableSeats(table);
                   const isTableSelected = selectedTable() === table.id;
                   const canSelectTable = selectedGuest() && !selectedTable();
-                  const guestPartySize = getSelectedGuestData()
-                    ? getGuestPartySize(getSelectedGuestData()!)
-                    : 0;
-                  const hasEnoughSeats = availableSeats >= guestPartySize;
+                  const hasAvailableSeats = availableSeats > 0;
+                  console.log("canSelectTable:", canSelectTable);
+                  console.log("hasAvailableSeats:", hasAvailableSeats);
 
                   return (
                     <div
                       class={`bg-white/90 backdrop-blur-sm rounded-2xl border shadow-xl overflow-hidden transition-all duration-500 ${
                         isTableSelected
                           ? "border-purple-300 shadow-2xl ring-4 ring-purple-100"
-                          : canSelectTable && hasEnoughSeats
+                          : canSelectTable && hasAvailableSeats
                           ? "border-green-200 hover:border-green-300 hover:shadow-2xl cursor-pointer"
-                          : canSelectTable && !hasEnoughSeats
+                          : canSelectTable && !hasAvailableSeats
                           ? "border-red-200 opacity-60"
                           : "border-gray-100"
                       }`}
@@ -372,15 +387,15 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                         class={`p-6 border-b transition-all duration-300 ${
                           isTableSelected
                             ? "bg-gradient-to-r from-purple-50 to-violet-50 border-purple-100"
-                            : canSelectTable && hasEnoughSeats
+                            : canSelectTable && hasAvailableSeats
                             ? "bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 hover:from-green-100 hover:to-emerald-100"
-                            : canSelectTable && !hasEnoughSeats
+                            : canSelectTable && !hasAvailableSeats
                             ? "bg-gradient-to-r from-red-50 to-pink-50 border-red-100"
                             : "bg-gradient-to-r from-gray-50 to-white border-gray-100"
                         }`}
                         onClick={() =>
                           canSelectTable &&
-                          hasEnoughSeats &&
+                          hasAvailableSeats &&
                           handleTableClick(table.id)
                         }
                       >
@@ -390,9 +405,9 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                               class={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
                                 isTableSelected
                                   ? "bg-gradient-to-br from-purple-400 to-violet-500 text-white"
-                                  : canSelectTable && hasEnoughSeats
+                                  : canSelectTable && hasAvailableSeats
                                   ? "bg-gradient-to-br from-green-400 to-emerald-500 text-white"
-                                  : canSelectTable && !hasEnoughSeats
+                                  : canSelectTable && !hasAvailableSeats
                                   ? "bg-gradient-to-br from-red-400 to-pink-500 text-white"
                                   : "bg-gradient-to-br from-gray-400 to-gray-500 text-white"
                               }`}
@@ -421,7 +436,7 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                                   available
                                 </span>
                                 <Show when={canSelectTable}>
-                                  <Show when={hasEnoughSeats}>
+                                  <Show when={hasAvailableSeats}>
                                     <span class="inline-flex items-center px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium">
                                       <svg
                                         class="w-3 h-3 mr-1"
@@ -436,10 +451,10 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                                           d="M5 13l4 4L19 7"
                                         />
                                       </svg>
-                                      Can Fit Party
+                                      Available
                                     </span>
                                   </Show>
-                                  <Show when={!hasEnoughSeats}>
+                                  <Show when={!hasAvailableSeats}>
                                     <span class="inline-flex items-center px-3 py-1 bg-red-100 text-red-700 rounded-lg text-xs font-medium">
                                       <svg
                                         class="w-3 h-3 mr-1"
@@ -454,7 +469,7 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                                           d="M6 18L18 6M6 6l12 12"
                                         />
                                       </svg>
-                                      Not Enough Seats
+                                      Table Full
                                     </span>
                                   </Show>
                                 </Show>
@@ -471,7 +486,7 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                           <Show
                             when={
                               canSelectTable &&
-                              hasEnoughSeats &&
+                              hasAvailableSeats &&
                               !isTableSelected
                             }
                           >
@@ -491,9 +506,24 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                             </h4>
                             <p class="text-gray-600 font-light">
                               {isTableSelected
-                                ? "Click on an available seat to assign"
+                                ? "Click on an available seat to assign the main guest"
                                 : "Overview of current seating"}
                             </p>
+                            <Show
+                              when={
+                                isTableSelected &&
+                                (getSelectedGuestData()?.plus_ones?.length ??
+                                  0) > 0
+                              }
+                            >
+                              <div class="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                <p class="text-sm text-amber-700">
+                                  💡 After assigning the main guest, you'll need
+                                  to separately assign each plus one to their
+                                  own seats.
+                                </p>
+                              </div>
+                            </Show>
                           </div>
 
                           {/* Circular Seat Arrangement */}
@@ -599,7 +629,7 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                               <div class="flex items-center space-x-2">
                                 <div class="w-4 h-4 bg-gradient-to-br from-purple-400 to-violet-500 rounded-full animate-pulse"></div>
                                 <span class="text-sm text-purple-600 font-medium">
-                                  Click to Assign
+                                  Click to Assign Main Guest
                                 </span>
                               </div>
                             </Show>
@@ -661,7 +691,7 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
             </div>
             <div>
               <h3 class="text-2xl font-medium text-gray-900 mb-4">
-                How to Assign Specific Seats
+                How to Assign Seats
               </h3>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="flex items-center space-x-3">
@@ -677,7 +707,7 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                     2
                   </div>
                   <span class="text-blue-800">
-                    Select a table with enough seats
+                    Select a table with available seats
                   </span>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -688,6 +718,14 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                     Click on the specific seat number
                   </span>
                 </div>
+              </div>
+              <div class="mt-4 p-4 bg-amber-50/50 rounded-lg border border-amber-200/50">
+                <p class="text-sm text-amber-800">
+                  <span class="font-medium">📝 Note:</span> Each guest
+                  (including plus ones) needs their own individual seat
+                  assignment. After assigning the main guest, repeat the process
+                  for each plus one.
+                </p>
               </div>
             </div>
           </div>

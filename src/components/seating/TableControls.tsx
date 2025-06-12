@@ -1,7 +1,12 @@
 import { Component, createSignal, Show } from "solid-js";
 
+interface TableData {
+  name: string;
+  capacity: number;
+}
+
 interface TableControlsProps {
-  onAddTable: () => void;
+  onAddTable: (tableData?: TableData) => void;
 }
 
 const TableControls: Component<TableControlsProps> = (props) => {
@@ -11,9 +16,10 @@ const TableControls: Component<TableControlsProps> = (props) => {
 
   const handleAddTable = () => {
     if (tableName().trim()) {
-      // TODO: Fix below comment so it actually adds the table with the given name, capacity and shape of the table
-      // You'll need to modify this to pass the actual form data
-      props.onAddTable();
+      props.onAddTable({
+        name: tableName().trim(),
+        capacity: tableCapacity(),
+      });
       setTableName("");
       setTableCapacity(8);
       setShowAddForm(false);
@@ -24,17 +30,6 @@ const TableControls: Component<TableControlsProps> = (props) => {
     { name: "Head Table", capacity: 8, description: "For the wedding party" },
     { name: "Family Table", capacity: 10, description: "Close family members" },
     { name: "Friends Table", capacity: 8, description: "College friends" },
-    // {
-    //   name: "Work Colleagues",
-    //   capacity: 6,
-    //   description: "Professional contacts",
-    // },
-    // {
-    //   name: "Kids Table",
-    //   capacity: 6,
-    //   description: "Children and young guests",
-    // },
-    // { name: "Plus Ones", capacity: 8, description: "Partners and dates" },
   ];
 
   return (
@@ -144,8 +139,10 @@ const TableControls: Component<TableControlsProps> = (props) => {
           {presetTables.map((preset) => (
             <button
               onClick={() => {
-                // You'll need to modify this to pass the preset data
-                props.onAddTable();
+                props.onAddTable({
+                  name: preset.name,
+                  capacity: preset.capacity,
+                });
               }}
               class="group p-4 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50/50 transition-all duration-300 text-left"
             >

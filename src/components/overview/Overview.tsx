@@ -696,8 +696,6 @@ const Overview: Component<OverviewProps> = (props) => {
                 </div>
               </div>
             </Show>
-
-            {/* // TODO: stats().daysUntilWedding < 90 gives Object is possibly 'null' error. Fix this  */}
             <Show
               when={(() => {
                 const days = stats().daysUntilWedding;

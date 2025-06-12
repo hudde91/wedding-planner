@@ -35,6 +35,7 @@ export interface Seat {
   guestName: string;
 }
 
+// TODO: Add shape to Table. Should either be "round" or "rectangular"
 export interface Table {
   id: string;
   name: string;
