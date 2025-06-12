@@ -1,18 +1,11 @@
 import { createSignal, Component, For, Show, createMemo } from "solid-js";
-import { Table, Guest, TableShape } from "../../types";
+import { Table, Guest, TableShape, SeatAssignment } from "../../types";
 import { nanoid } from "nanoid";
 
 interface SeatingChartProps {
   tables: Table[];
   guests: Guest[];
   onUpdateTables: (tables: Table[]) => void;
-}
-
-interface SeatAssignment {
-  tableId: string;
-  seatNumber: number;
-  guestId: string;
-  guestName: string;
 }
 
 interface TableFormData {
@@ -32,16 +25,47 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
   const [showTableForm, setShowTableForm] = createSignal(false);
   const [editingTable, setEditingTable] = createSignal<Table | null>(null);
   const [viewingTableId, setViewingTableId] = createSignal<string | null>(null);
+  const [isSaving, setIsSaving] = createSignal(false);
   const [tableForm, setTableForm] = createSignal<TableFormData>({
     name: "",
     capacity: 8,
     shape: "round",
   });
 
-  // Track all seat assignments across all tables
-  const [seatAssignments, setSeatAssignments] = createSignal<SeatAssignment[]>(
-    []
-  );
+  // Get all seat assignments from table data (load from existing data)
+  const seatAssignments = createMemo(() => {
+    const assignments: SeatAssignment[] = [];
+    props.tables.forEach((table) => {
+      if (table.seatAssignments) {
+        assignments.push(...table.seatAssignments);
+      }
+    });
+    return assignments;
+  });
+
+  // Helper function to update tables with seat assignments and save automatically
+  const updateTablesWithAssignments = async (
+    newAssignments: SeatAssignment[]
+  ) => {
+    setIsSaving(true);
+
+    const updatedTables = props.tables.map((table) => {
+      const tableAssignments = newAssignments.filter(
+        (a) => a.tableId === table.id
+      );
+      return {
+        ...table,
+        seatAssignments: tableAssignments,
+        assigned_guests: tableAssignments.map((a) => a.guestId), // Keep compatibility with existing structure
+      };
+    });
+
+    // Automatically save to database
+    props.onUpdateTables(updatedTables);
+
+    // Show saved indicator briefly
+    setTimeout(() => setIsSaving(false), 1000);
+  };
 
   // Get all attending guests (main guests + plus ones as separate entities)
   const allAttendees = createMemo(() => {
@@ -141,16 +165,17 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     const guest = allAttendees().find((a) => a.id === guestId);
     if (!guest) return;
 
-    // Add the seat assignment
-    setSeatAssignments((prev) => [
-      ...prev,
-      {
-        tableId,
-        seatNumber,
-        guestId,
-        guestName: guest.name,
-      },
-    ]);
+    // Create new seat assignment
+    const newAssignment: SeatAssignment = {
+      tableId,
+      seatNumber,
+      guestId,
+      guestName: guest.name,
+    };
+
+    // Add to existing assignments and save automatically
+    const updatedAssignments = [...seatAssignments(), newAssignment];
+    updateTablesWithAssignments(updatedAssignments);
 
     // Reset selections
     setSelectedGuestId(null);
@@ -159,7 +184,11 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
   };
 
   const handleRemoveAssignment = (guestId: string) => {
-    setSeatAssignments((prev) => prev.filter((a) => a.guestId !== guestId));
+    // Remove assignment and save automatically
+    const updatedAssignments = seatAssignments().filter(
+      (a) => a.guestId !== guestId
+    );
+    updateTablesWithAssignments(updatedAssignments);
   };
 
   const resetSelection = () => {
@@ -179,6 +208,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
       capacity: form.capacity,
       shape: form.shape,
       assigned_guests: [],
+      seatAssignments: [],
     };
 
     props.onUpdateTables([...props.tables, newTable]);
@@ -213,16 +243,26 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
         : table
     );
 
-    // Remove seat assignments that exceed new capacity
-    setSeatAssignments((prev) =>
-      prev.filter(
-        (assignment) =>
-          assignment.tableId !== editing.id ||
-          assignment.seatNumber <= form.capacity
-      )
+    // Remove seat assignments that exceed new capacity and save automatically
+    const updatedAssignments = seatAssignments().filter(
+      (assignment) =>
+        assignment.tableId !== editing.id ||
+        assignment.seatNumber <= form.capacity
     );
 
-    props.onUpdateTables(updatedTables);
+    // Update tables with valid assignments
+    const finalTables = updatedTables.map((table) => {
+      const tableAssignments = updatedAssignments.filter(
+        (a) => a.tableId === table.id
+      );
+      return {
+        ...table,
+        seatAssignments: tableAssignments,
+        assigned_guests: tableAssignments.map((a) => a.guestId),
+      };
+    });
+
+    props.onUpdateTables(finalTables);
 
     setTableForm({ name: "", capacity: 8, shape: "round" });
     setEditingTable(null);
@@ -235,13 +275,33 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
         "Are you sure you want to delete this table? All seat assignments will be removed."
       )
     ) {
-      props.onUpdateTables(
-        props.tables.filter((table) => table.id !== tableId)
+      // Remove table and its seat assignments, then save automatically
+      const updatedTables = props.tables.filter(
+        (table) => table.id !== tableId
       );
-      setSeatAssignments((prev) => prev.filter((a) => a.tableId !== tableId));
+      const updatedAssignments = seatAssignments().filter(
+        (a) => a.tableId !== tableId
+      );
+
+      // Update tables with remaining assignments
+      const finalTables = updatedTables.map((table) => {
+        const tableAssignments = updatedAssignments.filter(
+          (a) => a.tableId === table.id
+        );
+        return {
+          ...table,
+          seatAssignments: tableAssignments,
+          assigned_guests: tableAssignments.map((a) => a.guestId),
+        };
+      });
+
+      props.onUpdateTables(finalTables);
 
       if (selectedTableId() === tableId) {
         resetSelection();
+      }
+      if (viewingTableId() === tableId) {
+        setViewingTableId(null);
       }
     }
   };
@@ -316,7 +376,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30">
       <div class="max-w-7xl mx-auto p-8">
         {/* Elegant Header */}
-        <div class="text-center mb-12">
+        <div class="text-center mb-12 relative">
           <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl shadow-xl mb-6">
             <svg
               class="w-10 h-10 text-white"
@@ -338,6 +398,26 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
           <p class="text-xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
             Create the perfect seating plan with our elegant three-step process
           </p>
+
+          {/* Auto-save indicator */}
+          <Show when={isSaving()}>
+            <div class="absolute top-0 right-0 flex items-center space-x-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full shadow-lg animate-pulse">
+              <svg
+                class="w-4 h-4 animate-spin"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              <span class="text-sm font-medium">Saving...</span>
+            </div>
+          </Show>
         </div>
 
         {/* Progress Steps */}

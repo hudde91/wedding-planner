@@ -35,6 +35,18 @@
   }
   
   #[derive(Serialize, Deserialize, Debug, Clone)]
+  struct SeatAssignment {
+      #[serde(rename = "tableId")]
+      table_id: String,
+      #[serde(rename = "seatNumber")]
+      seat_number: i32,
+      #[serde(rename = "guestId")]
+      guest_id: String,
+      #[serde(rename = "guestName")]
+      guest_name: String,
+  }
+  
+  #[derive(Serialize, Deserialize, Debug, Clone)]
   struct WeddingPlan {
       couple_name1: String,
       couple_name2: String,
@@ -98,9 +110,13 @@
       #[serde(default)]
       assigned_guests: Vec<String>,
       #[serde(skip_serializing_if = "Option::is_none")]
+      shape: Option<TableShape>,
+      #[serde(skip_serializing_if = "Option::is_none")]
       x: Option<f64>,
       #[serde(skip_serializing_if = "Option::is_none")]
       y: Option<f64>,
+      #[serde(skip_serializing_if = "Option::is_none", rename = "seatAssignments")]
+      seat_assignments: Option<Vec<SeatAssignment>>,
   }
   
   impl Default for WeddingPlan {

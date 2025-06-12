@@ -2,6 +2,13 @@ export type RSVPStatus = "pending" | "attending" | "declined";
 
 export type TableShape = "round" | "rectangular";
 
+export interface SeatAssignment {
+  tableId: string;
+  seatNumber: number;
+  guestId: string;
+  guestName: string;
+}
+
 export type TabId =
   | "overview"
   | "details"
@@ -41,8 +48,7 @@ export interface Table {
   capacity: number;
   assigned_guests: string[]; // Array of guest IDs assigned to this table
   shape?: TableShape; // Added shape property
-  x?: number; // Optional positioning
-  y?: number; // Optional positioning
+  seatAssignments: SeatAssignment[];
 }
 
 export interface TodoItem {
