@@ -322,38 +322,87 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     totalSeats: number,
     shape: TableShape
   ) => {
-    const radius = 140;
-    const centerX = radius;
-    const centerY = radius;
-
     if (shape === "rectangular") {
-      // For rectangular tables, seats only on long sides
-      const seatsPerSide = Math.ceil(totalSeats / 2);
-      const tableWidth = 200;
-      const tableHeight = 80;
+      // Rectangular table logic with FIXED centering
+      const dotsPerSide = Math.ceil(totalSeats / 2);
+      const remainingDots = totalSeats - dotsPerSide;
+      const minWidth = 200;
+      const maxWidth = 500;
+      const seatSpacing = 40;
+      const maxSeatsOnSide = Math.max(dotsPerSide, remainingDots);
 
-      if (seatNumber <= seatsPerSide) {
-        // Top side
-        const spacing = tableWidth / (seatsPerSide + 1);
-        const x = centerX - tableWidth / 2 + spacing * seatNumber;
-        const y = centerY - tableHeight / 2 - 30;
-        return { x, y };
+      const calculatedWidth = Math.max(
+        minWidth,
+        (maxSeatsOnSide + 1) * seatSpacing
+      );
+      const tableWidth = Math.min(maxWidth, calculatedWidth);
+      const baseHeight = 80;
+      const tableHeight = Math.max(baseHeight, Math.min(150, tableWidth * 0.3));
+      const seatOffset = 30;
+
+      // FIXED: Use static center coordinates (like before)
+      const centerX = 140;
+      const centerY = 140;
+
+      if (seatNumber <= dotsPerSide) {
+        const topSpacing = tableWidth / (dotsPerSide + 1);
+        const x = centerX - tableWidth / 2 + topSpacing * seatNumber;
+        const y = centerY - tableHeight / 2 - seatOffset;
+        return { x, y, tableWidth, tableHeight };
       } else {
-        // Bottom side
-        const bottomIndex = seatNumber - seatsPerSide;
-        const remainingSeats = totalSeats - seatsPerSide;
-        const spacing = tableWidth / (remainingSeats + 1);
-        const x = centerX - tableWidth / 2 + spacing * bottomIndex;
-        const y = centerY + tableHeight / 2 + 30;
-        return { x, y };
+        const bottomIndex = seatNumber - dotsPerSide;
+        const bottomSpacing = tableWidth / (remainingDots + 1);
+        const x = centerX - tableWidth / 2 + bottomSpacing * bottomIndex;
+        const y = centerY + tableHeight / 2 + seatOffset;
+        return { x, y, tableWidth, tableHeight };
       }
     } else {
-      // Round table - circular arrangement
-      const angle = ((seatNumber - 1) * 360) / totalSeats;
-      const radian = (angle * Math.PI) / 180;
-      const x = centerX + radius * Math.cos(radian - Math.PI / 2);
-      const y = centerY + radius * Math.sin(radian - Math.PI / 2);
-      return { x, y };
+      // Round table - dynamic radius calculation
+      const minRadius = 80; // Minimum radius for small tables
+      const maxRadius = 180; // Maximum radius for large tables
+      const minSeatSpacing = 50; // Minimum arc length between seats (in pixels)
+
+      // Calculate required radius to maintain minimum spacing
+      const requiredRadius = (minSeatSpacing * totalSeats) / (2 * Math.PI);
+      const radius = Math.max(minRadius, Math.min(maxRadius, requiredRadius));
+
+      // Calculate table circle diameter for visual representation
+      const tableRadius = Math.max(60, radius * 0.6); // Table is smaller than seat radius
+
+      // Center point for the round table layout
+      const centerX = 140;
+      const centerY = 140;
+
+      // Calculate seat positions around the circle
+      const angleStep = (2 * Math.PI) / totalSeats;
+      const angle = (seatNumber - 1) * angleStep - Math.PI / 2; // Start from top (12 o'clock)
+
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+
+      return { x, y, radius, tableRadius };
+    }
+  };
+  const getTableDimensions = (totalSeats: number, shape: TableShape) => {
+    if (totalSeats === 0)
+      return { width: 200, height: 80, radius: 80, tableRadius: 60 };
+
+    const firstSeatPos = getSeatPosition(1, totalSeats, shape);
+
+    if (shape === "rectangular") {
+      return {
+        width: firstSeatPos.tableWidth || 200,
+        height: firstSeatPos.tableHeight || 80,
+        radius: 0,
+        tableRadius: 0,
+      };
+    } else {
+      return {
+        width: 0,
+        height: 0,
+        radius: firstSeatPos.radius || 80,
+        tableRadius: firstSeatPos.tableRadius || 60,
+      };
     }
   };
 
@@ -371,6 +420,54 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     const id = viewingTableId();
     return id ? props.tables.find((t) => t.id === id) : null;
   });
+
+  const viewingTableSeatPositions = createMemo(() => {
+    const table = viewingTable();
+    if (!table) return [];
+
+    return Array.from({ length: table.capacity }, (_, i) => {
+      const seatNumber = i + 1;
+      return {
+        seatNumber,
+        position: getSeatPosition(
+          seatNumber,
+          table.capacity,
+          table.shape || "round"
+        ),
+      };
+    });
+  });
+
+  const selectedTableSeatPositions = createMemo(() => {
+    const table = selectedTable();
+    if (!table) return [];
+
+    return Array.from({ length: table.capacity }, (_, i) => {
+      const seatNumber = i + 1;
+      return {
+        seatNumber,
+        position: getSeatPosition(
+          seatNumber,
+          table.capacity,
+          table.shape || "round"
+        ),
+      };
+    });
+  });
+
+  const viewingTableDimensions = createMemo(() =>
+    getTableDimensions(
+      viewingTable()?.capacity || 0,
+      viewingTable()?.shape || "round"
+    )
+  );
+
+  const selectedTableDimensions = createMemo(() =>
+    getTableDimensions(
+      selectedTable()?.capacity || 0,
+      selectedTable()?.shape || "round"
+    )
+  );
 
   return (
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30">
@@ -801,7 +898,18 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                   when={(viewingTable()?.shape || "round") === "rectangular"}
                   fallback={
                     // Round table
-                    <div class="absolute inset-8 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl">
+                    <div
+                      class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl"
+                      style={`left: ${
+                        140 - viewingTableDimensions().tableRadius
+                      }px; top: ${
+                        140 - viewingTableDimensions().tableRadius
+                      }px; width: ${
+                        viewingTableDimensions().tableRadius * 2
+                      }px; height: ${
+                        viewingTableDimensions().tableRadius * 2
+                      }px;`}
+                    >
                       <div class="w-full h-full flex items-center justify-center">
                         <div class="text-center">
                           <div class="text-2xl font-bold text-amber-800">
@@ -818,7 +926,13 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                   {/* Rectangular table */}
                   <div
                     class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg border-4 border-amber-200 shadow-xl"
-                    style="left: 98px; top: 158px; width: 200px; height: 80px;"
+                    style={`left: ${
+                      140 - viewingTableDimensions().width / 2
+                    }px; top: ${
+                      140 - viewingTableDimensions().height / 2
+                    }px; width: ${viewingTableDimensions().width}px; height: ${
+                      viewingTableDimensions().height
+                    }px;`}
                   >
                     <div class="w-full h-full flex items-center justify-center">
                       <div class="text-center">
@@ -834,20 +948,10 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                 </Show>
 
                 {/* Seats arranged based on table shape */}
-                <For
-                  each={Array.from(
-                    { length: viewingTable()?.capacity || 0 },
-                    (_, i) => i + 1
-                  )}
-                >
-                  {(seatNumber) => {
-                    const position = getSeatPosition(
-                      seatNumber,
-                      viewingTable()?.capacity || 0,
-                      viewingTable()?.shape || "round"
-                    );
+                <For each={viewingTableSeatPositions()}>
+                  {(seatData) => {
                     const occupiedBy = getOccupiedSeats(viewingTableId()!).find(
-                      (a) => a.seatNumber === seatNumber
+                      (a) => a.seatNumber === seatData.seatNumber
                     );
                     const isOccupied = !!occupiedBy;
 
@@ -858,16 +962,16 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                             ? "bg-gradient-to-br from-purple-400 to-violet-500 text-white"
                             : "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600"
                         }`}
-                        style={`left: ${position.x - 28}px; top: ${
-                          position.y - 28
+                        style={`left: ${seatData.position.x - 28}px; top: ${
+                          seatData.position.y - 28
                         }px;`}
                         title={
                           isOccupied
-                            ? `Seat ${seatNumber} - ${occupiedBy?.guestName}`
-                            : `Seat ${seatNumber} - Available`
+                            ? `Seat ${seatData.seatNumber} - ${occupiedBy?.guestName}`
+                            : `Seat ${seatData.seatNumber} - Available`
                         }
                       >
-                        {isOccupied ? "👤" : seatNumber}
+                        {isOccupied ? "👤" : seatData.seatNumber}
                       </div>
                     );
                   }}
@@ -1311,7 +1415,18 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                       }
                       fallback={
                         // Round table
-                        <div class="absolute inset-8 bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl">
+                        <div
+                          class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl"
+                          style={`left: ${
+                            140 - viewingTableDimensions().tableRadius
+                          }px; top: ${
+                            140 - viewingTableDimensions().tableRadius
+                          }px; width: ${
+                            viewingTableDimensions().tableRadius * 2
+                          }px; height: ${
+                            viewingTableDimensions().tableRadius * 2
+                          }px;`}
+                        >
                           <div class="w-full h-full flex items-center justify-center">
                             <div class="text-center">
                               <div class="text-2xl font-bold text-amber-800">
@@ -1328,7 +1443,13 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                       {/* Rectangular table */}
                       <div
                         class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg border-4 border-amber-200 shadow-xl"
-                        style="left: 98px; top: 158px; width: 200px; height: 80px;"
+                        style={`left: ${
+                          140 - selectedTableDimensions().width / 2
+                        }px; top: ${
+                          140 - selectedTableDimensions().height / 2
+                        }px; width: ${
+                          selectedTableDimensions().width
+                        }px; height: ${selectedTableDimensions().height}px;`}
                       >
                         <div class="w-full h-full flex items-center justify-center">
                           <div class="text-center">
@@ -1344,21 +1465,11 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                     </Show>
 
                     {/* Seats arranged based on table shape */}
-                    <For
-                      each={Array.from(
-                        { length: selectedTable()?.capacity || 0 },
-                        (_, i) => i + 1
-                      )}
-                    >
-                      {(seatNumber) => {
-                        const position = getSeatPosition(
-                          seatNumber,
-                          selectedTable()?.capacity || 0,
-                          selectedTable()?.shape || "round"
-                        );
+                    <For each={selectedTableSeatPositions()}>
+                      {(seatData) => {
                         const occupiedBy = getOccupiedSeats(
                           selectedTableId()!
-                        ).find((a) => a.seatNumber === seatNumber);
+                        ).find((a) => a.seatNumber === seatData.seatNumber);
                         const isAvailable = !occupiedBy;
 
                         return (
@@ -1368,20 +1479,21 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                                 ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white hover:scale-110 hover:shadow-xl cursor-pointer"
                                 : "bg-gradient-to-br from-gray-400 to-gray-500 text-white cursor-not-allowed"
                             }`}
-                            style={`left: ${position.x - 28}px; top: ${
-                              position.y - 28
+                            style={`left: ${seatData.position.x - 28}px; top: ${
+                              seatData.position.y - 28
                             }px;`}
                             onClick={() =>
-                              isAvailable && handleSeatSelect(seatNumber)
+                              isAvailable &&
+                              handleSeatSelect(seatData.seatNumber)
                             }
                             disabled={!isAvailable}
                             title={
                               isAvailable
-                                ? `Seat ${seatNumber} - Available`
-                                : `Seat ${seatNumber} - ${occupiedBy?.guestName}`
+                                ? `Seat ${seatData.seatNumber} - Available`
+                                : `Seat ${seatData.seatNumber} - ${occupiedBy?.guestName}`
                             }
                           >
-                            {isAvailable ? seatNumber : "●"}
+                            {isAvailable ? seatData.seatNumber : "●"}
                           </button>
                         );
                       }}
@@ -1418,6 +1530,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
             </div>
           </Show>
 
+          {/* TODO: Remove Current Assignments Summary and adjust UI accordingly. */}
           {/* Current Assignments Summary */}
           <div class="lg:col-span-1">
             <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden sticky top-6">
