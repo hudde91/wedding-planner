@@ -217,6 +217,8 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     setShowTableForm(false);
   };
 
+  // TODO: Editing table should update the database automatically (so no need for Update button)
+  // and remove any seat assignments that exceed the new capacity.
   const handleEditTable = (table: Table) => {
     setEditingTable(table);
     setTableForm({

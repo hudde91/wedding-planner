@@ -58,6 +58,8 @@ const TaskSuggestions: Component<TaskSuggestionsProps> = (props) => {
     });
   };
 
+  // TODO: Should not be possible to add tasks that are already in the wedding plan
+  // Solution: Once a task is added, it should be removed from the suggestions
   const addSelectedTasks = () => {
     suggestedTasks().forEach((task) => {
       if (selectedTasks().has(task.id)) {
