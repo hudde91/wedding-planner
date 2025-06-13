@@ -730,6 +730,7 @@ const Overview: Component<OverviewProps> = (props) => {
         </div>
       </Show>
 
+      {/* TODO: Why do we need Quick Actions? They don't do anything, if they should stay, what should they do? */}
       {/* Quick Actions */}
       <div
         class={`bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg transition-all duration-1000 delay-800 ${

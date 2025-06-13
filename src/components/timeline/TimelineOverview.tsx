@@ -850,6 +850,7 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
         </div>
       </Show>
 
+      {/* TODO: Why do we need Quick Actions? They don't do anything, if they should stay, what should they do? */}
       {/* Quick Actions */}
       <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 p-8">
         <h3 class="text-xl font-medium text-gray-900 mb-6 flex items-center">
