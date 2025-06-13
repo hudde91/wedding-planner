@@ -16,7 +16,6 @@ interface TimelineProps {
 const Timeline: Component<TimelineProps> = (props) => {
   const [view, setView] = createSignal<"overview" | "detailed">("overview");
   const [showSuggestions, setShowSuggestions] = createSignal(false);
-  const [editingTodo, setEditingTodo] = createSignal<TodoItem | null>(null);
   const [isLoaded, setIsLoaded] = createSignal(false);
 
   onMount(() => {
@@ -43,11 +42,6 @@ const Timeline: Component<TimelineProps> = (props) => {
 
   const handleAddSuggestedTask = (task: TodoItem) => {
     props.onAddTodo(task.text);
-  };
-
-  const handleEditTodo = (todo: TodoItem) => {
-    setEditingTodo(todo);
-    console.log("Edit todo:", todo);
   };
 
   return (
@@ -211,7 +205,6 @@ const Timeline: Component<TimelineProps> = (props) => {
                     monthsUntilWedding={monthsUntilWedding()}
                     onToggleTodo={props.onToggleTodo}
                     onDeleteTodo={props.onDeleteTodo}
-                    onEditTodo={handleEditTodo}
                   />
                 </div>
               )}

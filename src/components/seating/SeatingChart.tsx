@@ -14,6 +14,7 @@ interface TableFormData {
   shape: TableShape;
 }
 
+// TODO: Replace any emoji icons with better more elegant/luxurious SVG icons
 const SeatingChart: Component<SeatingChartProps> = (props) => {
   const [selectedGuestId, setSelectedGuestId] = createSignal<string | null>(
     null

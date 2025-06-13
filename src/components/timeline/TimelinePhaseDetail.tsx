@@ -8,7 +8,6 @@ interface TimelinePhaseDetailProps {
   monthsUntilWedding: number;
   onToggleTodo: (id: number) => void;
   onDeleteTodo: (id: number) => void;
-  onEditTodo: (todo: TodoItem) => void;
 }
 
 const TimelinePhaseDetail: Component<TimelinePhaseDetailProps> = (props) => {
@@ -51,11 +50,6 @@ const TimelinePhaseDetail: Component<TimelinePhaseDetailProps> = (props) => {
   const handleDeleteTodo = (todoId: number, e: MouseEvent) => {
     e.stopPropagation();
     props.onDeleteTodo(todoId);
-  };
-
-  const handleEditTodo = (todo: TodoItem, e: MouseEvent) => {
-    e.stopPropagation();
-    props.onEditTodo(todo);
   };
 
   return (
@@ -293,25 +287,6 @@ const TimelinePhaseDetail: Component<TimelinePhaseDetailProps> = (props) => {
 
                       {/* Action buttons */}
                       <div class="flex items-center space-x-2 opacity-0 group-hover/todo:opacity-100 transition-opacity duration-300">
-                        <button
-                          onClick={(e) => handleEditTodo(todo, e)}
-                          class="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg transition-all duration-300"
-                          title="Edit task"
-                        >
-                          <svg
-                            class="w-4 h-4"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                          </svg>
-                        </button>
                         <button
                           onClick={(e) => handleDeleteTodo(todo.id, e)}
                           class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition-all duration-300"
