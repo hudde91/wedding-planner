@@ -14,7 +14,6 @@ interface TableFormData {
   shape: TableShape;
 }
 
-// TODO: Replace any emoji icons with better more elegant/luxurious SVG icons
 const SeatingChart: Component<SeatingChartProps> = (props) => {
   const [selectedGuestId, setSelectedGuestId] = createSignal<string | null>(
     null
@@ -218,8 +217,6 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     setShowTableForm(false);
   };
 
-  // TODO: Editing table should update the database automatically (so no need for Update button)
-  // and remove any seat assignments that exceed the new capacity.
   const handleEditTable = (table: Table) => {
     setEditingTable(table);
     setTableForm({
@@ -230,27 +227,43 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     setShowTableForm(true);
   };
 
-  const handleUpdateTable = () => {
-    const form = tableForm();
+  // Automatic table update function - triggers on any form field change
+  const handleAutoUpdateTable = (
+    field: keyof TableFormData,
+    value: string | number | TableShape
+  ) => {
     const editing = editingTable();
-    if (!editing || !form.name.trim()) return;
+    if (!editing) return;
 
+    // Update the form state
+    const updatedForm = { ...tableForm(), [field]: value };
+    setTableForm(updatedForm);
+
+    // Don't save if name is empty
+    if (field === "name" && typeof value === "string" && !value.trim()) {
+      return;
+    }
+
+    // Apply the update immediately to database
     const updatedTables = props.tables.map((table) =>
       table.id === editing.id
         ? {
             ...table,
-            name: form.name.trim(),
-            capacity: form.capacity,
-            shape: form.shape,
+            name:
+              typeof updatedForm.name === "string"
+                ? updatedForm.name.trim()
+                : updatedForm.name,
+            capacity: updatedForm.capacity,
+            shape: updatedForm.shape,
           }
         : table
     );
 
-    // Remove seat assignments that exceed new capacity and save automatically
+    // Remove seat assignments that exceed new capacity when capacity is reduced
     const updatedAssignments = seatAssignments().filter(
       (assignment) =>
         assignment.tableId !== editing.id ||
-        assignment.seatNumber <= form.capacity
+        assignment.seatNumber <= updatedForm.capacity
     );
 
     // Update tables with valid assignments
@@ -266,10 +279,6 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     });
 
     props.onUpdateTables(finalTables);
-
-    setTableForm({ name: "", capacity: 8, shape: "round" });
-    setEditingTable(null);
-    setShowTableForm(false);
   };
 
   const handleDeleteTable = (tableId: string) => {
@@ -386,6 +395,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
       return { x, y, radius, tableRadius };
     }
   };
+
   const getTableDimensions = (totalSeats: number, shape: TableShape) => {
     if (totalSeats === 0)
       return { width: 200, height: 80, radius: 80, tableRadius: 60 };
@@ -627,9 +637,29 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
           {/* Table Form */}
           <Show when={showTableForm()}>
             <div class="bg-gradient-to-r from-indigo-50/50 to-purple-50/50 rounded-xl p-6 border border-indigo-200/50 mb-6">
-              <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                {editingTable() ? "Edit Table" : "Add New Table"}
-              </h3>
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">
+                  {editingTable() ? "Edit Table" : "Add New Table"}
+                </h3>
+                <Show when={editingTable()}>
+                  <div class="flex items-center space-x-2 text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    <span class="text-sm font-medium">Auto-saving changes</span>
+                  </div>
+                </Show>
+              </div>
               <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="md:col-span-2">
                   <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -638,12 +668,14 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                   <input
                     type="text"
                     value={tableForm().name}
-                    onInput={(e) =>
-                      setTableForm((prev) => ({
-                        ...prev,
-                        name: (e.target as HTMLInputElement).value,
-                      }))
-                    }
+                    onInput={(e) => {
+                      const value = (e.target as HTMLInputElement).value;
+                      if (editingTable()) {
+                        handleAutoUpdateTable("name", value);
+                      } else {
+                        setTableForm((prev) => ({ ...prev, name: value }));
+                      }
+                    }}
                     placeholder="e.g., Head Table, Family Table"
                     class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300"
                   />
@@ -657,14 +689,23 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                     min="2"
                     max="20"
                     value={tableForm().capacity}
-                    onInput={(e) =>
-                      setTableForm((prev) => ({
-                        ...prev,
-                        capacity: Number((e.target as HTMLInputElement).value),
-                      }))
-                    }
+                    onInput={(e) => {
+                      const value = Number(
+                        (e.target as HTMLInputElement).value
+                      );
+                      if (editingTable()) {
+                        handleAutoUpdateTable("capacity", value);
+                      } else {
+                        setTableForm((prev) => ({ ...prev, capacity: value }));
+                      }
+                    }}
                     class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300"
                   />
+                  <Show when={editingTable()}>
+                    <p class="text-xs text-amber-600 mt-1">
+                      ⚠️ Reducing capacity will remove excess seat assignments
+                    </p>
+                  </Show>
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -672,13 +713,15 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                   </label>
                   <select
                     value={tableForm().shape}
-                    onChange={(e) =>
-                      setTableForm((prev) => ({
-                        ...prev,
-                        shape: (e.target as HTMLSelectElement)
-                          .value as TableShape,
-                      }))
-                    }
+                    onChange={(e) => {
+                      const value = (e.target as HTMLSelectElement)
+                        .value as TableShape;
+                      if (editingTable()) {
+                        handleAutoUpdateTable("shape", value);
+                      } else {
+                        setTableForm((prev) => ({ ...prev, shape: value }));
+                      }
+                    }}
                     class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300"
                   >
                     <option value="round">Round</option>
@@ -692,23 +735,35 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                 </div>
               </div>
               <div class="flex space-x-3 mt-6">
-                <button
-                  onClick={editingTable() ? handleUpdateTable : handleAddTable}
-                  disabled={!tableForm().name.trim()}
-                  class={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                    tableForm().name.trim()
-                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-lg hover:scale-105"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  }`}
+                <Show
+                  when={!editingTable()}
+                  fallback={
+                    <button
+                      onClick={handleCancelTableForm}
+                      class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium"
+                    >
+                      Done Editing
+                    </button>
+                  }
                 >
-                  {editingTable() ? "Update Table" : "Create Table"}
-                </button>
-                <button
-                  onClick={handleCancelTableForm}
-                  class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium"
-                >
-                  Cancel
-                </button>
+                  <button
+                    onClick={handleAddTable}
+                    disabled={!tableForm().name.trim()}
+                    class={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                      tableForm().name.trim()
+                        ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-lg hover:scale-105"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    Create Table
+                  </button>
+                  <button
+                    onClick={handleCancelTableForm}
+                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium"
+                  >
+                    Cancel
+                  </button>
+                </Show>
               </div>
             </div>
           </Show>
@@ -739,9 +794,53 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                                 : "bg-gradient-to-br from-blue-500 to-indigo-600"
                             }`}
                           >
-                            {(table.shape || "round") === "rectangular"
-                              ? "⬜"
-                              : "⭕"}
+                            {(table.shape || "round") === "rectangular" ? (
+                              <svg
+                                class="w-6 h-6"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <rect
+                                  x="2"
+                                  y="6"
+                                  width="20"
+                                  height="12"
+                                  rx="2"
+                                  ry="2"
+                                  stroke="currentColor"
+                                  stroke-width="1.5"
+                                  fill="none"
+                                />
+                                <path
+                                  d="M2 8h20M2 16h20"
+                                  stroke="currentColor"
+                                  stroke-width="1.5"
+                                />
+                              </svg>
+                            ) : (
+                              <svg
+                                class="w-6 h-6"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="9"
+                                  stroke="currentColor"
+                                  stroke-width="1.5"
+                                  fill="none"
+                                />
+                                <circle
+                                  cx="12"
+                                  cy="12"
+                                  r="6"
+                                  stroke="currentColor"
+                                  stroke-width="1"
+                                  opacity="0.5"
+                                />
+                              </svg>
+                            )}
                           </div>
                           <div>
                             <h4 class="font-semibold text-gray-900">
@@ -855,9 +954,53 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                         : "bg-gradient-to-br from-blue-500 to-indigo-600"
                     }`}
                   >
-                    {(viewingTable()?.shape || "round") === "rectangular"
-                      ? "⬜"
-                      : "⭕"}
+                    {(viewingTable()?.shape || "round") === "rectangular" ? (
+                      <svg
+                        class="w-7 h-7"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <rect
+                          x="2"
+                          y="6"
+                          width="20"
+                          height="12"
+                          rx="2"
+                          ry="2"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          fill="none"
+                        />
+                        <path
+                          d="M2 8h20M2 16h20"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                        />
+                      </svg>
+                    ) : (
+                      <svg
+                        class="w-7 h-7"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="9"
+                          stroke="currentColor"
+                          stroke-width="1.5"
+                          fill="none"
+                        />
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="6"
+                          stroke="currentColor"
+                          stroke-width="1"
+                          opacity="0.5"
+                        />
+                      </svg>
+                    )}
                   </div>
                   <div>
                     <h3 class="text-2xl font-semibold text-gray-900">
@@ -974,7 +1117,17 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                             : `Seat ${seatData.seatNumber} - Available`
                         }
                       >
-                        {isOccupied ? "👤" : seatData.seatNumber}
+                        {isOccupied ? (
+                          <svg
+                            class="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
+                        ) : (
+                          seatData.seatNumber
+                        )}
                       </div>
                     );
                   }}
@@ -1060,6 +1213,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
             </div>
           </div>
         </Show>
+
         <Show when={selectedGuest()}>
           <div class="bg-white/80 backdrop-blur-sm rounded-2xl border border-purple-200 shadow-xl p-6 mb-8">
             <div class="flex items-center justify-between">
@@ -1105,7 +1259,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
           </div>
         </Show>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Step 1: Guest Selection */}
           <div
             class={`${
@@ -1496,7 +1650,17 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                                 : `Seat ${seatData.seatNumber} - ${occupiedBy?.guestName}`
                             }
                           >
-                            {isAvailable ? seatData.seatNumber : "●"}
+                            {isAvailable ? (
+                              seatData.seatNumber
+                            ) : (
+                              <svg
+                                class="w-6 h-6"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                              </svg>
+                            )}
                           </button>
                         );
                       }}
@@ -1532,117 +1696,6 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
               </div>
             </div>
           </Show>
-
-          {/* TODO: Remove Current Assignments Summary and adjust UI accordingly. */}
-          {/* Current Assignments Summary */}
-          <div class="lg:col-span-1">
-            <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden sticky top-6">
-              <div class="bg-gradient-to-r from-rose-50 to-pink-50 border-b border-rose-100 p-6">
-                <div class="flex items-center space-x-4">
-                  <div class="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg">
-                    <svg
-                      class="w-6 h-6 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                      />
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 class="text-xl font-semibold text-gray-900">
-                      Seating Summary
-                    </h3>
-                    <p class="text-gray-600 font-light">
-                      {seatAssignments().length} assigned
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="p-6">
-                <Show
-                  when={seatAssignments().length > 0}
-                  fallback={
-                    <div class="text-center py-8">
-                      <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <svg
-                          class="w-6 h-6 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                          />
-                        </svg>
-                      </div>
-                      <p class="text-gray-500 font-light text-sm">
-                        No assignments yet
-                      </p>
-                    </div>
-                  }
-                >
-                  <div class="space-y-3 max-h-80 overflow-y-auto">
-                    <For each={seatAssignments()}>
-                      {(assignment) => {
-                        const table = props.tables.find(
-                          (t) => t.id === assignment.tableId
-                        );
-
-                        return (
-                          <div class="flex items-center justify-between p-3 bg-gradient-to-r from-rose-50/50 to-pink-50/50 rounded-lg border border-rose-100/50">
-                            <div class="flex items-center space-x-3">
-                              <div class="w-8 h-8 bg-gradient-to-br from-rose-400 to-pink-500 rounded-lg flex items-center justify-center text-white text-xs font-bold">
-                                {assignment.seatNumber}
-                              </div>
-                              <div>
-                                <p class="font-medium text-gray-900 text-sm">
-                                  {assignment.guestName}
-                                </p>
-                                <p class="text-rose-600 text-xs">
-                                  {table?.name}
-                                </p>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() =>
-                                handleRemoveAssignment(assignment.guestId)
-                              }
-                              class="p-1 text-gray-400 hover:text-red-500 transition-colors duration-200"
-                              title="Remove assignment"
-                            >
-                              <svg
-                                class="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"
-                                  stroke-width="2"
-                                  d="M6 18L18 6M6 6l12 12"
-                                />
-                              </svg>
-                            </button>
-                          </div>
-                        );
-                      }}
-                    </For>
-                  </div>
-                </Show>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
