@@ -67,6 +67,12 @@
       #[serde(skip_serializing_if = "Option::is_none")]
       cost: Option<f64>,
       #[serde(skip_serializing_if = "Option::is_none")]
+      budget: Option<f64>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      payment_status: Option<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      due_date: Option<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
       vendor_name: Option<String>,
       #[serde(skip_serializing_if = "Option::is_none")]
       vendor_contact: Option<String>,

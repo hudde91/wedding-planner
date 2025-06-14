@@ -370,8 +370,6 @@ const TodoItem: Component<TodoItemProps> = (props) => {
               {/* Form Sections */}
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Cost Section */}
-                {/* TODO: This cost section looks bad in desktop view since it only contains one inputfield compare to Vendor sections with 4 input fields 
-                It heights gets to big in comparison since they will get the same height*/}
                 <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-6 border border-emerald-200/50">
                   <div class="flex items-center space-x-3 mb-4">
                     <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
@@ -391,34 +389,99 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                     </div>
                     <div>
                       <h4 class="text-lg font-medium text-gray-900">
-                        Cost Information
+                        Budget & Costs
                       </h4>
                       <p class="text-sm text-gray-600 font-light">
-                        Track your expenses
+                        Track expenses and payments
                       </p>
                     </div>
                   </div>
-                  <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                      Total Cost
-                    </label>
-                    <div class="relative">
-                      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span class="text-gray-500">$</span>
+                  <div class="grid grid-cols-1 gap-4">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Estimated Budget
+                      </label>
+                      <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <span class="text-gray-500">$</span>
+                        </div>
+                        <input
+                          type="number"
+                          min="0"
+                          value={todoFormData().budget || ""}
+                          onInput={(e) =>
+                            updateFormField(
+                              "budget",
+                              parseFloat(
+                                (e.target as HTMLInputElement).value
+                              ) || undefined
+                            )
+                          }
+                          class="w-full pl-8 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
+                          placeholder="0"
+                        />
                       </div>
-                      <input
-                        type="number"
-                        min="0"
-                        value={todoFormData().cost || ""}
-                        onInput={(e) =>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Actual Cost
+                      </label>
+                      <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                          <span class="text-gray-500">$</span>
+                        </div>
+                        <input
+                          type="number"
+                          min="0"
+                          value={todoFormData().cost || ""}
+                          onInput={(e) =>
+                            updateFormField(
+                              "cost",
+                              parseFloat(
+                                (e.target as HTMLInputElement).value
+                              ) || undefined
+                            )
+                          }
+                          class="w-full pl-8 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Payment Status
+                      </label>
+                      <select
+                        value={todoFormData().payment_status || ""}
+                        onChange={(e) =>
                           updateFormField(
-                            "cost",
-                            parseFloat((e.target as HTMLInputElement).value) ||
-                              undefined
+                            "payment_status",
+                            (e.target as HTMLSelectElement).value
                           )
                         }
-                        class="w-full pl-8 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
-                        placeholder="0"
+                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
+                      >
+                        <option value="">Select status</option>
+                        <option value="not_paid">Not Paid</option>
+                        <option value="deposit_paid">Deposit Paid</option>
+                        <option value="partial_paid">Partial Payment</option>
+                        <option value="fully_paid">Fully Paid</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 mb-1">
+                        Due Date
+                      </label>
+                      <input
+                        type="date"
+                        value={todoFormData().due_date || ""}
+                        onInput={(e) =>
+                          updateFormField(
+                            "due_date",
+                            (e.target as HTMLInputElement).value
+                          )
+                        }
+                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
                       />
                     </div>
                   </div>

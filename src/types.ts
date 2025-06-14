@@ -47,7 +47,7 @@ export interface Table {
   name: string;
   capacity: number;
   assigned_guests: string[]; // Array of guest IDs assigned to this table
-  shape?: TableShape; // Added shape property
+  shape?: TableShape;
   seatAssignments: SeatAssignment[];
 }
 
@@ -56,6 +56,9 @@ export interface TodoItem {
   text: string;
   completed: boolean;
   cost?: number;
+  budget?: number;
+  payment_status?: string;
+  due_date?: string;
   vendor_name?: string;
   vendor_contact?: string;
   vendor_email?: string;
@@ -74,23 +77,6 @@ export interface WeddingPlan {
   tables: Table[];
 }
 
-// Extended types for frontend use (seating chart)
-export interface AttendeeWithType {
-  id: string;
-  name: string;
-  type: "main";
-  parentGuestId: null;
-}
-
-export interface PlusOneAttendee {
-  id: string;
-  name: string;
-  type: "plus_one";
-  parentGuestId: string;
-}
-
-export type Attendee = AttendeeWithType | PlusOneAttendee;
-
 export interface TableFormData {
   name: string;
   seats: number;
@@ -105,14 +91,6 @@ export interface GuestFormData {
   meal_preference: string;
   plus_ones: PlusOne[];
   notes: string;
-}
-
-export interface DragState {
-  isDragging: boolean;
-  draggedGuest: Attendee | null;
-  draggedFromSeat: { tableId: number; seatId: number } | null;
-  dragPosition: { x: number; y: number };
-  hoveredSeat: { tableId: number; seatId: number } | null;
 }
 
 export interface SeatingStats {
@@ -130,6 +108,9 @@ export interface GuestStats {
 
 export interface TodoFormData {
   cost?: number;
+  budget?: number;
+  payment_status?: string;
+  due_date?: string;
   vendor_name?: string;
   vendor_contact?: string;
   vendor_email?: string;

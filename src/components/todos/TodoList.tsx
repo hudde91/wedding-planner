@@ -119,7 +119,7 @@ const TodoList: Component<TodoListProps> = (props) => {
             : "opacity-0 transform translate-y-8"
         }`}
       >
-        <AddTodoForm onAdd={props.addTodo} />
+        <AddTodoForm onAdd={props.addTodo} todos={props.todos} />
       </div>
 
       {/* Todo Items */}

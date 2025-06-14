@@ -1,7 +1,9 @@
-import { createSignal, Component } from "solid-js";
+import { createSignal, Component, createMemo } from "solid-js";
+import { TodoItem } from "../../types";
 
 interface AddTodoFormProps {
   onAdd: (text: string) => void;
+  todos: TodoItem[];
 }
 
 const AddTodoForm: Component<AddTodoFormProps> = (props) => {
@@ -28,8 +30,16 @@ const AddTodoForm: Component<AddTodoFormProps> = (props) => {
     "Buy wedding rings",
   ];
 
-  // TODO: Should not be possible to add tasks that are already in the wedding plan
-  // Solution: Once a task is added, it should be removed from the suggestions
+  // Filter out tasks that already exist in the wedding plan
+  const availableTasks = createMemo(() => {
+    const existingTasksLower = props.todos.map((todo) =>
+      todo.text.toLowerCase().trim()
+    );
+    return commonTasks.filter(
+      (task) => !existingTasksLower.includes(task.toLowerCase().trim())
+    );
+  });
+
   const handleQuickAdd = (task: string) => {
     props.onAdd(task);
   };
@@ -101,29 +111,61 @@ const AddTodoForm: Component<AddTodoFormProps> = (props) => {
       </form>
 
       {/* Quick Add Section */}
-      <div class="mt-8 pt-6 border-t border-gray-100">
-        <h4 class="text-sm font-medium text-gray-700 mb-4">
-          Quick Add Common Tasks
-        </h4>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {commonTasks.map((task) => (
-            <button
-              onClick={() => handleQuickAdd(task)}
-              class="group p-3 text-left bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300"
-            >
-              <div class="flex items-center space-x-2">
-                <div class="w-2 h-2 bg-gray-300 rounded-full group-hover:bg-blue-400 transition-colors duration-300"></div>
-                <span class="text-sm text-gray-700 group-hover:text-blue-700 font-light">
-                  {task}
-                </span>
-              </div>
-            </button>
-          ))}
+      {availableTasks().length > 0 && (
+        <div class="mt-8 pt-6 border-t border-gray-100">
+          <h4 class="text-sm font-medium text-gray-700 mb-4">
+            Quick Add Common Tasks
+          </h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {availableTasks().map((task) => (
+              <button
+                onClick={() => handleQuickAdd(task)}
+                class="group p-3 text-left bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300"
+              >
+                <div class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-gray-300 rounded-full group-hover:bg-blue-400 transition-colors duration-300"></div>
+                  <span class="text-sm text-gray-700 group-hover:text-blue-700 font-light">
+                    {task}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+          <div class="mt-3 text-xs text-gray-500 font-light text-center">
+            Click any suggestion to add it to your checklist
+          </div>
         </div>
-        <div class="mt-3 text-xs text-gray-500 font-light text-center">
-          Click any suggestion to add it to your checklist
+      )}
+
+      {/* No More Suggestions Message */}
+      {availableTasks().length === 0 && (
+        <div class="mt-8 pt-6 border-t border-gray-100">
+          <div class="text-center p-6 bg-gradient-to-br from-green-50/50 to-emerald-50/50 rounded-xl border border-green-200/50">
+            <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-emerald-400 rounded-lg flex items-center justify-center mx-auto mb-4">
+              <svg
+                class="w-6 h-6 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h4 class="text-sm font-medium text-gray-900 mb-2">
+              All Common Tasks Added! 🎉
+            </h4>
+            <p class="text-xs text-gray-600 font-light">
+              You've covered all the essential wedding planning tasks. Add any
+              custom tasks above.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
