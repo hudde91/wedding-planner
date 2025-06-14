@@ -28,6 +28,8 @@ const AddTodoForm: Component<AddTodoFormProps> = (props) => {
     "Buy wedding rings",
   ];
 
+  // TODO: Should not be possible to add tasks that are already in the wedding plan
+  // Solution: Once a task is added, it should be removed from the suggestions
   const handleQuickAdd = (task: string) => {
     props.onAdd(task);
   };
