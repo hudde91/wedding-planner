@@ -8,7 +8,7 @@ interface TaskSuggestionsProps {
   onAddSuggestedTask: (task: TimelineTodo) => void;
   onClose: () => void;
 }
-// TODO: Replace any emoji icons with better more elegant/luxurious SVG icons
+
 const TaskSuggestions: Component<TaskSuggestionsProps> = (props) => {
   const [selectedTasks, setSelectedTasks] = createSignal<Set<number>>(
     new Set()
@@ -269,13 +269,39 @@ const TaskSuggestions: Component<TaskSuggestionsProps> = (props) => {
                           </div>
                           <div class="flex items-center space-x-3">
                             <Show when={relevance === "current"}>
-                              <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full font-medium">
-                                🎯 Current Priority
+                              <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm rounded-full font-medium flex items-center">
+                                <svg
+                                  class="w-3 h-3 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                  />
+                                </svg>
+                                Current Priority
                               </span>
                             </Show>
                             <Show when={relevance === "past"}>
-                              <span class="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full font-medium">
-                                ⚠️ Overdue
+                              <span class="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full font-medium flex items-center">
+                                <svg
+                                  class="w-3 h-3 mr-1"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+                                  />
+                                </svg>
+                                Overdue
                               </span>
                             </Show>
                             <button

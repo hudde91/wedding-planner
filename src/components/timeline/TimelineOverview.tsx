@@ -1,13 +1,17 @@
-import { Component, createMemo, For, Show } from "solid-js";
+import { Component, createMemo, For, Show, createSignal } from "solid-js";
 import { WeddingPlan } from "../../types";
 import SmartTimelineService from "../../api/TimelineService";
 
 interface TimelineOverviewProps {
   weddingPlan: WeddingPlan;
+  onSwitchToDetailed?: () => void;
+  onOpenSuggestions?: () => void;
+  onToggleFocusMode?: () => void;
 }
 
-// TODO: Replace any emoji icons with better more elegant/luxurious SVG icons
 const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
+  const [focusMode, setFocusMode] = createSignal(false);
+
   const monthsUntilWedding = createMemo(() => {
     if (!props.weddingPlan.wedding_date) return 0;
     return SmartTimelineService.calculateMonthsUntilWedding
@@ -123,9 +127,10 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
     const months = monthsUntilWedding();
     if (months <= 0) {
       return {
-        text: "Your wedding has arrived! 🎉",
+        text: "Your wedding has arrived!",
         subtext: "Congratulations on your special day!",
         color: "text-pink-600",
+        showCelebration: true,
       };
     } else if (months < 1) {
       const days = Math.ceil(months * 30);
@@ -133,18 +138,21 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
         text: `${days} days to go!`,
         subtext: "Final countdown - you've got this!",
         color: "text-red-600",
+        showCelebration: false,
       };
     } else if (months < 2) {
       return {
         text: `${Math.ceil(months)} month to go!`,
         subtext: "Final preparations time!",
         color: "text-orange-600",
+        showCelebration: false,
       };
     } else {
       return {
         text: `${Math.ceil(months)} months to go!`,
         subtext: "Plenty of time to plan perfectly",
         color: "text-purple-600",
+        showCelebration: false,
       };
     }
   };
@@ -169,6 +177,25 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
     const now = new Date();
     return milestones().find((milestone) => new Date(milestone.date) > now);
   };
+
+  const filteredPhases = createMemo(() => {
+    const allPhases = SmartTimelineService.getPhases();
+    if (!focusMode()) return allPhases;
+
+    // In focus mode, only show current and overdue phases with incomplete tasks
+    return allPhases.filter((phase) => {
+      const status = SmartTimelineService.getPhaseStatus(
+        phase,
+        monthsUntilWedding()
+      );
+      const phaseTodos = categorizedTodos().get(phase.id) || [];
+      const hasIncompleteTasks = phaseTodos.some((todo) => !todo.completed);
+
+      return (
+        (status === "current" || status === "overdue") && hasIncompleteTasks
+      );
+    });
+  });
 
   const countdown = getWeddingCountdown();
   const currentPhaseInfo = getCurrentPhaseInfo();
@@ -216,18 +243,44 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
                   Set your wedding date to see your personalized timeline
                 </p>
                 <div class="bg-white/20 backdrop-blur-sm rounded-xl p-6 border border-white/30">
-                  <p class="text-sm text-white/90 font-light">
-                    💡 Once you add your wedding date, we'll show you exactly
-                    what to do when!
-                  </p>
+                  <div class="flex items-center justify-center space-x-2">
+                    <svg
+                      class="w-4 h-4 text-white/90"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+                      />
+                    </svg>
+                    <p class="text-sm text-white/90 font-light">
+                      Once you add your wedding date, we'll show you exactly
+                      what to do when!
+                    </p>
+                  </div>
                 </div>
               </div>
             }
           >
             <div class="space-y-4">
-              <p class="text-2xl font-light text-white/95">
-                {countdown.text.replace(/🎉/g, "")}
-              </p>
+              <div class="flex items-center justify-center space-x-3">
+                <p class="text-2xl font-light text-white/95">
+                  {countdown.text}
+                </p>
+                <Show when={countdown.showCelebration}>
+                  <svg
+                    class="w-6 h-6 text-yellow-300 animate-bounce"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                </Show>
+              </div>
               <p class="text-lg text-white/90 mb-2">
                 {new Date(props.weddingPlan.wedding_date).toLocaleDateString(
                   "en-US",
@@ -553,13 +606,49 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
       {/* Timeline Phases Overview */}
       <div class="space-y-6">
         <div class="flex justify-between items-center">
-          <h2 class="text-2xl font-medium text-gray-900">Planning Phases</h2>
-          <div class="text-sm text-gray-500 font-light">
-            Click phases to view details in Detailed View
+          <h2 class="text-2xl font-medium text-gray-900">
+            {focusMode() ? "Priority Phases" : "Planning Phases"}
+          </h2>
+          <div class="flex items-center space-x-4">
+            <Show when={focusMode()}>
+              <div class="text-sm text-purple-600 font-medium">
+                Showing {filteredPhases().length} priority phase
+                {filteredPhases().length === 1 ? "" : "s"}
+              </div>
+            </Show>
+            <div class="text-sm text-gray-500 font-light">
+              Click phases to view details in Detailed View
+            </div>
           </div>
         </div>
 
-        <For each={SmartTimelineService.getPhases()}>
+        <Show when={focusMode() && filteredPhases().length === 0}>
+          <div class="text-center py-12 bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200">
+            <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <svg
+                class="w-8 h-8 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 class="text-xl font-medium text-gray-900 mb-2">
+              No priority tasks right now!
+            </h3>
+            <p class="text-gray-600 font-light">
+              You're on track with your current planning phase.
+            </p>
+          </div>
+        </Show>
+
+        <For each={filteredPhases()}>
           {(phase, index) => {
             const phaseTodos = categorizedTodos().get(phase.id) || [];
             const progress = getPhaseProgress(phase.id);
@@ -587,13 +676,33 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
                         <h3 class="text-lg font-medium flex items-center space-x-3">
                           <span>{phase.name}</span>
                           <Show when={status === "current"}>
-                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-                              🎯 Current
+                            <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium flex items-center">
+                              <svg
+                                class="w-2 h-2 mr-1"
+                                fill="currentColor"
+                                viewBox="0 0 8 8"
+                              >
+                                <circle cx="4" cy="4" r="3" />
+                              </svg>
+                              Current
                             </span>
                           </Show>
                           <Show when={status === "overdue"}>
-                            <span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
-                              ⚠️ Overdue
+                            <span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium flex items-center">
+                              <svg
+                                class="w-2 h-2 mr-1"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+                                />
+                              </svg>
+                              Overdue
                             </span>
                           </Show>
                         </h3>
@@ -850,29 +959,41 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
         </div>
       </Show>
 
-      {/* TODO: Why do we need Quick Actions? They don't do anything, if they should stay, what should they do? */}
       {/* Quick Actions */}
       <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 p-8">
-        <h3 class="text-xl font-medium text-gray-900 mb-6 flex items-center">
-          <div class="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center mr-3">
-            <svg
-              class="w-5 h-5 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
-            </svg>
-          </div>
-          Quick Actions
-        </h3>
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="text-xl font-medium text-gray-900 flex items-center">
+            <div class="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center mr-3">
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
+              </svg>
+            </div>
+            Quick Actions
+          </h3>
+          <Show when={focusMode()}>
+            <div class="flex items-center space-x-2 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+              <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 8 8">
+                <circle cx="4" cy="4" r="3" />
+              </svg>
+              <span class="font-medium">Focus Mode Active</span>
+            </div>
+          </Show>
+        </div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <button class="group p-6 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50/50 transition-all duration-300 text-left">
+          <button
+            onClick={() => props.onSwitchToDetailed?.()}
+            class="group p-6 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50/50 transition-all duration-300 text-left"
+          >
             <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-violet-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <svg
                 class="w-6 h-6 text-purple-600"
@@ -892,11 +1013,14 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
               View Detailed Timeline
             </div>
             <div class="text-sm text-gray-600 font-light">
-              See all phases and tasks
+              See all phases and tasks in detail
             </div>
           </button>
 
-          <button class="group p-6 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300 text-left">
+          <button
+            onClick={() => props.onOpenSuggestions?.()}
+            class="group p-6 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300 text-left"
+          >
             <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <svg
                 class="w-6 h-6 text-blue-600"
@@ -916,14 +1040,29 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
               Get Task Suggestions
             </div>
             <div class="text-sm text-gray-600 font-light">
-              Add recommended tasks
+              Add recommended tasks to your plan
             </div>
           </button>
 
-          <button class="group p-6 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl hover:border-green-300 hover:bg-green-50/50 transition-all duration-300 text-left">
-            <div class="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+          <button
+            onClick={() => setFocusMode(!focusMode())}
+            class={`group p-6 bg-gradient-to-br border rounded-xl transition-all duration-300 text-left ${
+              focusMode()
+                ? "from-green-50 to-emerald-50 border-green-300 bg-green-50/50"
+                : "from-gray-50 to-white border-gray-200 hover:border-green-300 hover:bg-green-50/50"
+            }`}
+          >
+            <div
+              class={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300 ${
+                focusMode()
+                  ? "bg-gradient-to-br from-green-400 to-emerald-500"
+                  : "bg-gradient-to-br from-green-100 to-emerald-100"
+              }`}
+            >
               <svg
-                class="w-6 h-6 text-green-600"
+                class={`w-6 h-6 ${
+                  focusMode() ? "text-white" : "text-green-600"
+                }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -936,9 +1075,13 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
                 />
               </svg>
             </div>
-            <div class="font-medium text-gray-900 mb-1">Focus Mode</div>
+            <div class="font-medium text-gray-900 mb-1">
+              {focusMode() ? "Exit Focus Mode" : "Focus Mode"}
+            </div>
             <div class="text-sm text-gray-600 font-light">
-              Show priority tasks only
+              {focusMode()
+                ? "Show all phases again"
+                : "Show priority tasks only"}
             </div>
           </button>
         </div>

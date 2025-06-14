@@ -44,6 +44,15 @@ const Timeline: Component<TimelineProps> = (props) => {
     props.onAddTodo(task.text);
   };
 
+  // Quick Actions callbacks
+  const handleSwitchToDetailed = () => {
+    setView("detailed");
+  };
+
+  const handleOpenSuggestions = () => {
+    setShowSuggestions(true);
+  };
+
   return (
     <div class="space-y-8">
       {/* Header with Background */}
@@ -188,7 +197,11 @@ const Timeline: Component<TimelineProps> = (props) => {
         }`}
       >
         <Show when={view() === "overview"}>
-          <TimelineOverview weddingPlan={props.weddingPlan} />
+          <TimelineOverview
+            weddingPlan={props.weddingPlan}
+            onSwitchToDetailed={handleSwitchToDetailed}
+            onOpenSuggestions={handleOpenSuggestions}
+          />
         </Show>
 
         <Show when={view() === "detailed"}>
