@@ -10,11 +10,7 @@ import PinterestInspirations from "./PinterestInspirations";
 import type { PinterestPin } from "../../types";
 import { formatCurrency } from "../../utils/currency";
 import { formatCompactDate } from "../../utils/date";
-import {
-  getPaymentStatusStyle,
-  getProgressColor,
-  PaymentStatus,
-} from "../../utils/status";
+import { getPaymentStatusStyle, PaymentStatus } from "../../utils/status";
 import {
   formatPhoneNumber,
   validatePhoneNumber,

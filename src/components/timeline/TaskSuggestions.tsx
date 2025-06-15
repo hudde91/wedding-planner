@@ -1,6 +1,8 @@
 import { Component, For, Show, createSignal, createMemo } from "solid-js";
 import TimelineService, { TimelineTodo } from "../../api/TimelineService";
 import { TodoItem } from "../../types";
+import { calculateMonthsUntilWedding } from "../../utils/date";
+import { pluralize } from "../../utils/validation";
 
 interface TaskSuggestionsProps {
   weddingDate: string;
@@ -25,7 +27,7 @@ const TaskSuggestions: Component<TaskSuggestionsProps> = (props) => {
   );
 
   const monthsUntilWedding = createMemo(() =>
-    TimelineService.calculateMonthsUntilWedding(props.weddingDate)
+    calculateMonthsUntilWedding(props.weddingDate)
   );
 
   const groupedSuggestions = createMemo(() => {
@@ -372,10 +374,12 @@ const TaskSuggestions: Component<TaskSuggestionsProps> = (props) => {
                                         Recommended:{" "}
                                         {task.recommendedMonths === 0
                                           ? "Wedding week"
-                                          : `${task.recommendedMonths} month${
-                                              task.recommendedMonths === 1
-                                                ? ""
-                                                : "s"
+                                          : `${task.recommendedMonths} ${
+                                              pluralize(
+                                                task.recommendedMonths ?? 0,
+                                                "month",
+                                                "months"
+                                              ).split(" ")[1]
                                             } before wedding`}
                                       </div>
                                     </Show>
@@ -433,8 +437,7 @@ const TaskSuggestions: Component<TaskSuggestionsProps> = (props) => {
               </div>
               <div>
                 <div class="font-medium text-gray-900">
-                  {selectedTasks().size} task
-                  {selectedTasks().size === 1 ? "" : "s"} selected
+                  {pluralize(selectedTasks().size, "task")} selected
                 </div>
                 <div class="text-sm text-gray-600 font-light">
                   Ready to add to your planning checklist
@@ -457,8 +460,7 @@ const TaskSuggestions: Component<TaskSuggestionsProps> = (props) => {
                     : "bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-lg hover:scale-105"
                 }`}
               >
-                Add {selectedTasks().size} Task
-                {selectedTasks().size === 1 ? "" : "s"}
+                Add {pluralize(selectedTasks().size, "Task")}
               </button>
             </div>
           </div>

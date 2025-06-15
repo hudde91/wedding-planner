@@ -1,6 +1,22 @@
 import { Component, createMemo, For, Show, createSignal } from "solid-js";
 import { WeddingPlan } from "../../types";
 import SmartTimelineService from "../../api/TimelineService";
+import {
+  calculateMonthsUntilWedding,
+  getWeddingCountdown,
+  formatShortDate,
+} from "../../utils/date";
+import {
+  calculateTodoProgress,
+  calculateTaskVelocity,
+} from "../../utils/progress";
+import {
+  getPhaseStatusStyle,
+  getProgressColor,
+  getStatusMessage,
+  getStatusIcon,
+} from "../../utils/status";
+import { pluralize } from "../../utils/validation";
 
 interface TimelineOverviewProps {
   weddingPlan: WeddingPlan;
@@ -14,11 +30,7 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
 
   const monthsUntilWedding = createMemo(() => {
     if (!props.weddingPlan.wedding_date) return 0;
-    return SmartTimelineService.calculateMonthsUntilWedding
-      ? SmartTimelineService.calculateMonthsUntilWedding(
-          props.weddingPlan.wedding_date
-        )
-      : 0;
+    return calculateMonthsUntilWedding(props.weddingPlan.wedding_date);
   });
 
   const adaptivePhases = createMemo(() =>
@@ -53,51 +65,12 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
 
   const completionEstimate = createMemo(() => {
     const incompleteTasks = props.weddingPlan.todos.filter((t) => !t.completed);
-    const monthsUntil = monthsUntilWedding();
-    const weeksUntil = monthsUntil * 4.33;
-
-    if (incompleteTasks.length === 0) {
-      return {
-        estimatedCompletionDate: new Date().toISOString().split("T")[0],
-        tasksPerWeek: 0,
-        isOnTrack: true,
-        recommendation: "All tasks completed! You're ready for your wedding!",
-      };
-    }
-
-    if (weeksUntil <= 0) {
-      return {
-        estimatedCompletionDate: props.weddingPlan.wedding_date,
-        tasksPerWeek: incompleteTasks.length,
-        isOnTrack: false,
-        recommendation: "Wedding is here! Focus on essential tasks only.",
-      };
-    }
-
-    const tasksPerWeek = Math.ceil(incompleteTasks.length / weeksUntil);
-    const isOnTrack = tasksPerWeek <= 3;
-
-    return {
-      estimatedCompletionDate: new Date(
-        Date.now() + (incompleteTasks.length / 2.5) * 7 * 24 * 60 * 60 * 1000
-      )
-        .toISOString()
-        .split("T")[0],
-      tasksPerWeek,
-      isOnTrack,
-      recommendation: isOnTrack
-        ? `You're on track! Complete ${tasksPerWeek} task${
-            tasksPerWeek === 1 ? "" : "s"
-          } per week.`
-        : `${tasksPerWeek} tasks per week is challenging. Consider hiring a wedding planner.`,
-    };
+    return calculateTaskVelocity(incompleteTasks, monthsUntilWedding());
   });
 
   const getPhaseProgress = (phaseId: string) => {
     const phaseTodos = categorizedTodos().get(phaseId) || [];
-    if (phaseTodos.length === 0) return 0;
-    const completed = phaseTodos.filter((todo) => todo.completed).length;
-    return Math.round((completed / phaseTodos.length) * 100);
+    return calculateTodoProgress(phaseTodos).percentage;
   };
 
   const getStatusBadge = (phase: any) => {
@@ -112,49 +85,7 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
       status = "compressed";
     }
 
-    const badges = {
-      upcoming: "bg-gray-100 text-gray-600 border-gray-300",
-      current:
-        "bg-blue-100 text-blue-700 border-blue-300 ring-2 ring-blue-200 shadow-sm",
-      past: "bg-green-100 text-green-700 border-green-300",
-      compressed:
-        "bg-orange-100 text-orange-700 border-orange-300 ring-2 ring-orange-200",
-    };
-    return badges[status as keyof typeof badges];
-  };
-
-  const getWeddingCountdown = () => {
-    const months = monthsUntilWedding();
-    if (months <= 0) {
-      return {
-        text: "Your wedding has arrived!",
-        subtext: "Congratulations on your special day!",
-        color: "text-pink-600",
-        showCelebration: true,
-      };
-    } else if (months < 1) {
-      const days = Math.ceil(months * 30);
-      return {
-        text: `${days} days to go!`,
-        subtext: "Final countdown - you've got this!",
-        color: "text-red-600",
-        showCelebration: false,
-      };
-    } else if (months < 2) {
-      return {
-        text: `${Math.ceil(months)} month to go!`,
-        subtext: "Final preparations time!",
-        color: "text-orange-600",
-        showCelebration: false,
-      };
-    } else {
-      return {
-        text: `${Math.ceil(months)} months to go!`,
-        subtext: "Plenty of time to plan perfectly",
-        color: "text-purple-600",
-        showCelebration: false,
-      };
-    }
+    return getPhaseStatusStyle(status as any).containerClass;
   };
 
   const getCurrentPhaseInfo = () => {
@@ -162,14 +93,14 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
     if (!current) return null;
 
     const phaseTodos = categorizedTodos().get(current.id) || [];
-    const incompleteTasks = phaseTodos.filter((todo) => !todo.completed);
+    const progress = calculateTodoProgress(phaseTodos);
 
     return {
       phase: current,
-      totalTasks: phaseTodos.length,
-      completedTasks: phaseTodos.length - incompleteTasks.length,
-      incompleteTasks: incompleteTasks.length,
-      progress: getPhaseProgress(current.id),
+      totalTasks: progress.total,
+      completedTasks: progress.completed,
+      incompleteTasks: progress.remaining,
+      progress: progress.percentage,
     };
   };
 
@@ -197,7 +128,7 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
     });
   });
 
-  const countdown = getWeddingCountdown();
+  const countdown = getWeddingCountdown(props.weddingPlan.wedding_date || "");
   const currentPhaseInfo = getCurrentPhaseInfo();
   const nextMilestone = getNextMilestone();
 
@@ -268,7 +199,7 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
           >
             <div class="space-y-4">
               <div class="flex items-center justify-center space-x-3">
-                <p class="text-2xl font-light text-white/95">
+                <p class={`text-2xl font-light text-white/95`}>
                   {countdown.text}
                 </p>
                 <Show when={countdown.showCelebration}>
@@ -282,15 +213,7 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
                 </Show>
               </div>
               <p class="text-lg text-white/90 mb-2">
-                {new Date(props.weddingPlan.wedding_date).toLocaleDateString(
-                  "en-US",
-                  {
-                    weekday: "long",
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  }
-                )}
+                {formatShortDate(props.weddingPlan.wedding_date)}
               </p>
               <p class="text-sm text-white/80 font-light">
                 {countdown.subtext}
@@ -313,8 +236,8 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
                       />
                     </svg>
                     <p class="text-sm text-white/90 font-light">
-                      {completionEstimate().tasksPerWeek} tasks per week to
-                      complete everything on time
+                      {pluralize(completionEstimate().tasksPerWeek, "task")} per
+                      week to complete everything on time
                     </p>
                   </div>
                   <Show when={!completionEstimate().isOnTrack}>
@@ -612,8 +535,7 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
           <div class="flex items-center space-x-4">
             <Show when={focusMode()}>
               <div class="text-sm text-purple-600 font-medium">
-                Showing {filteredPhases().length} priority phase
-                {filteredPhases().length === 1 ? "" : "s"}
+                Showing {pluralize(filteredPhases().length, "priority phase")}
               </div>
             </Show>
             <div class="text-sm text-gray-500 font-light">
@@ -713,7 +635,7 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
                     </div>
                     <div class="text-right">
                       <div class="text-sm font-medium text-gray-900">
-                        {phaseTodos.length} tasks
+                        {pluralize(phaseTodos.length, "task")}
                       </div>
                       <div class="text-xs text-gray-500 font-light">
                         {progress}% complete
@@ -723,7 +645,9 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
 
                   <div class="w-full bg-gray-200 rounded-full h-2 mb-4">
                     <div
-                      class="bg-gradient-to-r from-indigo-400 to-purple-400 h-2 rounded-full transition-all duration-1000"
+                      class={`h-2 rounded-full transition-all duration-1000 ${getProgressColor(
+                        progress
+                      )}`}
                       style={`width: ${progress}%`}
                     ></div>
                   </div>
@@ -740,66 +664,20 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
                           : "bg-red-100 text-red-700"
                       }`}
                     >
-                      {status === "current" && (
-                        <>
-                          <svg
-                            class="w-3 h-3 mr-1"
-                            fill="currentColor"
-                            viewBox="0 0 8 8"
-                          >
-                            <circle cx="4" cy="4" r="3" />
-                          </svg>
-                          Focus Here
-                        </>
-                      )}
-                      {status === "past" && (
-                        <>
-                          <svg
-                            class="w-3 h-3 mr-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M5 13l4 4L19 7"
-                            />
-                          </svg>
-                          Phase Complete
-                        </>
-                      )}
-                      {status === "upcoming" && (
-                        <>
-                          <svg
-                            class="w-3 h-3 mr-1"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              stroke-linecap="round"
-                              stroke-linejoin="round"
-                              stroke-width="2"
-                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                            />
-                          </svg>
-                          Coming Up
-                        </>
-                      )}
-                      {status === "overdue" && (
-                        <>
-                          <svg
-                            class="w-3 h-3 mr-1"
-                            fill="currentColor"
-                            viewBox="0 0 8 8"
-                          >
-                            <polygon points="4,0 8,8 0,8" />
-                          </svg>
-                          Behind Schedule
-                        </>
-                      )}
+                      <svg
+                        class="w-3 h-3 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d={getStatusIcon(status as any)}
+                        />
+                      </svg>
+                      {getStatusMessage(status as any)}
                     </span>
                     <div class="text-gray-500 font-light">
                       {phase.startMonths > 0 &&
@@ -897,7 +775,7 @@ const TimelineOverview: Component<TimelineOverviewProps> = (props) => {
               </div>
               <div class="text-right">
                 <div class="text-lg font-medium text-blue-600">
-                  {new Date(nextMilestone!.date).toLocaleDateString()}
+                  {formatShortDate(nextMilestone!.date)}
                 </div>
                 <div class="text-sm text-gray-500 font-light">
                   {Math.ceil(

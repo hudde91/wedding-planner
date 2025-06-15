@@ -1,6 +1,10 @@
 import { Component, For, Show, createSignal } from "solid-js";
 import { TimelinePhase } from "../../api/TimelineService";
 import { TodoItem } from "../../types";
+import { calculateTodoProgress } from "../../utils/progress";
+import { getPhaseStatusStyle } from "../../utils/status";
+import { formatCurrency } from "../../utils/currency";
+import { pluralize } from "../../utils/validation";
 
 interface TimelinePhaseDetailProps {
   phase: TimelinePhase;
@@ -21,21 +25,12 @@ const TimelinePhaseDetail: Component<TimelinePhaseDetailProps> = (props) => {
   };
 
   const getProgressPercentage = () => {
-    if (props.todos.length === 0) return 0;
-    const completed = props.todos.filter((todo) => todo.completed).length;
-    return Math.round((completed / props.todos.length) * 100);
+    return calculateTodoProgress(props.todos).percentage;
   };
 
   const getStatusBadge = () => {
     const status = getPhaseStatus();
-    const badges = {
-      upcoming: "bg-gray-100 text-gray-600 border-gray-300",
-      current:
-        "bg-blue-100 text-blue-700 border-blue-300 ring-2 ring-blue-200 shadow-sm",
-      past: "bg-green-100 text-green-700 border-green-300",
-      overdue: "bg-red-100 text-red-700 border-red-300 ring-2 ring-red-200",
-    };
-    return badges[status];
+    return getPhaseStatusStyle(status as any).containerClass;
   };
 
   const toggleExpanded = () => {
@@ -119,7 +114,7 @@ const TimelinePhaseDetail: Component<TimelinePhaseDetailProps> = (props) => {
           <div class="flex items-center space-x-6">
             <div class="text-right">
               <div class="text-sm font-medium text-gray-900">
-                {props.todos.length} tasks
+                {pluralize(props.todos.length, "task")}
               </div>
               <div class="text-xs text-gray-500 font-light">
                 {getProgressPercentage()}% complete
@@ -277,7 +272,7 @@ const TimelinePhaseDetail: Component<TimelinePhaseDetailProps> = (props) => {
                                       d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
                                     />
                                   </svg>
-                                  ${todo.cost}
+                                  {formatCurrency(todo.cost ?? 0)}
                                 </span>
                               </Show>
                             </div>

@@ -4,6 +4,7 @@ import TimelineOverview from "./TimelineOverview";
 import TimelinePhaseDetail from "./TimelinePhaseDetail";
 import TaskSuggestions from "./TaskSuggestions";
 import SmartTimelineService from "../../api/TimelineService";
+import { calculateMonthsUntilWedding } from "../../utils/date";
 
 interface TimelineProps {
   weddingPlan: WeddingPlan;
@@ -24,11 +25,7 @@ const Timeline: Component<TimelineProps> = (props) => {
 
   const monthsUntilWedding = () => {
     if (!props.weddingPlan.wedding_date) return 0;
-    return SmartTimelineService.calculateMonthsUntilWedding
-      ? SmartTimelineService.calculateMonthsUntilWedding(
-          props.weddingPlan.wedding_date
-        )
-      : 0;
+    return calculateMonthsUntilWedding(props.weddingPlan.wedding_date);
   };
 
   const adaptivePhases = () =>
