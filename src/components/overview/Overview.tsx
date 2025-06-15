@@ -1,7 +1,12 @@
 import { Component, createSignal, onMount, Show } from "solid-js";
 import { WeddingPlan, TabId } from "../../types";
 import { useWeddingStats } from "../../hooks/useWeddingStats";
-import { formatCurrency } from "../../utils/currency";
+import {
+  formatCurrency,
+  calculateBudgetPercentage,
+} from "../../utils/currency";
+import { formatWeddingDate, getWeddingCountdown } from "../../utils/date";
+import { calculateResponseRate } from "../../utils/progress";
 
 interface OverviewProps {
   weddingPlan: WeddingPlan;
@@ -30,50 +35,8 @@ const Overview: Component<OverviewProps> = (props) => {
     return () => clearInterval(interval);
   });
 
-  const getWeddingCountdown = () => {
-    const days = stats().daysUntilWedding;
-    if (days === null)
-      return {
-        text: "Set your wedding date",
-        color: "text-gray-500",
-        urgency: "low",
-      };
-    if (days < 0)
-      return {
-        text: `${Math.abs(days)} days ago`,
-        color: "text-gray-500",
-        urgency: "low",
-      };
-    if (days === 0)
-      return { text: "Today!", color: "text-rose-600", urgency: "critical" };
-    if (days === 1)
-      return { text: "Tomorrow!", color: "text-rose-600", urgency: "critical" };
-    if (days <= 7)
-      return {
-        text: `${days} days left`,
-        color: "text-orange-600",
-        urgency: "high",
-      };
-    if (days <= 30)
-      return {
-        text: `${days} days left`,
-        color: "text-amber-600",
-        urgency: "medium",
-      };
-    if (days <= 90)
-      return {
-        text: `${days} days left`,
-        color: "text-blue-600",
-        urgency: "medium",
-      };
-    return {
-      text: `${days} days left`,
-      color: "text-emerald-600",
-      urgency: "low",
-    };
-  };
-
-  const countdown = getWeddingCountdown();
+  // Use the utility function for countdown
+  const countdown = () => getWeddingCountdown(props.weddingPlan.wedding_date);
 
   return (
     <div class="space-y-8">
@@ -143,22 +106,15 @@ const Overview: Component<OverviewProps> = (props) => {
               <Show when={props.weddingPlan.wedding_date}>
                 <div class="space-y-2">
                   <p class="text-xl md:text-2xl font-light opacity-90">
-                    {new Date(
-                      props.weddingPlan.wedding_date
-                    ).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatWeddingDate(props.weddingPlan.wedding_date)}
                   </p>
                   <p
-                    class={`text-2xl md:text-3xl font-light ${countdown.color.replace(
+                    class={`text-2xl md:text-3xl font-light ${countdown().color.replace(
                       "text-",
                       "text-white "
                     )}`}
                   >
-                    {countdown.text}
+                    {countdown().text}
                   </p>
                 </div>
               </Show>
@@ -215,7 +171,7 @@ const Overview: Component<OverviewProps> = (props) => {
               <p class="text-sm font-medium text-gray-600 tracking-wide">
                 Days Until Wedding
               </p>
-              <p class={`text-3xl font-light ${countdown.color}`}>
+              <p class={`text-3xl font-light ${countdown().color}`}>
                 {stats().daysUntilWedding !== null
                   ? stats().daysUntilWedding
                   : "—"}
@@ -419,26 +375,20 @@ const Overview: Component<OverviewProps> = (props) => {
               <div class="flex justify-between text-sm text-gray-600 mb-2">
                 <span>Response Rate</span>
                 <span>
-                  {stats().totalGuests > 0
-                    ? Math.round(
-                        ((stats().attendingGuests + stats().declinedGuests) /
-                          stats().totalGuests) *
-                          100
-                      )
-                    : 0}
+                  {calculateResponseRate(
+                    stats().totalGuests,
+                    stats().attendingGuests + stats().declinedGuests
+                  )}
                   %
                 </span>
               </div>
               <div class="w-full bg-gray-200 rounded-full h-2">
                 <div
                   class="bg-gradient-to-r from-blue-400 to-cyan-400 h-2 rounded-full transition-all duration-1000"
-                  style={`width: ${
-                    stats().totalGuests > 0
-                      ? ((stats().attendingGuests + stats().declinedGuests) /
-                          stats().totalGuests) *
-                        100
-                      : 0
-                  }%`}
+                  style={`width: ${calculateResponseRate(
+                    stats().totalGuests,
+                    stats().attendingGuests + stats().declinedGuests
+                  )}%`}
                 ></div>
               </div>
             </div>
@@ -523,8 +473,9 @@ const Overview: Component<OverviewProps> = (props) => {
                 <div class="flex justify-between text-sm text-gray-600 mb-2">
                   <span>Budget Used</span>
                   <span>
-                    {Math.round(
-                      (stats().totalSpent / stats().totalBudget) * 100
+                    {calculateBudgetPercentage(
+                      stats().totalSpent,
+                      stats().totalBudget
                     )}
                     %
                   </span>
@@ -539,7 +490,10 @@ const Overview: Component<OverviewProps> = (props) => {
                         : "bg-gradient-to-r from-emerald-400 to-green-400"
                     }`}
                     style={`width: ${Math.min(
-                      (stats().totalSpent / stats().totalBudget) * 100,
+                      calculateBudgetPercentage(
+                        stats().totalSpent,
+                        stats().totalBudget
+                      ),
                       100
                     )}%`}
                   ></div>

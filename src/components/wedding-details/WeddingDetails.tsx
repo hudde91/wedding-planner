@@ -1,6 +1,7 @@
 import { Component, createSignal, onMount } from "solid-js";
 import { WeddingPlan } from "../../types";
 import { formatCurrency } from "../../utils/currency";
+import { calculateDaysUntilWedding, formatWeddingDate } from "../../utils/date";
 
 interface WeddingDetailsProps {
   weddingPlan: WeddingPlan;
@@ -255,22 +256,14 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
               {props.weddingPlan.wedding_date && (
                 <div class="space-y-1">
                   <p class="text-xl text-gray-700 font-light">
-                    {new Date(
-                      props.weddingPlan.wedding_date
-                    ).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatWeddingDate(props.weddingPlan.wedding_date)}
                   </p>
                   <p class="text-sm text-gray-500 font-light tracking-wide uppercase">
                     {(() => {
-                      const days = Math.ceil(
-                        (new Date(props.weddingPlan.wedding_date).getTime() -
-                          new Date().getTime()) /
-                          (1000 * 3600 * 24)
-                      );
+                      const days =
+                        calculateDaysUntilWedding(
+                          props.weddingPlan.wedding_date
+                        ) || 0;
                       if (days < 0) return `${Math.abs(days)} days ago`;
                       if (days === 0) return "Today!";
                       if (days === 1) return "Tomorrow!";
