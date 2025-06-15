@@ -8,6 +8,7 @@ import {
   Show,
   onMount,
 } from "solid-js";
+import { isUrl, truncateText } from "../../utils/validation";
 
 interface PinterestInspirationsProps {
   searchQuery: string;
@@ -237,7 +238,11 @@ const PinterestInspirations: Component<PinterestInspirationsProps> = (
                               target="_blank"
                               rel="noopener noreferrer"
                               onclick={(e) => e.stopPropagation()}
-                              class="flex-1 bg-white/90 backdrop-blur-sm text-gray-800 px-4 py-2 rounded-lg text-sm font-medium hover:bg-white transition-all duration-300 text-center border border-white/50"
+                              class={`flex-1 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 text-center border border-white/50 ${
+                                isUrl(pin.link)
+                                  ? "bg-white/90 backdrop-blur-sm hover:bg-white"
+                                  : "bg-gray-300 cursor-not-allowed"
+                              }`}
                             >
                               View Original
                             </a>
@@ -258,11 +263,11 @@ const PinterestInspirations: Component<PinterestInspirationsProps> = (
 
                     <div class="p-4">
                       <h4 class="font-medium text-gray-900 mb-2 line-clamp-2 text-sm leading-snug">
-                        {pin.title}
+                        {truncateText(pin.title, 60)}
                       </h4>
                       <Show when={pin.description}>
                         <p class="text-xs text-gray-600 mb-3 line-clamp-3 font-light leading-relaxed">
-                          {pin.description}
+                          {truncateText(pin.description, 120)}
                         </p>
                       </Show>
                       <div class="flex items-center justify-between text-xs text-gray-500">

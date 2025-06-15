@@ -1,5 +1,9 @@
 import { Component, createMemo } from "solid-js";
 import { formatCurrency } from "../../utils/currency";
+import {
+  getProgressColorClass,
+  getProgressMessage,
+} from "../../utils/progress";
 
 interface TodoProgressProps {
   completedCount: number;
@@ -12,23 +16,8 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
     props.totalCount > 0 ? (props.completedCount / props.totalCount) * 100 : 0
   );
 
-  const getProgressColor = () => {
-    const progress = progressPercentage();
-    if (progress >= 80) return "from-emerald-400 to-green-500";
-    if (progress >= 60) return "from-blue-400 to-cyan-500";
-    if (progress >= 40) return "from-amber-400 to-orange-500";
-    return "from-rose-400 to-pink-500";
-  };
-
-  const getProgressMessage = () => {
-    const progress = progressPercentage();
-    if (progress === 100) return "All tasks completed! 🎉";
-    if (progress >= 80) return "Almost there! Keep up the great work";
-    if (progress >= 60) return "Great progress! You're more than halfway";
-    if (progress >= 40) return "Good momentum! Keep going";
-    if (progress >= 20) return "Getting started! Every task counts";
-    return "Begin your planning journey";
-  };
+  const getProgressColor = () => getProgressColorClass(progressPercentage());
+  const _getProgressMessage = () => getProgressMessage(progressPercentage());
 
   return (
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -75,7 +64,7 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
             <span class="font-medium">
               {props.completedCount} of {props.totalCount} tasks completed
             </span>
-            <span class="font-light">{getProgressMessage()}</span>
+            <span class="font-light">{_getProgressMessage()}</span>
           </div>
 
           <div class="relative">

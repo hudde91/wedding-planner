@@ -10,6 +10,7 @@ import { TodoItem as TodoItemType, TodoFormData } from "../../types";
 import TodoProgress from "./TodoProgress";
 import AddTodoForm from "./AddTodoForm";
 import TodoItem from "./TodoItem";
+import { calculateTodoProgress } from "../../utils/progress";
 
 interface TodoListProps {
   todos: TodoItemType[];
@@ -27,11 +28,9 @@ const TodoList: Component<TodoListProps> = (props) => {
     setTimeout(() => setIsLoaded(true), 100);
   });
 
-  const completedCount = createMemo(
-    () => props.todos.filter((todo) => todo.completed).length
-  );
-
-  const totalCount = createMemo(() => props.todos.length);
+  const progress = calculateTodoProgress(props.todos);
+  const completedCount = () => progress.completed;
+  const totalCount = () => progress.total;
 
   const totalSpent = createMemo(() =>
     props.todos.reduce((sum, todo) => sum + (todo.cost || 0), 0)

@@ -1,5 +1,6 @@
 import { createSignal, Component, createMemo } from "solid-js";
 import { TodoItem } from "../../types";
+import { sanitizeInput } from "../../utils/validation";
 
 interface AddTodoFormProps {
   onAdd: (text: string) => void;
@@ -12,7 +13,7 @@ const AddTodoForm: Component<AddTodoFormProps> = (props) => {
 
   const handleSubmit = (e: Event): void => {
     e.preventDefault();
-    const text = newTodoText().trim();
+    const text = sanitizeInput(newTodoText().trim());
     if (text) {
       props.onAdd(text);
       setNewTodoText("");

@@ -9,6 +9,17 @@ import { TodoItem as TodoItemType, TodoFormData } from "../../types";
 import PinterestInspirations from "./PinterestInspirations";
 import type { PinterestPin } from "../../types";
 import { formatCurrency } from "../../utils/currency";
+import { formatCompactDate } from "../../utils/date";
+import {
+  getPaymentStatusStyle,
+  getProgressColor,
+  PaymentStatus,
+} from "../../utils/status";
+import {
+  formatPhoneNumber,
+  validatePhoneNumber,
+  validateEmail,
+} from "../../utils/validation";
 
 interface TodoItemProps {
   todo: TodoItemType;
@@ -87,6 +98,11 @@ const TodoItem: Component<TodoItemProps> = (props) => {
       clearTimeout(saveTimeoutRef);
     }
   });
+
+  const isValidVendorEmail = () =>
+    validateEmail(todoFormData().vendor_email || "");
+  const isValidVendorPhone = () =>
+    validatePhoneNumber(todoFormData().vendor_phone || "");
 
   const getTodoCostDisplay = (todo: TodoItemType): string => {
     if (typeof todo.cost === "number" && todo.cost > 0) {
@@ -260,6 +276,33 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                         {getTodoCostDisplay(props.todo)}
                       </div>
                     )}
+                    {todoFormData().payment_status && (
+                      <div
+                        class={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium ${
+                          getPaymentStatusStyle(
+                            (todoFormData().payment_status as PaymentStatus) ||
+                              "not_paid"
+                          ).containerClass
+                        }`}
+                      >
+                        <svg
+                          class="w-3 h-3 mr-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        {todoFormData()
+                          .payment_status?.replace("_", " ")
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -270,8 +313,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
           <div class="flex items-center space-x-2">
             <Show when={props.todo.completed && props.todo.completion_date}>
               <div class="text-xs text-gray-500 font-light mr-3">
-                Completed{" "}
-                {new Date(props.todo.completion_date!).toLocaleDateString()}
+                Completed {formatCompactDate(props.todo.completion_date!)}
               </div>
             </Show>
 
@@ -537,7 +579,21 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             (e.target as HTMLInputElement).value
                           )
                         }
-                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light"
+                        onBlur={(e) => {
+                          const formatted = formatPhoneNumber(
+                            (e.target as HTMLInputElement).value
+                          );
+                          if (
+                            formatted !== (e.target as HTMLInputElement).value
+                          ) {
+                            updateFormField("vendor_phone", formatted);
+                          }
+                        }}
+                        class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light ${
+                          !isValidVendorPhone()
+                            ? "border-red-300 ring-2 ring-red-100"
+                            : "border-blue-200"
+                        }`}
                         placeholder="(555) 123-4567"
                       />
                     </div>
@@ -554,7 +610,11 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             (e.target as HTMLInputElement).value
                           )
                         }
-                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light"
+                        class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light ${
+                          !isValidVendorEmail()
+                            ? "border-red-300 ring-2 ring-red-100"
+                            : "border-blue-200"
+                        }`}
                         placeholder="vendor@example.com"
                       />
                     </div>
