@@ -37,19 +37,6 @@ const App: Component = () => {
     tables: [],
   });
 
-  // const defaultTodos: TodoItem[] = [
-  //   { id: 1, text: "Set wedding date and venue", completed: false },
-  //   { id: 2, text: "Book photographer", completed: false },
-  //   { id: 3, text: "Choose wedding attire", completed: false },
-  //   { id: 4, text: "Order wedding cake", completed: false },
-  //   { id: 5, text: "Send invitations", completed: false },
-  //   { id: 6, text: "Arrange transportation", completed: false },
-  //   { id: 7, text: "Book honeymoon", completed: false },
-  //   { id: 8, text: "Purchase rings", completed: false },
-  //   { id: 9, text: "Plan reception menu", completed: false },
-  //   { id: 10, text: "Hire DJ/band", completed: false },
-  // ];
-
   const defaultTodos: TodoItem[] = [];
 
   onMount(async () => {
@@ -262,7 +249,10 @@ const App: Component = () => {
           weddingPlan={weddingPlan()}
         >
           <Show when={activeTab() === "overview"}>
-            <Overview weddingPlan={weddingPlan()} />
+            <Overview
+              weddingPlan={weddingPlan()}
+              onNavigateToTab={setActiveTab}
+            />
           </Show>
 
           <Show when={activeTab() === "details"}>

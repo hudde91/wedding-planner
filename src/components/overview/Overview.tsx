@@ -1,9 +1,10 @@
 import { Component, createSignal, onMount, Show } from "solid-js";
-import { WeddingPlan } from "../../types";
+import { WeddingPlan, TabId } from "../../types";
 import { useWeddingStats } from "../../hooks/useWeddingStats";
 
 interface OverviewProps {
   weddingPlan: WeddingPlan;
+  onNavigateToTab?: (tabId: TabId) => void;
 }
 
 const Overview: Component<OverviewProps> = (props) => {
@@ -731,9 +732,8 @@ const Overview: Component<OverviewProps> = (props) => {
       </Show>
 
       {/* Quick Actions */}
-      {/* TODO: Implement navigation with quick actions */}
       <div
-        class={`bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg transition-all duration-1000 delay-800 ${
+        class={`bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 p-8 transition-all duration-1000 delay-800 ${
           isLoaded()
             ? "opacity-100 transform translate-y-0"
             : "opacity-0 transform translate-y-8"
@@ -764,7 +764,10 @@ const Overview: Component<OverviewProps> = (props) => {
         </div>
 
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <button class="group p-6 border border-gray-200 rounded-xl hover:border-rose-300 hover:bg-rose-50/50 transition-all duration-300 text-left">
+          <button
+            onClick={() => props.onNavigateToTab?.("details")}
+            class="group p-6 border border-gray-200 rounded-xl hover:border-rose-300 hover:bg-rose-50/50 transition-all duration-300 text-left"
+          >
             <div class="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <svg
                 class="w-6 h-6 text-rose-600"
@@ -788,7 +791,10 @@ const Overview: Component<OverviewProps> = (props) => {
             </div>
           </button>
 
-          <button class="group p-6 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300 text-left">
+          <button
+            onClick={() => props.onNavigateToTab?.("guests")}
+            class="group p-6 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300 text-left"
+          >
             <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <svg
                 class="w-6 h-6 text-blue-600"
@@ -812,7 +818,10 @@ const Overview: Component<OverviewProps> = (props) => {
             </div>
           </button>
 
-          <button class="group p-6 border border-gray-200 rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-300 text-left">
+          <button
+            onClick={() => props.onNavigateToTab?.("todos")}
+            class="group p-6 border border-gray-200 rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-300 text-left"
+          >
             <div class="w-12 h-12 bg-gradient-to-br from-emerald-100 to-green-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <svg
                 class="w-6 h-6 text-emerald-600"
@@ -836,7 +845,10 @@ const Overview: Component<OverviewProps> = (props) => {
             </div>
           </button>
 
-          <button class="group p-6 border border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50/50 transition-all duration-300 text-left">
+          <button
+            onClick={() => props.onNavigateToTab?.("seating")}
+            class="group p-6 border border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50/50 transition-all duration-300 text-left"
+          >
             <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-violet-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
               <svg
                 class="w-6 h-6 text-purple-600"
