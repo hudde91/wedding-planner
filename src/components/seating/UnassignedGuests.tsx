@@ -1,5 +1,16 @@
 import { Component, For, Show, createSignal, createMemo } from "solid-js";
 import { Guest, Table } from "../../types";
+import {
+  capitalizeFirst,
+  getInitials,
+  pluralize,
+  truncateText,
+} from "../../utils/validation";
+import {
+  getGuestPartySize,
+  countTotalAttendees,
+  findGuestById,
+} from "../../utils/guest";
 
 interface UnassignedGuestsProps {
   guests: Guest[];
@@ -30,42 +41,33 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
       table.assigned_guests?.includes(guest.id)
     );
 
-    // Calculate total attendees (main guests + plus ones)
-    const totalAttendees = assignedGuests.reduce((sum, guest) => {
-      return sum + 1 + (guest.plus_ones?.length || 0);
-    }, 0);
+    // Use utility function instead of manual calculation
+    const totalAttendees = countTotalAttendees(assignedGuests);
 
     for (let i = 1; i <= table.capacity; i++) {
-      // For now, mark seats as occupied based on total attendees
-      // This is a simplified approach - in a more sophisticated system,
-      // you'd track specific seat assignments
       const isOccupied = i <= totalAttendees;
-      const occupyingGuestIndex = i - 1;
       let occupyingGuest = null;
       let guestName = "";
 
-      if (isOccupied && occupyingGuestIndex < assignedGuests.length) {
-        occupyingGuest = assignedGuests[occupyingGuestIndex];
+      if (isOccupied && i - 1 < assignedGuests.length) {
+        occupyingGuest = assignedGuests[i - 1];
         guestName = occupyingGuest.name;
       } else if (isOccupied) {
-        // This would be a plus one - find which guest it belongs to
+        // This would be a plus one - simplified logic
         let currentIndex = 0;
         for (const guest of assignedGuests) {
-          if (occupyingGuestIndex === currentIndex) {
-            guestName = guest.name;
+          const partySize = getGuestPartySize(guest); // Use utility function
+          if (i - 1 < currentIndex + partySize.total) {
+            if (i - 1 === currentIndex) {
+              guestName = guest.name;
+            } else {
+              const plusOneIndex = i - 1 - currentIndex - 1;
+              const plusOne = guest.plus_ones?.[plusOneIndex];
+              guestName = plusOne?.name || `${guest.name}'s +1`;
+            }
             break;
           }
-          currentIndex++;
-
-          for (let j = 0; j < (guest.plus_ones?.length || 0); j++) {
-            if (occupyingGuestIndex === currentIndex) {
-              const plusOne = guest.plus_ones[j];
-              guestName = plusOne.name || `${guest.name}'s +1`;
-              break;
-            }
-            currentIndex++;
-          }
-          if (guestName) break;
+          currentIndex += partySize.total;
         }
       }
 
@@ -126,20 +128,15 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
 
   const getSelectedGuestData = createMemo(() => {
     const guestId = selectedGuest();
-    return guestId ? props.guests.find((g) => g.id === guestId) : null;
+    return guestId ? findGuestById(props.guests, guestId) : null;
   });
 
   const getTableAvailableSeats = (table: Table) => {
-    const seats = generateSeats()(table);
-    return seats.filter((seat) => !seat.isOccupied).length;
-  };
-
-  const getGuestPartySize = (guest: Guest) => {
-    return {
-      mainGuest: 1,
-      plusOnes: guest.plus_ones.length,
-      total: 1 + guest.plus_ones.length,
-    };
+    const assignedGuests = props.guests.filter((guest) =>
+      table.assigned_guests?.includes(guest.id)
+    );
+    const occupiedSeats = countTotalAttendees(assignedGuests);
+    return table.capacity - occupiedSeats;
   };
 
   return (
@@ -185,7 +182,10 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                     </svg>
                     <span class="font-medium">
                       Main guest +{" "}
-                      {getSelectedGuestData()?.plus_ones?.length || 0} plus ones
+                      {pluralize(
+                        getSelectedGuestData()?.plus_ones?.length || 0,
+                        "plus one"
+                      )}
                     </span>
                   </div>
                   <Show
@@ -256,7 +256,7 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                     Unassigned Guests
                   </h3>
                   <p class="text-sm text-gray-600 font-light">
-                    {props.guests.length} waiting for seats
+                    {pluralize(props.guests.length, "guest")} waiting for seats
                   </p>
                 </div>
               </div>
@@ -309,15 +309,11 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                                   : "bg-gradient-to-br from-amber-400 to-orange-500"
                               }`}
                             >
-                              {guest.name
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .toUpperCase()}
+                              {getInitials(guest.name)}
                             </div>
                             <div class="flex-1 min-w-0">
-                              <h4 class="font-medium text-gray-900 truncate">
-                                {guest.name}
+                              <h4 class="font-medium text-gray-900">
+                                {truncateText(guest.name, 25)}
                               </h4>
                               <div class="flex items-center space-x-3 mt-1">
                                 <span class="text-xs text-gray-600">
@@ -325,12 +321,15 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                                 </span>
                                 <Show when={partyInfo.plusOnes > 0}>
                                   <span class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full">
-                                    +{partyInfo.plusOnes} plus ones
+                                    +{pluralize(partyInfo.plusOnes, "plus one")}
                                   </span>
                                 </Show>
                                 <Show when={guest.meal_preference}>
                                   <span class="text-xs text-gray-500">
-                                    • {guest.meal_preference}
+                                    •{" "}
+                                    {capitalizeFirst(
+                                      guest.meal_preference || ""
+                                    )}
                                   </span>
                                 </Show>
                               </div>
@@ -399,12 +398,10 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                   const seats = generateSeats()(table);
                   const availableSeats = getTableAvailableSeats(table);
                   const isTableSelected = selectedTable() === table.id;
-                  // Fix: Convert to proper boolean values
+
                   const canSelectTable =
                     selectedGuest() !== null && selectedTable() === null;
                   const hasAvailableSeats = availableSeats > 0;
-                  console.log("canSelectTable:", canSelectTable);
-                  console.log("hasAvailableSeats:", hasAvailableSeats);
 
                   return (
                     <div
@@ -464,12 +461,12 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                             </div>
                             <div>
                               <h3 class="text-xl font-medium text-gray-900">
-                                {table.name}
+                                {truncateText(table.name, 20)}
                               </h3>
                               <div class="flex items-center space-x-4 mt-1">
                                 <span class="text-sm text-gray-600">
-                                  {availableSeats} of {table.capacity} seats
-                                  available
+                                  {pluralize(availableSeats, "seat")} of{" "}
+                                  {table.capacity} available
                                 </span>
                                 <Show when={canSelectTable}>
                                   <Show when={hasAvailableSeats}>
@@ -686,8 +683,8 @@ const UnassignedGuests: Component<UnassignedGuestsProps> = (props) => {
                                       <div class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
                                         {seat.number}
                                       </div>
-                                      <span class="text-gray-800 truncate">
-                                        {seat.guestName}
+                                      <span class="text-gray-800">
+                                        {truncateText(seat.guestName || "", 15)}
                                       </span>
                                     </div>
                                   )}

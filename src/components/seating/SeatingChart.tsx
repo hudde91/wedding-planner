@@ -1,6 +1,14 @@
 import { createSignal, Component, For, Show, createMemo } from "solid-js";
 import { Table, Guest, TableShape, SeatAssignment } from "../../types";
-import { nanoid } from "nanoid";
+import {
+  generateId,
+  getInitials,
+  isValidNumber,
+  pluralize,
+  sanitizeInput,
+  truncateText,
+} from "../../utils/validation";
+import { getUnassignedAttendees } from "../../utils/guest";
 
 interface SeatingChartProps {
   tables: Table[];
@@ -69,38 +77,9 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
 
   // Get all attending guests (main guests + plus ones as separate entities)
   const allAttendees = createMemo(() => {
-    const attendees: {
-      id: string;
-      name: string;
-      type: "main" | "plus_one";
-      originalGuestId: string;
-    }[] = [];
-
-    props.guests.forEach((guest) => {
-      if (guest.rsvp_status === "attending") {
-        // Add main guest
-        attendees.push({
-          id: guest.id,
-          name: guest.name,
-          type: "main",
-          originalGuestId: guest.id,
-        });
-
-        // Add each plus one as a separate attendee
-        guest.plus_ones.forEach((plusOne, index) => {
-          attendees.push({
-            id: `${guest.id}_plus_${index}`,
-            name: plusOne.name || `${guest.name}'s Guest ${index + 1}`,
-            type: "plus_one",
-            originalGuestId: guest.id,
-          });
-        });
-      }
-    });
-
-    return attendees;
+    const assignedIds = seatAssignments().map((a) => a.guestId);
+    return getUnassignedAttendees(props.guests, assignedIds);
   });
-
   // Get unassigned attendees
   const unassignedAttendees = createMemo(() => {
     const assignedIds = new Set(seatAssignments().map((a) => a.guestId));
@@ -121,29 +100,6 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
   const getOccupiedSeats = (tableId: string) => {
     return seatAssignments().filter((a) => a.tableId === tableId);
   };
-
-  // Get available seats for the selected table
-  const getAvailableSeats = createMemo(() => {
-    if (!selectedTableId()) return [];
-
-    const table = props.tables.find((t) => t.id === selectedTableId());
-    if (!table) return [];
-
-    const occupiedSeatNumbers = new Set(
-      seatAssignments()
-        .filter((a) => a.tableId === selectedTableId())
-        .map((a) => a.seatNumber)
-    );
-
-    const availableSeats = [];
-    for (let i = 1; i <= table.capacity; i++) {
-      if (!occupiedSeatNumbers.has(i)) {
-        availableSeats.push(i);
-      }
-    }
-
-    return availableSeats;
-  });
 
   const handleGuestSelect = (guestId: string) => {
     setSelectedGuestId(guestId);
@@ -203,7 +159,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     if (!form.name.trim()) return;
 
     const newTable: Table = {
-      id: nanoid(),
+      id: generateId(),
       name: form.name.trim(),
       capacity: form.capacity,
       shape: form.shape,
@@ -622,7 +578,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                   Table Management
                 </h2>
                 <p class="text-gray-600 font-light">
-                  {props.tables.length} tables configured
+                  {pluralize(props.tables.length, "table")} configured
                 </p>
               </div>
             </div>
@@ -669,7 +625,9 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                     type="text"
                     value={tableForm().name}
                     onInput={(e) => {
-                      const value = (e.target as HTMLInputElement).value;
+                      const value = sanitizeInput(
+                        (e.target as HTMLInputElement).value
+                      );
                       if (editingTable()) {
                         handleAutoUpdateTable("name", value);
                       } else {
@@ -690,13 +648,17 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                     max="20"
                     value={tableForm().capacity}
                     onInput={(e) => {
-                      const value = Number(
-                        (e.target as HTMLInputElement).value
-                      );
-                      if (editingTable()) {
-                        handleAutoUpdateTable("capacity", value);
-                      } else {
-                        setTableForm((prev) => ({ ...prev, capacity: value }));
+                      const inputValue = (e.target as HTMLInputElement).value;
+                      if (isValidNumber(inputValue)) {
+                        const value = Number(inputValue);
+                        if (editingTable()) {
+                          handleAutoUpdateTable("capacity", value);
+                        } else {
+                          setTableForm((prev) => ({
+                            ...prev,
+                            capacity: value,
+                          }));
+                        }
                       }
                     }}
                     class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300"
@@ -911,8 +873,8 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                                 <div class="w-4 h-4 bg-gray-300 rounded-full flex items-center justify-center text-xs font-bold text-gray-700">
                                   {assignment.seatNumber}
                                 </div>
-                                <span class="truncate">
-                                  {assignment.guestName}
+                                <span>
+                                  {truncateText(assignment.guestName, 20)}
                                 </span>
                               </div>
                             )}
@@ -1220,11 +1182,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
               <div class="flex items-center space-x-6">
                 <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
                   <span class="text-white font-bold text-lg">
-                    {selectedGuest()
-                      ?.name.split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()}
+                    {getInitials(selectedGuest()?.name || "")}
                   </span>
                 </div>
                 <div>
@@ -1289,7 +1247,8 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                       Available Guests
                     </h3>
                     <p class="text-gray-600 font-light">
-                      {unassignedAttendees().length} awaiting seats
+                      {pluralize(unassignedAttendees().length, "guest")}{" "}
+                      awaiting seats
                     </p>
                   </div>
                 </div>
@@ -1421,7 +1380,8 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                         Available Tables
                       </h3>
                       <p class="text-gray-600 font-light">
-                        {availableTables().length} tables with space
+                        {pluralize(availableTables().length, "table")} with
+                        space
                       </p>
                     </div>
                   </div>
@@ -1497,8 +1457,8 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                                       {table.name}
                                     </h4>
                                     <p class="text-blue-600 text-sm">
-                                      {availableSeats} of {table.capacity} seats
-                                      available
+                                      {pluralize(availableSeats, "seat")} of{" "}
+                                      {table.capacity} available
                                     </p>
                                   </div>
                                 </div>
@@ -1554,7 +1514,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                     </div>
                     <div>
                       <h3 class="text-xl font-semibold text-gray-900">
-                        {selectedTable()?.name}
+                        {truncateText(selectedTable()?.name || "", 15)}
                       </h3>
                       <p class="text-gray-600 font-light">
                         Choose a seat for {selectedGuest()?.name}

@@ -1,4 +1,10 @@
 import { Component, createSignal, Show } from "solid-js";
+import {
+  formatName,
+  isValidNumber,
+  pluralize,
+  sanitizeInput,
+} from "../../utils/validation";
 
 interface TableData {
   name: string;
@@ -15,9 +21,10 @@ const TableControls: Component<TableControlsProps> = (props) => {
   const [tableCapacity, setTableCapacity] = createSignal(8);
 
   const handleAddTable = () => {
-    if (tableName().trim()) {
+    const sanitizedName = sanitizeInput(tableName());
+    if (sanitizedName) {
       props.onAddTable({
-        name: tableName().trim(),
+        name: formatName(sanitizedName),
         capacity: tableCapacity(),
       });
       setTableName("");
@@ -86,7 +93,11 @@ const TableControls: Component<TableControlsProps> = (props) => {
                 type="text"
                 value={tableName()}
                 onInput={(e) =>
-                  setTableName((e.target as HTMLInputElement).value)
+                  setTableName(
+                    formatName(
+                      sanitizeInput((e.target as HTMLInputElement).value)
+                    )
+                  )
                 }
                 placeholder="e.g., Bride's Family, College Friends"
                 class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300 font-light"
@@ -101,9 +112,12 @@ const TableControls: Component<TableControlsProps> = (props) => {
                 min="2"
                 max="20"
                 value={tableCapacity()}
-                onInput={(e) =>
-                  setTableCapacity(Number((e.target as HTMLInputElement).value))
-                }
+                onInput={(e) => {
+                  const value = (e.target as HTMLInputElement).value;
+                  if (isValidNumber(value)) {
+                    setTableCapacity(Number(value));
+                  }
+                }}
                 class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300 font-light"
               />
             </div>
@@ -111,7 +125,7 @@ const TableControls: Component<TableControlsProps> = (props) => {
           <div class="flex space-x-3 mt-4">
             <button
               onClick={handleAddTable}
-              disabled={!tableName().trim()}
+              disabled={!sanitizeInput(tableName())}
               class={`px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                 tableName().trim()
                   ? "bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:shadow-lg hover:scale-105"
@@ -168,7 +182,7 @@ const TableControls: Component<TableControlsProps> = (props) => {
                         d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
                       />
                     </svg>
-                    <span>{preset.capacity} seats</span>
+                    <span>{pluralize(preset.capacity, "seat")}</span>
                   </div>
                 </div>
                 <div class="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
