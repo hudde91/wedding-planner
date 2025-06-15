@@ -1,5 +1,12 @@
 import { createSignal, Component, For } from "solid-js";
 import { Guest, GuestFormData, RSVPStatus, PlusOne } from "../../types";
+import {
+  validateEmail,
+  validatePhoneNumber,
+  formatName,
+  sanitizeInput,
+  generateId,
+} from "../../utils/validation";
 import PlusOneForm from "./PlusOneForm";
 
 interface GuestFormProps {
@@ -19,12 +26,29 @@ const GuestForm: Component<GuestFormProps> = (props) => {
     notes: props.editingGuest?.notes || "",
   });
 
+  const [validationErrors, setValidationErrors] = createSignal<{
+    email?: string;
+    phone?: string;
+  }>({});
+
   const handleSubmit = (e: Event): void => {
     e.preventDefault();
     const data = formData();
 
     if (!data.name.trim()) {
       alert("Guest name is required");
+      return;
+    }
+
+    // Validate email if provided
+    if (data.email && !validateEmail(data.email)) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    // Validate phone if provided
+    if (data.phone && !validatePhoneNumber(data.phone)) {
+      alert("Please enter a valid phone number");
       return;
     }
 
@@ -36,6 +60,41 @@ const GuestForm: Component<GuestFormProps> = (props) => {
     value: GuestFormData[K]
   ): void => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear validation errors when user types
+    if (field === "email" || field === "phone") {
+      setValidationErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handleEmailChange = (value: string): void => {
+    const sanitized = sanitizeInput(value);
+    updateFormField("email", sanitized);
+
+    // Real-time validation feedback
+    if (sanitized && !validateEmail(sanitized)) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        email: "Please enter a valid email address",
+      }));
+    } else {
+      setValidationErrors((prev) => ({ ...prev, email: undefined }));
+    }
+  };
+
+  const handlePhoneChange = (value: string): void => {
+    const sanitized = sanitizeInput(value);
+    updateFormField("phone", sanitized);
+
+    // Real-time validation feedback
+    if (sanitized && !validatePhoneNumber(sanitized)) {
+      setValidationErrors((prev) => ({
+        ...prev,
+        phone: "Please enter a valid phone number",
+      }));
+    } else {
+      setValidationErrors((prev) => ({ ...prev, phone: undefined }));
+    }
   };
 
   const addPlusOne = (): void => {
@@ -44,7 +103,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
     const plusOneNumber = currentForm.plus_ones.length + 1;
 
     const newPlusOne: PlusOne = {
-      id: `temp_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+      id: `temp_${generateId()}`,
       name: `${guestName}'s plus one ${plusOneNumber}`,
       meal_preference: "",
       notes: "",
@@ -91,7 +150,12 @@ const GuestForm: Component<GuestFormProps> = (props) => {
               type="text"
               value={formData().name}
               onInput={(e) =>
-                updateFormField("name", (e.target as HTMLInputElement).value)
+                updateFormField(
+                  "name",
+                  formatName(
+                    sanitizeInput((e.target as HTMLInputElement).value)
+                  )
+                )
               }
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
               required
@@ -105,10 +169,17 @@ const GuestForm: Component<GuestFormProps> = (props) => {
               type="email"
               value={formData().email}
               onInput={(e) =>
-                updateFormField("email", (e.target as HTMLInputElement).value)
+                handleEmailChange((e.target as HTMLInputElement).value)
               }
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                validationErrors().email ? "border-red-300" : "border-gray-300"
+              }`}
             />
+            {validationErrors().email && (
+              <p class="text-red-500 text-xs mt-1">
+                {validationErrors().email}
+              </p>
+            )}
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -118,10 +189,17 @@ const GuestForm: Component<GuestFormProps> = (props) => {
               type="tel"
               value={formData().phone}
               onInput={(e) =>
-                updateFormField("phone", (e.target as HTMLInputElement).value)
+                handlePhoneChange((e.target as HTMLInputElement).value)
               }
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+              class={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                validationErrors().phone ? "border-red-300" : "border-gray-300"
+              }`}
             />
+            {validationErrors().phone && (
+              <p class="text-red-500 text-xs mt-1">
+                {validationErrors().phone}
+              </p>
+            )}
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -152,7 +230,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
               onInput={(e) =>
                 updateFormField(
                   "meal_preference",
-                  (e.target as HTMLInputElement).value
+                  sanitizeInput((e.target as HTMLInputElement).value)
                 )
               }
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -206,7 +284,10 @@ const GuestForm: Component<GuestFormProps> = (props) => {
           <textarea
             value={formData().notes}
             onInput={(e) =>
-              updateFormField("notes", (e.target as HTMLTextAreaElement).value)
+              updateFormField(
+                "notes",
+                sanitizeInput((e.target as HTMLTextAreaElement).value)
+              )
             }
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             rows="2"

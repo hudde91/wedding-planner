@@ -4,6 +4,7 @@ import {
   GuestFormData,
   GuestStats as GuestStatsType,
 } from "../../types";
+import { calculateGuestStats } from "../../utils/guest";
 import GuestForm from "./GuestForm";
 import GuestCard from "./GuestCard";
 import GuestStats from "./GuestStats";
@@ -25,16 +26,13 @@ const GuestList: Component<GuestListProps> = (props) => {
   });
 
   const stats = (): GuestStatsType => {
-    const guests = props.guests;
-    const attending = guests.filter((g) => g.rsvp_status === "attending");
-    const declined = guests.filter((g) => g.rsvp_status === "declined");
-    const pending = guests.filter((g) => g.rsvp_status === "pending");
-    const totalAttendees = attending.reduce(
-      (sum, guest) => sum + 1 + guest.plus_ones.length,
-      0
-    );
-
-    return { attending, declined, pending, totalAttendees };
+    const guestStats = calculateGuestStats(props.guests);
+    return {
+      attending: guestStats.attendingGuests,
+      declined: guestStats.declinedGuests,
+      pending: guestStats.pendingGuests,
+      totalAttendees: guestStats.totalAttendees,
+    };
   };
 
   const handleAddGuest = (guestData: GuestFormData): void => {

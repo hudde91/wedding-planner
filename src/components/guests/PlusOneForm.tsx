@@ -1,5 +1,6 @@
 import { Component } from "solid-js";
 import { PlusOne } from "../../types";
+import { sanitizeInput, formatName } from "../../utils/validation";
 
 interface PlusOneFormProps {
   plusOne: PlusOne;
@@ -53,7 +54,7 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
               props.onUpdate(
                 props.plusOne.id,
                 "name",
-                (e.target as HTMLInputElement).value
+                formatName(sanitizeInput((e.target as HTMLInputElement).value))
               )
             }
             class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
@@ -71,7 +72,7 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
               props.onUpdate(
                 props.plusOne.id,
                 "meal_preference",
-                (e.target as HTMLInputElement).value
+                sanitizeInput((e.target as HTMLInputElement).value)
               )
             }
             class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
@@ -88,7 +89,7 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
               props.onUpdate(
                 props.plusOne.id,
                 "notes",
-                (e.target as HTMLTextAreaElement).value
+                sanitizeInput((e.target as HTMLTextAreaElement).value)
               )
             }
             class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"

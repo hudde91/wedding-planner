@@ -5,7 +5,7 @@ import {
   getCardBorderColorByRSVP,
 } from "../../utils/status";
 import { getGuestPartySize } from "../../utils/guest";
-import { pluralize } from "../../utils/validation";
+import { pluralize, capitalizeFirst } from "../../utils/validation";
 
 interface GuestCardProps {
   guest: Guest;
@@ -49,8 +49,7 @@ const GuestCard: Component<GuestCardProps> = (props) => {
                 />
               </svg>
               {/* ✅ Use utility for formatting */}
-              {props.guest.rsvp_status.charAt(0).toUpperCase() +
-                props.guest.rsvp_status.slice(1)}
+              {capitalizeFirst(props.guest.rsvp_status)}
             </div>
           </div>
 
