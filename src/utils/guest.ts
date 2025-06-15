@@ -176,8 +176,7 @@ export const generateGuestInsights = (guests: Guest[]): GuestInsights => {
 
   // Estimate final count assuming 70% of pending guests will attend
   const stats = calculateGuestStats(guests);
-  const estimatedAttending =
-    stats.attendingGuests.length + Math.round(stats.pendingGuests.length * 0.7);
+
   const estimatedFinalCount =
     guests
       .filter((g) => g.rsvp_status === "attending")

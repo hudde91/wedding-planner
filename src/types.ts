@@ -56,7 +56,6 @@ export interface TodoItem {
   text: string;
   completed: boolean;
   cost?: number;
-  budget?: number;
   payment_status?: string;
   due_date?: string;
   vendor_name?: string;
@@ -108,7 +107,6 @@ export interface GuestStats {
 
 export interface TodoFormData {
   cost?: number;
-  budget?: number;
   payment_status?: string;
   due_date?: string;
   vendor_name?: string;
@@ -122,7 +120,7 @@ export interface BudgetSummary {
   totalBudget: number;
   totalSpent: number;
   remainingBudget: number;
-  spentPercentage: number;
+  spentPercentage?: number;
   daysUntilWedding: number | null;
   totalGuests: number;
   attendingGuests: number;

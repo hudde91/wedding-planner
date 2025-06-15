@@ -429,32 +429,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                   <div class="grid grid-cols-1 gap-4">
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Estimated Budget
-                      </label>
-                      <div class="relative">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <span class="text-gray-500">$</span>
-                        </div>
-                        <input
-                          type="number"
-                          min="0"
-                          value={todoFormData().budget || ""}
-                          onInput={(e) =>
-                            updateFormField(
-                              "budget",
-                              parseFloat(
-                                (e.target as HTMLInputElement).value
-                              ) || undefined
-                            )
-                          }
-                          class="w-full pl-8 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
-                          placeholder="0"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label class="block text-sm font-medium text-gray-700 mb-1">
-                        Actual Cost
+                        Cost
                       </label>
                       <div class="relative">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
