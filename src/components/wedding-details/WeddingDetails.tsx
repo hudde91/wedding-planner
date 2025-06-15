@@ -1,5 +1,6 @@
 import { Component, createSignal, onMount } from "solid-js";
 import { WeddingPlan } from "../../types";
+import { formatCurrency } from "../../utils/currency";
 
 interface WeddingDetailsProps {
   weddingPlan: WeddingPlan;
@@ -15,15 +16,6 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
   onMount(() => {
     setTimeout(() => setIsLoaded(true), 100);
   });
-
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   return (
     <div class="space-y-8">

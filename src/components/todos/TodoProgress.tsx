@@ -1,4 +1,5 @@
 import { Component, createMemo } from "solid-js";
+import { formatCurrency } from "../../utils/currency";
 
 interface TodoProgressProps {
   completedCount: number;
@@ -7,15 +8,6 @@ interface TodoProgressProps {
 }
 
 const TodoProgress: Component<TodoProgressProps> = (props) => {
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
   const progressPercentage = createMemo(() =>
     props.totalCount > 0 ? (props.completedCount / props.totalCount) * 100 : 0
   );

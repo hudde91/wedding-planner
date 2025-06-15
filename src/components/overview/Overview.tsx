@@ -1,6 +1,7 @@
 import { Component, createSignal, onMount, Show } from "solid-js";
 import { WeddingPlan, TabId } from "../../types";
 import { useWeddingStats } from "../../hooks/useWeddingStats";
+import { formatCurrency } from "../../utils/currency";
 
 interface OverviewProps {
   weddingPlan: WeddingPlan;
@@ -28,15 +29,6 @@ const Overview: Component<OverviewProps> = (props) => {
 
     return () => clearInterval(interval);
   });
-
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const getWeddingCountdown = () => {
     const days = stats().daysUntilWedding;

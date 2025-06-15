@@ -8,6 +8,7 @@ import {
 import { TodoItem as TodoItemType, TodoFormData } from "../../types";
 import PinterestInspirations from "./PinterestInspirations";
 import type { PinterestPin } from "../../types";
+import { formatCurrency } from "../../utils/currency";
 
 interface TodoItemProps {
   todo: TodoItemType;
@@ -86,15 +87,6 @@ const TodoItem: Component<TodoItemProps> = (props) => {
       clearTimeout(saveTimeoutRef);
     }
   });
-
-  const formatCurrency = (amount: number): string => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
 
   const getTodoCostDisplay = (todo: TodoItemType): string => {
     if (typeof todo.cost === "number" && todo.cost > 0) {

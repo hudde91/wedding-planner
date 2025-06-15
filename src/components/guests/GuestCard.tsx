@@ -1,5 +1,11 @@
 import { Component, For } from "solid-js";
-import { Guest, RSVPStatus } from "../../types";
+import { Guest } from "../../types";
+import {
+  getRSVPStatusStyle,
+  getCardBorderColorByRSVP,
+} from "../../utils/status";
+import { getGuestPartySize } from "../../utils/guest";
+import { pluralize } from "../../utils/validation";
 
 interface GuestCardProps {
   guest: Guest;
@@ -8,44 +14,14 @@ interface GuestCardProps {
 }
 
 const GuestCard: Component<GuestCardProps> = (props) => {
-  const getRSVPColor = (status: RSVPStatus): string => {
-    switch (status) {
-      case "attending":
-        return "text-emerald-700 bg-emerald-100 border-emerald-200";
-      case "declined":
-        return "text-red-700 bg-red-100 border-red-200";
-      default:
-        return "text-amber-700 bg-amber-100 border-amber-200";
-    }
-  };
-
-  const getRSVPIcon = (status: RSVPStatus): string => {
-    switch (status) {
-      case "attending":
-        return "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z";
-      case "declined":
-        return "M6 18L18 6M6 6l12 12";
-      default:
-        return "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z";
-    }
-  };
-
-  const getCardBorderColor = (status: RSVPStatus): string => {
-    switch (status) {
-      case "attending":
-        return "border-emerald-200/60 hover:border-emerald-300/80";
-      case "declined":
-        return "border-red-200/60 hover:border-red-300/80";
-      default:
-        return "border-amber-200/60 hover:border-amber-300/80";
-    }
-  };
+  const rsvpStyle = () => getRSVPStatusStyle(props.guest.rsvp_status);
+  const cardBorderColor = () =>
+    getCardBorderColorByRSVP(props.guest.rsvp_status);
+  const partyInfo = () => getGuestPartySize(props.guest);
 
   return (
     <div
-      class={`group bg-white/80 backdrop-blur-sm border rounded-xl p-6 hover:shadow-xl transition-all duration-500 ${getCardBorderColor(
-        props.guest.rsvp_status
-      )}`}
+      class={`group bg-white/80 backdrop-blur-sm border rounded-xl p-6 hover:shadow-xl transition-all duration-500 ${cardBorderColor()}`}
     >
       {/* Header */}
       <div class="flex justify-between items-start mb-4">
@@ -55,9 +31,9 @@ const GuestCard: Component<GuestCardProps> = (props) => {
               {props.guest.name}
             </h3>
             <div
-              class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getRSVPColor(
-                props.guest.rsvp_status
-              )}`}
+              class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${
+                rsvpStyle().containerClass
+              }`}
             >
               <svg
                 class="w-3 h-3 mr-1"
@@ -69,9 +45,10 @@ const GuestCard: Component<GuestCardProps> = (props) => {
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d={getRSVPIcon(props.guest.rsvp_status)}
+                  d={rsvpStyle().iconPath}
                 />
               </svg>
+              {/* ✅ Use utility for formatting */}
               {props.guest.rsvp_status.charAt(0).toUpperCase() +
                 props.guest.rsvp_status.slice(1)}
             </div>
@@ -214,8 +191,8 @@ const GuestCard: Component<GuestCardProps> = (props) => {
             <div>
               <div class="text-xs text-purple-600 font-medium">Plus Ones</div>
               <div class="text-sm text-gray-700 font-light">
-                +{props.guest.plus_ones.length} guest
-                {props.guest.plus_ones.length > 1 ? "s" : ""}
+                {/* ✅ Use utility for pluralization */}+
+                {pluralize(partyInfo().plusOnes, "guest")}
               </div>
             </div>
           </div>
@@ -240,14 +217,8 @@ const GuestCard: Component<GuestCardProps> = (props) => {
           <div>
             <div class="text-xs text-blue-600 font-medium">Total Attendees</div>
             <div class="text-sm text-gray-700 font-light">
-              {(() => {
-                const mainGuest = 1;
-                const plusOnesCount = props.guest.plus_ones
-                  ? props.guest.plus_ones.length
-                  : 0;
-                const total = mainGuest + plusOnesCount;
-                return `${total} attendee${total > 1 ? "s" : ""}`;
-              })()}
+              {/* ✅ Use utility for party size calculation */}
+              {pluralize(partyInfo().total, "attendee")}
             </div>
           </div>
         </div>
