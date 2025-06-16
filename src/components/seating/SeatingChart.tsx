@@ -1,4 +1,3 @@
-// ===== CLEAN: EnhancedSeatingChart.tsx (No shouldShowOverview) =====
 import {
   Component,
   createSignal,
@@ -10,10 +9,8 @@ import { Table, Guest, SeatAssignment } from "../../types";
 import { getUnassignedAttendees } from "../../utils/guest";
 
 import SeatingSteps from "./SeatingSteps";
-import GuestSelection from "./GuestSelection";
 import TableSelection from "./TableSelection";
-import SeatSelection from "./SeatSelection";
-import TableView from "./TableView";
+import TableAssignment from "./TableAssignment";
 import SeatingOverview from "./SeatingOverview";
 
 interface SeatingChartProps {
@@ -22,26 +19,14 @@ interface SeatingChartProps {
   onUpdateTables: (tables: Table[]) => void;
 }
 
-const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
+const SeatingChart: Component<SeatingChartProps> = (props) => {
   // State management
-  const [selectedGuestId, setSelectedGuestId] = createSignal<string | null>(
-    null
-  );
   const [selectedTableId, setSelectedTableId] = createSignal<string | null>(
     null
   );
-  const [currentStep, setCurrentStep] = createSignal<1 | 2 | 3>(1);
-  const [viewingTableId, setViewingTableId] = createSignal<string | null>(null);
+  const [currentStep, setCurrentStep] = createSignal<1 | 2>(1);
   const [isSaving, setIsSaving] = createSignal(false);
-  const [isEditing, setIsEditing] = createSignal(false);
-  const [overviewExpanded, setOverviewExpanded] = createSignal(false); // Always available overview
-
-  // Helper function to reset selection (defined early to avoid hoisting issues)
-  const resetSelection = () => {
-    setSelectedGuestId(null);
-    setSelectedTableId(null);
-    setCurrentStep(1);
-  };
+  const [overviewExpanded, setOverviewExpanded] = createSignal(false);
 
   // Get all seat assignments from table data
   const seatAssignments = createMemo(() => {
@@ -61,7 +46,7 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
     return unassigned.length === 0;
   });
 
-  // Show overview expanded by default when all guests are seated (unless actively editing)
+  // Auto-expand overview when all guests are seated
   createEffect(() => {
     if (allGuestsSeated()) {
       setOverviewExpanded(true);
@@ -69,26 +54,14 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
   });
 
   // Get unassigned attendees
-  const allAttendees = createMemo(() => {
+  const unassignedAttendees = createMemo(() => {
     const assignedIds = seatAssignments().map((a) => a.guestId);
     return getUnassignedAttendees(props.guests, assignedIds);
-  });
-
-  // Get selected guest
-  const selectedGuest = createMemo(() => {
-    const id = selectedGuestId();
-    return id ? allAttendees().find((a) => a.id === id) : null;
   });
 
   // Get selected table
   const selectedTable = createMemo(() => {
     const id = selectedTableId();
-    return id ? props.tables.find((t) => t.id === id) : null;
-  });
-
-  // Get viewing table
-  const viewingTable = createMemo(() => {
-    const id = viewingTableId();
     return id ? props.tables.find((t) => t.id === id) : null;
   });
 
@@ -114,28 +87,17 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
   };
 
   // Event handlers
-  const handleGuestSelect = (guestId: string) => {
-    setSelectedGuestId(guestId);
-    setSelectedTableId(null);
-    setCurrentStep(2);
-    // Close overview when starting assignment to focus on the task
-    setOverviewExpanded(false);
-  };
-
   const handleTableSelect = (tableId: string) => {
     setSelectedTableId(tableId);
-    setCurrentStep(3);
-    // Close overview when progressing to seat selection
-    setOverviewExpanded(false);
+    setCurrentStep(2);
+    setOverviewExpanded(false); // Collapse overview when starting assignment
   };
 
-  const handleSeatSelect = (seatNumber: number) => {
-    const guestId = selectedGuestId();
+  const handleSeatAssign = (seatNumber: number, guestId: string) => {
     const tableId = selectedTableId();
+    if (!tableId) return;
 
-    if (!guestId || !tableId) return;
-
-    const guest = allAttendees().find((a) => a.id === guestId);
+    const guest = unassignedAttendees().find((a) => a.id === guestId);
     if (!guest) return;
 
     const newAssignment: SeatAssignment = {
@@ -147,19 +109,6 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
 
     const updatedAssignments = [...seatAssignments(), newAssignment];
     updateTablesWithAssignments(updatedAssignments);
-
-    resetSelection();
-
-    // Check if editing is complete (all guests seated again)
-    const newUnassigned = getUnassignedAttendees(
-      props.guests,
-      updatedAssignments.map((a) => a.guestId)
-    );
-    if (newUnassigned.length === 0) {
-      // All guests are seated again, exit editing mode and expand overview
-      setIsEditing(false);
-      setOverviewExpanded(true);
-    }
   };
 
   const handleRemoveAssignment = (guestId: string) => {
@@ -167,55 +116,29 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
       (a) => a.guestId !== guestId
     );
     updateTablesWithAssignments(updatedAssignments);
+  };
 
-    // If removing creates unassigned guests, set editing mode and collapse overview
-    const newUnassigned = getUnassignedAttendees(
-      props.guests,
-      updatedAssignments.map((a) => a.guestId)
-    );
-    if (newUnassigned.length > 0) {
-      setIsEditing(true);
-      setOverviewExpanded(false);
-    }
+  const handleBackToTableSelection = () => {
+    setSelectedTableId(null);
+    setCurrentStep(1);
   };
 
   const handleViewTable = (tableId: string) => {
-    // Set the table to view and stay in current mode
-    setViewingTableId(viewingTableId() === tableId ? null : tableId);
+    // Navigate to table assignment for viewing/editing
+    setSelectedTableId(tableId);
+    setCurrentStep(2);
+    setOverviewExpanded(false);
   };
 
   const handleEditTable = (tableId: string) => {
-    // Set editing mode and collapse overview to focus on editing
-    setIsEditing(true);
-    setOverviewExpanded(false);
-
-    // Unassign all guests from this specific table to make them available for reassignment
-    const updatedAssignments = seatAssignments().filter(
-      (a) => a.tableId !== tableId
-    );
-    updateTablesWithAssignments(updatedAssignments);
-
-    // Set the table for viewing so user can see the empty table
-    setViewingTableId(tableId);
-    resetSelection();
-
-    // Small delay to let the assignments update, then auto-select first unassigned guest
-    setTimeout(() => {
-      const unassigned = getUnassignedAttendees(
-        props.guests,
-        updatedAssignments.map((a) => a.guestId)
-      );
-      if (unassigned.length > 0) {
-        handleGuestSelect(unassigned[0].id);
-      }
-    }, 100);
+    // Same as view table in this simplified flow
+    handleViewTable(tableId);
   };
 
   const handleBackToAssignment = () => {
-    setIsEditing(true); // Set editing mode
-    setOverviewExpanded(false); // Collapse overview to focus on assignment
-    setViewingTableId(null);
-    resetSelection();
+    setOverviewExpanded(false);
+    setSelectedTableId(null);
+    setCurrentStep(1);
   };
 
   return (
@@ -246,7 +169,7 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
           <p class="text-xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
             {allGuestsSeated()
               ? "Review and manage your finalized seating arrangements"
-              : "Create the perfect seating plan with our elegant three-step process"}
+              : "Select a table and assign guests to individual seats"}
           </p>
 
           {/* Auto-save indicator */}
@@ -303,7 +226,7 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
                       {props.tables.length} tables •
                       {allGuestsSeated()
                         ? " Complete!"
-                        : ` ${allAttendees().length} remaining`}
+                        : ` ${unassignedAttendees().length} remaining`}
                     </p>
                   </div>
                 </div>
@@ -340,11 +263,7 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
                   guests={props.guests}
                   seatAssignments={seatAssignments()}
                   onEditTable={handleEditTable}
-                  onViewTable={(tableId: string) =>
-                    setViewingTableId(
-                      viewingTableId() === tableId ? null : tableId
-                    )
-                  }
+                  onViewTable={handleViewTable}
                   onBackToAssignment={handleBackToAssignment}
                 />
               </div>
@@ -352,221 +271,104 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
           </div>
         </div>
 
-        {/* Assignment Interface */}
-        {/* Show editing mode indicator */}
-        <Show when={isEditing()}>
-          <div class="bg-amber-100 border border-amber-200 rounded-xl p-4 mb-8">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-3">
-                <svg
-                  class="w-5 h-5 text-amber-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                <div>
-                  <p class="text-amber-800 font-medium">Editing Mode Active</p>
-                  <p class="text-amber-700 text-sm">
-                    Make your changes, then click "Done Editing" to return to
-                    overview
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setOverviewExpanded(true);
-                }}
-                class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-medium transition-colors duration-300"
-              >
-                Done Editing
-              </button>
-            </div>
-          </div>
-        </Show>
-
         {/* Progress Steps */}
         <SeatingSteps currentStep={currentStep()} />
 
-        {/* Table Viewing Section */}
-        <Show when={viewingTable()}>
-          <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden mb-8">
-            <div class="bg-gradient-to-r from-violet-50 to-purple-50 border-b border-violet-100 p-6">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                  <div
-                    class={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shadow-lg ${
-                      (viewingTable()?.shape || "round") === "rectangular"
-                        ? "bg-gradient-to-br from-emerald-500 to-teal-600"
-                        : "bg-gradient-to-br from-blue-500 to-indigo-600"
-                    }`}
-                  >
-                    {(viewingTable()?.shape || "round") === "rectangular" ? (
-                      <svg
-                        class="w-7 h-7"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <rect
-                          x="2"
-                          y="6"
-                          width="20"
-                          height="12"
-                          rx="2"
-                          ry="2"
-                          stroke="currentColor"
-                          stroke-width="1.5"
-                          fill="none"
-                        />
-                      </svg>
-                    ) : (
-                      <svg
-                        class="w-7 h-7"
-                        fill="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          cx="12"
-                          cy="12"
-                          r="9"
-                          stroke="currentColor"
-                          stroke-width="1.5"
-                          fill="none"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <div>
-                    <h3 class="text-2xl font-semibold text-gray-900">
-                      {viewingTable()?.name}
-                    </h3>
-                    <p class="text-gray-600 font-light">
-                      {(viewingTable()?.shape || "round") === "rectangular"
-                        ? "Rectangular"
-                        : "Round"}{" "}
-                      table •
-                      {
-                        seatAssignments().filter(
-                          (a) => a.tableId === viewingTableId()
-                        ).length
-                      }
-                      /{viewingTable()?.capacity} seats occupied
-                    </p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => setViewingTableId(null)}
-                  class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300"
-                  title="Close view"
-                >
-                  <svg
-                    class="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <TableView
-              table={viewingTable()!}
-              seatAssignments={seatAssignments()}
-              onRemoveAssignment={handleRemoveAssignment}
-            />
-          </div>
-        </Show>
-
-        {/* Selected Guest Status - Always visible during assignment */}
-        <Show when={selectedGuest()}>
+        {/* Selected Table Header */}
+        <Show when={selectedTable()}>
           <div class="bg-white/80 backdrop-blur-sm rounded-2xl border border-purple-200 shadow-xl p-6 mb-8">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-6">
-                <div class="w-16 h-16 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <span class="text-white font-bold text-lg">
-                    {selectedGuest()
-                      ?.name.split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .toUpperCase()}
-                  </span>
+                <div
+                  class={`w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold shadow-lg ${
+                    (selectedTable()?.shape || "round") === "rectangular"
+                      ? "bg-gradient-to-br from-emerald-500 to-teal-600"
+                      : "bg-gradient-to-br from-blue-500 to-indigo-600"
+                  }`}
+                >
+                  {(selectedTable()?.shape || "round") === "rectangular" ? (
+                    <svg
+                      class="w-8 h-8"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <rect
+                        x="2"
+                        y="6"
+                        width="20"
+                        height="12"
+                        rx="2"
+                        ry="2"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        fill="none"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      class="w-8 h-8"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="9"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        fill="none"
+                      />
+                    </svg>
+                  )}
                 </div>
                 <div>
                   <h3 class="text-2xl font-semibold text-gray-900">
-                    {selectedGuest()?.name}
+                    {selectedTable()?.name}
                   </h3>
                   <p class="text-purple-600 font-medium">
-                    {selectedGuest()?.type === "main"
-                      ? "Main Guest"
-                      : "Plus One"}{" "}
-                    •
-                    <Show
-                      when={!selectedTable()}
-                      fallback={` Table: ${selectedTable()?.name}`}
-                    >
-                      {` Step ${currentStep()}: ${
-                        currentStep() === 2
-                          ? "Select a table"
-                          : "Choose your seat"
-                      }`}
-                    </Show>
+                    {(selectedTable()?.shape || "round") === "rectangular"
+                      ? "Rectangular"
+                      : "Round"}{" "}
+                    table • {selectedTable()?.capacity} seats •
+                    {
+                      seatAssignments().filter(
+                        (a) => a.tableId === selectedTableId()
+                      ).length
+                    }{" "}
+                    assigned
                   </p>
                 </div>
               </div>
               <button
-                onClick={resetSelection}
+                onClick={handleBackToTableSelection}
                 class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-300 font-medium"
               >
-                Start Over
+                Choose Different Table
               </button>
             </div>
           </div>
         </Show>
 
-        {/* Main Selection Interface - Only show current step */}
+        {/* Main Assignment Interface */}
         <Show
           when={currentStep() === 1}
           fallback={
-            <Show
-              when={currentStep() === 2}
-              fallback={
-                <Show when={currentStep() === 3 && selectedTable()}>
-                  <SeatSelection
-                    table={selectedTable()!}
-                    seatAssignments={seatAssignments()}
-                    selectedGuestName={selectedGuest()?.name || ""}
-                    onSeatSelect={handleSeatSelect}
-                  />
-                </Show>
-              }
-            >
-              <TableSelection
-                tables={props.tables}
+            <Show when={currentStep() === 2 && selectedTable()}>
+              <TableAssignment
+                table={selectedTable()!}
+                unassignedAttendees={unassignedAttendees()}
                 seatAssignments={seatAssignments()}
-                selectedTableId={selectedTableId()}
-                onTableSelect={handleTableSelect}
+                onSeatAssign={handleSeatAssign}
+                onRemoveAssignment={handleRemoveAssignment}
               />
             </Show>
           }
         >
-          <GuestSelection
-            guests={props.guests}
+          <TableSelection
+            tables={props.tables}
             seatAssignments={seatAssignments()}
-            selectedGuestId={selectedGuestId()}
-            onGuestSelect={handleGuestSelect}
+            selectedTableId={selectedTableId()}
+            onTableSelect={handleTableSelect}
           />
         </Show>
       </div>
@@ -574,4 +376,4 @@ const EnhancedSeatingChart: Component<SeatingChartProps> = (props) => {
   );
 };
 
-export default EnhancedSeatingChart;
+export default SeatingChart;

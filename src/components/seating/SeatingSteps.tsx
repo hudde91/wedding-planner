@@ -1,7 +1,7 @@
 import { Component } from "solid-js";
 
 interface SeatingStepsProps {
-  currentStep: 1 | 2 | 3;
+  currentStep: 1 | 2;
 }
 
 const SeatingSteps: Component<SeatingStepsProps> = (props) => {
@@ -22,7 +22,7 @@ const SeatingSteps: Component<SeatingStepsProps> = (props) => {
           >
             1
           </div>
-          <span class="font-medium">Select Guest</span>
+          <span class="font-medium">Select Table</span>
         </div>
 
         <div
@@ -45,30 +45,7 @@ const SeatingSteps: Component<SeatingStepsProps> = (props) => {
           >
             2
           </div>
-          <span class="font-medium">Choose Table</span>
-        </div>
-
-        <div
-          class={`w-16 h-0.5 ${
-            props.currentStep >= 3 ? "bg-purple-600" : "bg-gray-300"
-          }`}
-        ></div>
-
-        <div
-          class={`flex items-center space-x-3 ${
-            props.currentStep >= 3 ? "text-purple-600" : "text-gray-400"
-          }`}
-        >
-          <div
-            class={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-              props.currentStep >= 3
-                ? "bg-purple-600 text-white shadow-lg"
-                : "bg-gray-200 text-gray-500"
-            }`}
-          >
-            3
-          </div>
-          <span class="font-medium">Pick Seat</span>
+          <span class="font-medium">Assign Guests</span>
         </div>
       </div>
     </div>
