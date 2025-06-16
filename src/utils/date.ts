@@ -31,9 +31,11 @@ export const calculateDaysUntilWedding = (
   weddingDate: string
 ): number | null => {
   if (!weddingDate) return null;
-  return Math.ceil(
-    (new Date(weddingDate).getTime() - new Date().getTime()) /
-      (1000 * 3600 * 24)
+  return (
+    Math.ceil(
+      (new Date(weddingDate).getTime() - new Date().getTime()) /
+        (1000 * 3600 * 24)
+    ) || 0
   );
 };
 

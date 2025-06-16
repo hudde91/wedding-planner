@@ -1,0 +1,78 @@
+import { Component } from "solid-js";
+
+interface SeatingStepsProps {
+  currentStep: 1 | 2 | 3;
+}
+
+const SeatingSteps: Component<SeatingStepsProps> = (props) => {
+  return (
+    <div class="flex justify-center mb-12">
+      <div class="flex items-center space-x-8">
+        <div
+          class={`flex items-center space-x-3 ${
+            props.currentStep >= 1 ? "text-purple-600" : "text-gray-400"
+          }`}
+        >
+          <div
+            class={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
+              props.currentStep >= 1
+                ? "bg-purple-600 text-white shadow-lg"
+                : "bg-gray-200 text-gray-500"
+            }`}
+          >
+            1
+          </div>
+          <span class="font-medium">Select Guest</span>
+        </div>
+
+        <div
+          class={`w-16 h-0.5 ${
+            props.currentStep >= 2 ? "bg-purple-600" : "bg-gray-300"
+          }`}
+        ></div>
+
+        <div
+          class={`flex items-center space-x-3 ${
+            props.currentStep >= 2 ? "text-purple-600" : "text-gray-400"
+          }`}
+        >
+          <div
+            class={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
+              props.currentStep >= 2
+                ? "bg-purple-600 text-white shadow-lg"
+                : "bg-gray-200 text-gray-500"
+            }`}
+          >
+            2
+          </div>
+          <span class="font-medium">Choose Table</span>
+        </div>
+
+        <div
+          class={`w-16 h-0.5 ${
+            props.currentStep >= 3 ? "bg-purple-600" : "bg-gray-300"
+          }`}
+        ></div>
+
+        <div
+          class={`flex items-center space-x-3 ${
+            props.currentStep >= 3 ? "text-purple-600" : "text-gray-400"
+          }`}
+        >
+          <div
+            class={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
+              props.currentStep >= 3
+                ? "bg-purple-600 text-white shadow-lg"
+                : "bg-gray-200 text-gray-500"
+            }`}
+          >
+            3
+          </div>
+          <span class="font-medium">Pick Seat</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SeatingSteps;
