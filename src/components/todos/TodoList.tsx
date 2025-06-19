@@ -5,6 +5,7 @@ import {
   Show,
   createMemo,
   onMount,
+  createEffect,
 } from "solid-js";
 import { TodoItem as TodoItemType, TodoFormData } from "../../types";
 import TodoProgress from "./TodoProgress";
@@ -23,9 +24,27 @@ interface TodoListProps {
 const TodoList: Component<TodoListProps> = (props) => {
   const [expandedTodoId, setExpandedTodoId] = createSignal<number | null>(null);
   const [isLoaded, setIsLoaded] = createSignal(false);
+  const [newlyAddedTodoId, setNewlyAddedTodoId] = createSignal<number | null>(
+    null
+  );
 
   onMount(() => {
     setTimeout(() => setIsLoaded(true), 100);
+  });
+
+  // Track when a new todo is added and auto-expand it
+  let previousTodoCount = props.todos.length;
+  createEffect(() => {
+    const currentTodos = props.todos;
+    // If a new todo was added and it's at the beginning of the list
+    if (currentTodos.length > previousTodoCount && currentTodos.length > 0) {
+      const newestTodo = currentTodos[0];
+      setExpandedTodoId(newestTodo.id);
+      setNewlyAddedTodoId(newestTodo.id);
+      // Clear the newly added flag after a short delay
+      setTimeout(() => setNewlyAddedTodoId(null), 1000);
+    }
+    previousTodoCount = currentTodos.length;
   });
 
   const progress = calculateTodoProgress(props.todos);
@@ -41,17 +60,9 @@ const TodoList: Component<TodoListProps> = (props) => {
   };
 
   const handleUpdateDetails = (id: number, todoData: TodoFormData): void => {
-    const todo = props.todos.find((t) => t.id === id);
-    if (!todo) return;
-
+    // Simply update the todo details without auto-completion
+    // Users should manually check the checkbox when they want to mark it as done
     props.updateTodo(id, todoData);
-
-    if (
-      !todo.completed &&
-      (todoData.cost || todoData.vendor_name || todoData.notes)
-    ) {
-      props.toggleTodo(id);
-    }
   };
 
   return (
@@ -142,6 +153,7 @@ const TodoList: Component<TodoListProps> = (props) => {
                 isExpanded={expandedTodoId() === todo.id}
                 onToggleExpanded={handleToggleExpanded}
                 onUpdateDetails={handleUpdateDetails}
+                focusOnExpand={newlyAddedTodoId() === todo.id}
               />
             </div>
           )}

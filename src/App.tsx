@@ -89,7 +89,7 @@ const App: Component = () => {
           ? Math.max(...prev.todos.map((t) => t.id)) + 1
           : 1;
       const newTodo: TodoItem = { id: newId, text: text, completed: false };
-      const updated = { ...prev, todos: [...prev.todos, newTodo] };
+      const updated = { ...prev, todos: [newTodo, ...prev.todos] };
       savePlanToBackend(updated);
       return updated;
     });

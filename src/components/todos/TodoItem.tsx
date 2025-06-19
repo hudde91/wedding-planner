@@ -24,10 +24,9 @@ interface TodoItemProps {
   isExpanded: boolean;
   onToggleExpanded: (id: number) => void;
   onUpdateDetails: (id: number, todoData: TodoFormData) => void;
+  focusOnExpand?: boolean;
 }
 
-// TODO: When the data saves the focus is lost from the input fields
-// Remove autoSave and instead save on blur or when the user clicks outside
 const TodoItem: Component<TodoItemProps> = (props) => {
   const [todoFormData, setTodoFormData] = createSignal<TodoFormData>({
     cost: props.todo.cost,
@@ -49,8 +48,10 @@ const TodoItem: Component<TodoItemProps> = (props) => {
     notes: props.todo.notes || "",
   });
 
-  let saveTimeoutRef: ReturnType<typeof setTimeout> | undefined;
+  let formContainerRef: HTMLDivElement | undefined;
+  let firstInputRef: HTMLInputElement | undefined;
 
+  // Update form data when todo props change
   createEffect(() => {
     const currentTodo = props.todo;
     const newFormData = {
@@ -67,34 +68,61 @@ const TodoItem: Component<TodoItemProps> = (props) => {
     setHasUnsavedChanges(false);
   });
 
+  // Focus first input when expanded (for new todos)
+  createEffect(() => {
+    if (props.isExpanded && props.focusOnExpand && firstInputRef) {
+      // Small delay to ensure the animation has started
+      setTimeout(() => {
+        firstInputRef?.focus();
+      }, 100);
+    }
+  });
+
+  // Check for unsaved changes
   createEffect(() => {
     const currentData = todoFormData();
     const initial = initialFormData();
-    const isExpanded = props.isExpanded;
-
     const hasChanged = JSON.stringify(currentData) !== JSON.stringify(initial);
+    setHasUnsavedChanges(hasChanged);
+  });
 
-    if (isExpanded && hasChanged && hasUnsavedChanges()) {
-      if (saveTimeoutRef) {
-        clearTimeout(saveTimeoutRef);
-      }
+  // Save function
+  const saveChanges = () => {
+    if (!hasUnsavedChanges()) return;
 
-      saveTimeoutRef = setTimeout(() => {
-        try {
-          props.onUpdateDetails(props.todo.id, currentData);
-          setHasUnsavedChanges(false);
-          setInitialFormData(currentData);
-        } catch (error) {
-          console.error("Error saving todo details:", error);
-        }
-      }, 1500);
+    try {
+      const currentData = todoFormData();
+      props.onUpdateDetails(props.todo.id, currentData);
+      setInitialFormData(currentData);
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      console.error("Error saving todo details:", error);
+    }
+  };
+
+  // Handle outside clicks to save
+  const handleOutsideClick = (e: MouseEvent) => {
+    if (
+      props.isExpanded &&
+      formContainerRef &&
+      !formContainerRef.contains(e.target as Node) &&
+      hasUnsavedChanges()
+    ) {
+      saveChanges();
+    }
+  };
+
+  // Set up outside click listener when expanded
+  createEffect(() => {
+    if (props.isExpanded) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    } else {
+      document.removeEventListener("mousedown", handleOutsideClick);
     }
   });
 
   onCleanup(() => {
-    if (saveTimeoutRef) {
-      clearTimeout(saveTimeoutRef);
-    }
+    document.removeEventListener("mousedown", handleOutsideClick);
   });
 
   const isValidVendorEmail = () =>
@@ -117,10 +145,30 @@ const TodoItem: Component<TodoItemProps> = (props) => {
       if (prev[field] === value) {
         return prev;
       }
-
-      setHasUnsavedChanges(true);
       return { ...prev, [field]: value };
     });
+  };
+
+  // Handle input blur - save changes
+  const handleInputBlur = () => {
+    if (hasUnsavedChanges()) {
+      saveChanges();
+    }
+  };
+
+  // Handle phone number formatting and save on blur
+  const handlePhoneBlur = (e: FocusEvent) => {
+    const target = e.target as HTMLInputElement;
+    const formatted = formatPhoneNumber(target.value);
+    if (formatted !== target.value) {
+      updateFormField("vendor_phone", formatted);
+    }
+    // Save after formatting
+    setTimeout(() => {
+      if (hasUnsavedChanges()) {
+        saveChanges();
+      }
+    }, 10);
   };
 
   const handleGetInspiration = (e: MouseEvent): void => {
@@ -143,10 +191,15 @@ const TodoItem: Component<TodoItemProps> = (props) => {
     setShowInspirations(false);
   };
 
-  // TODO: When expanding and closing a todo item, the animation should be smoother and not jumpy
   const handleToggleExpanded = (e: MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Save changes before collapsing
+    if (props.isExpanded && hasUnsavedChanges()) {
+      saveChanges();
+    }
+
     props.onToggleExpanded(props.todo.id);
   };
 
@@ -365,8 +418,17 @@ const TodoItem: Component<TodoItemProps> = (props) => {
         </div>
 
         {/* Expandable Details Section */}
-        <Show when={props.isExpanded}>
-          <div class="border-t border-gray-200/60 bg-gradient-to-br from-gray-50/30 to-white/60 backdrop-blur-sm">
+        <div
+          class={`overflow-hidden transition-all duration-500 ease-in-out ${
+            props.isExpanded
+              ? "max-h-[2000px] opacity-100"
+              : "max-h-0 opacity-0"
+          }`}
+        >
+          <div
+            ref={formContainerRef}
+            class="border-t border-gray-200/60 bg-gradient-to-br from-gray-50/30 to-white/60 backdrop-blur-sm"
+          >
             <div class="p-8 space-y-8">
               {/* Pinterest Inspiration Section */}
               <div class="bg-gradient-to-r from-pink-50 via-rose-50 to-purple-50 rounded-xl p-6 border border-pink-200/50">
@@ -439,6 +501,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           <span class="text-gray-500">$</span>
                         </div>
                         <input
+                          ref={firstInputRef}
                           type="number"
                           min="0"
                           value={todoFormData().cost || ""}
@@ -450,32 +513,51 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                               ) || undefined
                             )
                           }
+                          onBlur={handleInputBlur}
                           class="w-full pl-8 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
                           placeholder="0"
                         />
                       </div>
                     </div>
                     <div>
-                      {/* Improve the styling of the <select> so it looks more elegant like the inputs fields */}
                       <label class="block text-sm font-medium text-gray-700 mb-1">
                         Payment Status
                       </label>
-                      <select
-                        value={todoFormData().payment_status || ""}
-                        onChange={(e) =>
-                          updateFormField(
-                            "payment_status",
-                            (e.target as HTMLSelectElement).value
-                          )
-                        }
-                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
-                      >
-                        <option value="">Select status</option>
-                        <option value="not_paid">Not Paid</option>
-                        <option value="deposit_paid">Deposit Paid</option>
-                        <option value="partial_paid">Partial Payment</option>
-                        <option value="fully_paid">Fully Paid</option>
-                      </select>
+                      <div class="relative">
+                        <select
+                          value={todoFormData().payment_status || ""}
+                          onChange={(e) =>
+                            updateFormField(
+                              "payment_status",
+                              (e.target as HTMLSelectElement).value
+                            )
+                          }
+                          onBlur={handleInputBlur}
+                          class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light appearance-none cursor-pointer pr-10"
+                        >
+                          <option value="">Select status</option>
+                          <option value="not_paid">Not Paid</option>
+                          <option value="deposit_paid">Deposit Paid</option>
+                          <option value="partial_paid">Partial Payment</option>
+                          <option value="fully_paid">Fully Paid</option>
+                        </select>
+                        {/* Custom dropdown arrow */}
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                          <svg
+                            class="w-5 h-5 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label class="block text-sm font-medium text-gray-700 mb-1">
@@ -490,6 +572,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             (e.target as HTMLInputElement).value
                           )
                         }
+                        onBlur={handleInputBlur}
                         class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
                       />
                     </div>
@@ -537,6 +620,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             (e.target as HTMLInputElement).value
                           )
                         }
+                        onBlur={handleInputBlur}
                         class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light"
                         placeholder="Vendor name"
                       />
@@ -554,16 +638,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             (e.target as HTMLInputElement).value
                           )
                         }
-                        onBlur={(e) => {
-                          const formatted = formatPhoneNumber(
-                            (e.target as HTMLInputElement).value
-                          );
-                          if (
-                            formatted !== (e.target as HTMLInputElement).value
-                          ) {
-                            updateFormField("vendor_phone", formatted);
-                          }
-                        }}
+                        onBlur={handlePhoneBlur}
                         class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light ${
                           !isValidVendorPhone()
                             ? "border-red-300 ring-2 ring-red-100"
@@ -585,6 +660,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             (e.target as HTMLInputElement).value
                           )
                         }
+                        onBlur={handleInputBlur}
                         class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light ${
                           !isValidVendorEmail()
                             ? "border-red-300 ring-2 ring-red-100"
@@ -606,6 +682,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             (e.target as HTMLInputElement).value
                           )
                         }
+                        onBlur={handleInputBlur}
                         class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light"
                         placeholder="Contact person name"
                       />
@@ -653,6 +730,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                         (e.target as HTMLTextAreaElement).value
                       )
                     }
+                    onBlur={handleInputBlur}
                     class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light"
                     rows="4"
                     placeholder="Any additional details, preferences, or inspiration notes..."
@@ -660,23 +738,30 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                 </div>
               </div>
 
-              {/* Auto-save indicator */}
+              {/* Save Status indicator */}
               <div class="text-center">
                 <div class="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 border border-gray-100 shadow-sm">
-                  <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                  <span class="text-sm text-gray-600 font-light">
-                    Changes saved automatically
-                  </span>
-                  <Show when={hasUnsavedChanges()}>
-                    <span class="text-xs text-amber-600 font-medium">
-                      • Saving...
+                  <Show
+                    when={hasUnsavedChanges()}
+                    fallback={
+                      <>
+                        <div class="w-2 h-2 bg-emerald-400 rounded-full"></div>
+                        <span class="text-sm text-gray-600 font-light">
+                          All changes saved
+                        </span>
+                      </>
+                    }
+                  >
+                    <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+                    <span class="text-sm text-amber-600 font-medium">
+                      Click outside or tab away to save
                     </span>
                   </Show>
                 </div>
               </div>
             </div>
           </div>
-        </Show>
+        </div>
       </div>
 
       {/* Pinterest Inspirations Modal */}
