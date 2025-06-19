@@ -1,6 +1,6 @@
 import { Component, createSignal, Show } from "solid-js";
 import { Table, TableShape } from "../../types";
-import { sanitizeInput, isValidNumber } from "../../utils/validation";
+import { isValidNumber } from "../../utils/validation";
 
 interface TableFormData {
   name: string;
@@ -73,10 +73,7 @@ const TableForm: Component<TableFormProps> = (props) => {
             type="text"
             value={formData().name}
             onInput={(e) =>
-              handleFieldChange(
-                "name",
-                sanitizeInput((e.target as HTMLInputElement).value)
-              )
+              handleFieldChange("name", (e.target as HTMLInputElement).value)
             }
             placeholder="e.g., Head Table, Family Table"
             class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-indigo-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300"

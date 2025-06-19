@@ -74,10 +74,6 @@ export const isValidNumber = (value: string | number): boolean => {
   return !isNaN(Number(value)) && isFinite(Number(value));
 };
 
-export const sanitizeInput = (input: string): string => {
-  return input.trim().replace(/[<>]/g, "");
-};
-
 export const generateId = (): string => {
   return Math.random().toString(36).substr(2, 9);
 };

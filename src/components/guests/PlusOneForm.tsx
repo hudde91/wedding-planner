@@ -1,6 +1,6 @@
-import { Component } from "solid-js";
+import { Component, createSignal, createEffect } from "solid-js";
 import { PlusOne } from "../../types";
-import { sanitizeInput, formatName } from "../../utils/validation";
+import { formatName } from "../../utils/validation";
 
 interface PlusOneFormProps {
   plusOne: PlusOne;
@@ -14,35 +14,141 @@ interface PlusOneFormProps {
   onRemove: (plusOneId: string) => void;
 }
 
-// TODO: I lost focus when typing in the input fields after each character typed
-// onupdate is called, which causes the input to lose focus.
 const PlusOneForm: Component<PlusOneFormProps> = (props) => {
+  // Local state to prevent focus loss
+  const [localFormData, setLocalFormData] = createSignal<PlusOne>({
+    id: props.plusOne.id,
+    name: props.plusOne.name,
+    meal_preference: props.plusOne.meal_preference,
+    notes: props.plusOne.notes,
+  });
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = createSignal(false);
+  const [initialFormData, setInitialFormData] = createSignal<PlusOne>({
+    id: props.plusOne.id,
+    name: props.plusOne.name,
+    meal_preference: props.plusOne.meal_preference,
+    notes: props.plusOne.notes,
+  });
+
+  // Update local state when props change
+  createEffect(() => {
+    const newFormData = {
+      id: props.plusOne.id,
+      name: props.plusOne.name,
+      meal_preference: props.plusOne.meal_preference,
+      notes: props.plusOne.notes,
+    };
+
+    setLocalFormData(newFormData);
+    setInitialFormData(newFormData);
+    setHasUnsavedChanges(false);
+  });
+
+  // Check for unsaved changes
+  createEffect(() => {
+    const current = localFormData();
+    const initial = initialFormData();
+    const hasChanged = JSON.stringify(current) !== JSON.stringify(initial);
+    setHasUnsavedChanges(hasChanged);
+  });
+
+  // Save function
+  const saveChanges = () => {
+    if (!hasUnsavedChanges()) return;
+
+    const currentData = localFormData();
+    const initial = initialFormData();
+
+    // Only call onUpdate for fields that actually changed
+    if (currentData.name !== initial.name) {
+      props.onUpdate(props.plusOne.id, "name", currentData.name);
+    }
+    if (currentData.meal_preference !== initial.meal_preference) {
+      props.onUpdate(
+        props.plusOne.id,
+        "meal_preference",
+        currentData.meal_preference
+      );
+    }
+    if (currentData.notes !== initial.notes) {
+      props.onUpdate(props.plusOne.id, "notes", currentData.notes);
+    }
+
+    setInitialFormData(currentData);
+    setHasUnsavedChanges(false);
+  };
+
+  // Update local form field
+  const updateLocalField = <K extends keyof PlusOne>(
+    field: K,
+    value: PlusOne[K]
+  ): void => {
+    setLocalFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // Handle input blur - save changes
+  const handleInputBlur = () => {
+    if (hasUnsavedChanges()) {
+      saveChanges();
+    }
+  };
+
+  // Handle name input with formatting
+  const handleNameInput = (e: Event) => {
+    const target = e.target as HTMLInputElement;
+    const formattedValue = formatName(target.value);
+    updateLocalField("name", formattedValue);
+  };
+
+  // Handle name blur with final formatting
+  const handleNameBlur = (e: FocusEvent) => {
+    const target = e.target as HTMLInputElement;
+    const formattedValue = formatName(target.value);
+    updateLocalField("name", formattedValue);
+    // Small delay to ensure state is updated before saving
+    setTimeout(() => {
+      if (hasUnsavedChanges()) {
+        saveChanges();
+      }
+    }, 10);
+  };
+
   return (
     <div class="border border-gray-200 rounded-md p-3 bg-gray-50">
       <div class="flex justify-between items-center mb-2">
         <h4 class="text-sm font-medium text-gray-700">
           Plus One {props.index}
         </h4>
-        <button
-          type="button"
-          onClick={() => props.onRemove(props.plusOne.id)}
-          class="text-red-500 hover:text-red-700 p-1"
-          title="Remove plus one"
-        >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        <div class="flex items-center space-x-2">
+          {/* Save status indicator */}
+          {hasUnsavedChanges() && (
+            <div class="flex items-center space-x-1">
+              <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
+              <span class="text-xs text-amber-600">Unsaved</span>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => props.onRemove(props.plusOne.id)}
+            class="text-red-500 hover:text-red-700 p-1"
+            title="Remove plus one"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            ></path>
-          </svg>
-        </button>
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
+            </svg>
+          </button>
+        </div>
       </div>
       <div class="space-y-2">
         <div>
@@ -51,15 +157,10 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
           </label>
           <input
             type="text"
-            value={props.plusOne.name}
-            onInput={(e) =>
-              props.onUpdate(
-                props.plusOne.id,
-                "name",
-                formatName(sanitizeInput((e.target as HTMLInputElement).value))
-              )
-            }
-            class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+            value={localFormData().name}
+            onInput={handleNameInput}
+            onBlur={handleNameBlur}
+            class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all duration-200"
             placeholder={`${props.guestName || "Guest"}'s plus one`}
           />
         </div>
@@ -69,15 +170,15 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
           </label>
           <input
             type="text"
-            value={props.plusOne.meal_preference}
+            value={localFormData().meal_preference}
             onInput={(e) =>
-              props.onUpdate(
-                props.plusOne.id,
+              updateLocalField(
                 "meal_preference",
-                sanitizeInput((e.target as HTMLInputElement).value)
+                (e.target as HTMLInputElement).value
               )
             }
-            class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+            onBlur={handleInputBlur}
+            class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all duration-200"
             placeholder="e.g., Vegetarian, Gluten-free"
           />
         </div>
@@ -86,15 +187,12 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
             Notes
           </label>
           <textarea
-            value={props.plusOne.notes}
+            value={localFormData().notes}
             onInput={(e) =>
-              props.onUpdate(
-                props.plusOne.id,
-                "notes",
-                sanitizeInput((e.target as HTMLTextAreaElement).value)
-              )
+              updateLocalField("notes", (e.target as HTMLTextAreaElement).value)
             }
-            class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500"
+            onBlur={handleInputBlur}
+            class="w-full px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-purple-500 transition-all duration-200 resize-none"
             rows="2"
             placeholder="Any special notes"
           ></textarea>

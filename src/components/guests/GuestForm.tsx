@@ -4,7 +4,6 @@ import {
   validateEmail,
   validatePhoneNumber,
   formatName,
-  sanitizeInput,
   generateId,
 } from "../../utils/validation";
 import PlusOneForm from "./PlusOneForm";
@@ -69,7 +68,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
   };
 
   const handleEmailChange = (value: string): void => {
-    const sanitized = sanitizeInput(value);
+    const sanitized = value;
     updateFormField("email", sanitized);
 
     // Real-time validation feedback
@@ -84,7 +83,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
   };
 
   const handlePhoneChange = (value: string): void => {
-    const sanitized = sanitizeInput(value);
+    const sanitized = value;
     updateFormField("phone", sanitized);
 
     // Real-time validation feedback
@@ -153,9 +152,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
               onInput={(e) =>
                 updateFormField(
                   "name",
-                  formatName(
-                    sanitizeInput((e.target as HTMLInputElement).value)
-                  )
+                  formatName((e.target as HTMLInputElement).value)
                 )
               }
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -232,7 +229,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
               onInput={(e) =>
                 updateFormField(
                   "meal_preference",
-                  sanitizeInput((e.target as HTMLInputElement).value)
+                  (e.target as HTMLInputElement).value
                 )
               }
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -286,10 +283,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
           <textarea
             value={formData().notes}
             onInput={(e) =>
-              updateFormField(
-                "notes",
-                sanitizeInput((e.target as HTMLTextAreaElement).value)
-              )
+              updateFormField("notes", (e.target as HTMLTextAreaElement).value)
             }
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             rows="2"
