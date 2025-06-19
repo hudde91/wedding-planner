@@ -26,6 +26,8 @@ interface TodoItemProps {
   onUpdateDetails: (id: number, todoData: TodoFormData) => void;
 }
 
+// TODO: When the data saves the focus is lost from the input fields
+// Remove autoSave and instead save on blur or when the user clicks outside
 const TodoItem: Component<TodoItemProps> = (props) => {
   const [todoFormData, setTodoFormData] = createSignal<TodoFormData>({
     cost: props.todo.cost,
@@ -141,6 +143,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
     setShowInspirations(false);
   };
 
+  // TODO: When expanding and closing a todo item, the animation should be smoother and not jumpy
   const handleToggleExpanded = (e: MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
@@ -453,6 +456,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                       </div>
                     </div>
                     <div>
+                      {/* Improve the styling of the <select> so it looks more elegant like the inputs fields */}
                       <label class="block text-sm font-medium text-gray-700 mb-1">
                         Payment Status
                       </label>

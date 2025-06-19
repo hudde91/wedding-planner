@@ -14,6 +14,8 @@ interface PlusOneFormProps {
   onRemove: (plusOneId: string) => void;
 }
 
+// TODO: I lost focus when typing in the input fields after each character typed
+// onupdate is called, which causes the input to lose focus.
 const PlusOneForm: Component<PlusOneFormProps> = (props) => {
   return (
     <div class="border border-gray-200 rounded-md p-3 bg-gray-50">

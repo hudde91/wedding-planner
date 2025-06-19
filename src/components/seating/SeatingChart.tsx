@@ -19,6 +19,8 @@ interface SeatingChartProps {
   onUpdateTables: (tables: Table[]) => void;
 }
 
+// TODO: I have lost the feature to add and remove tables.
+// Check in TableManagement and PresetTables components for the original code. Reimplement this feature and rewrite the code to include it.
 const SeatingChart: Component<SeatingChartProps> = (props) => {
   // State management
   const [selectedTableId, setSelectedTableId] = createSignal<string | null>(

@@ -15,6 +15,7 @@ interface GuestFormProps {
   onCancel: () => void;
 }
 
+// TODO: I cant make a space in the input field
 const GuestForm: Component<GuestFormProps> = (props) => {
   const [formData, setFormData] = createSignal<GuestFormData>({
     name: props.editingGuest?.name || "",
@@ -202,6 +203,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
             )}
           </div>
           <div>
+            {/* Improve the styling of the <select> so it looks more elegant like the inputs fields */}
             <label class="block text-sm font-medium text-gray-700 mb-1">
               RSVP Status
             </label>
