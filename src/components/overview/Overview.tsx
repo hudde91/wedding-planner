@@ -2,7 +2,6 @@ import { Component, createSignal, onMount } from "solid-js";
 import { WeddingPlan, TabId } from "../../types";
 import { useWeddingStats } from "../../hooks/useWeddingStats";
 
-// Import the new smaller components
 import HeroSection from "./HeroSection";
 import StatsGrid from "./StatsGrid";
 import RSVPStatusCard from "./RSVPStatusCard";

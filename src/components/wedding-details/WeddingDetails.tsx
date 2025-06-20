@@ -1,7 +1,6 @@
 import { Component, createSignal, onMount } from "solid-js";
 import { WeddingPlan } from "../../types";
 import { formatCurrency } from "../../utils/currency";
-import { calculateDaysUntilWedding, formatWeddingDate } from "../../utils/date";
 
 interface WeddingDetailsProps {
   weddingPlan: WeddingPlan;
@@ -215,76 +214,6 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
           </div>
         </div>
       </div>
-
-      {/* Wedding Preview Card */}
-      {(props.weddingPlan.couple_name1 ||
-        props.weddingPlan.couple_name2 ||
-        props.weddingPlan.wedding_date) && (
-        <div
-          class={`relative overflow-hidden rounded-xl bg-gradient-to-r from-rose-50 via-white to-purple-50 border border-rose-200/50 shadow-lg transition-all duration-1000 delay-600 ${
-            isLoaded()
-              ? "opacity-100 transform translate-y-0"
-              : "opacity-0 transform translate-y-8"
-          }`}
-        >
-          {/* Background Image */}
-          <div class="absolute inset-0 opacity-5">
-            <img
-              src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&h=400&fit=crop&auto=format"
-              alt="Wedding flowers"
-              class="w-full h-full object-cover"
-            />
-          </div>
-
-          <div class="relative z-10 p-8">
-            <div class="text-center space-y-4">
-              <h3 class="text-2xl font-light text-gray-800 tracking-wide">
-                Wedding Preview
-              </h3>
-
-              {props.weddingPlan.couple_name1 &&
-                props.weddingPlan.couple_name2 && (
-                  <div class="space-y-2">
-                    <p class="text-3xl font-light text-gray-900 tracking-wide">
-                      {props.weddingPlan.couple_name1} &{" "}
-                      {props.weddingPlan.couple_name2}
-                    </p>
-                    <div class="w-24 h-px bg-gradient-to-r from-rose-300 to-purple-300 mx-auto"></div>
-                  </div>
-                )}
-
-              {props.weddingPlan.wedding_date && (
-                <div class="space-y-1">
-                  <p class="text-xl text-gray-700 font-light">
-                    {formatWeddingDate(props.weddingPlan.wedding_date)}
-                  </p>
-                  <p class="text-sm text-gray-500 font-light tracking-wide uppercase">
-                    {(() => {
-                      const days =
-                        calculateDaysUntilWedding(
-                          props.weddingPlan.wedding_date
-                        ) || 0;
-                      if (days < 0) return `${Math.abs(days)} days ago`;
-                      if (days === 0) return "Today!";
-                      if (days === 1) return "Tomorrow!";
-                      return `${days} days to go`;
-                    })()}
-                  </p>
-                </div>
-              )}
-
-              {props.weddingPlan.budget > 0 && (
-                <div class="bg-white/60 backdrop-blur-sm rounded-lg p-4 max-w-xs mx-auto border border-white/50">
-                  <p class="text-sm text-gray-600 font-light">Budget</p>
-                  <p class="text-2xl font-light text-gray-900">
-                    {formatCurrency(props.weddingPlan.budget)}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Auto-save Indicator */}
       <div

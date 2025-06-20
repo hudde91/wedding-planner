@@ -1,16 +1,19 @@
-import { Component } from "solid-js";
+import { Component, Show } from "solid-js";
 import { BudgetSummary } from "../../types";
-import { calculateResponseRate } from "../../utils/progress";
+import {
+  formatCurrency,
+  calculateBudgetPercentage,
+} from "../../utils/currency";
 
-interface RSVPStatusCardProps {
+interface BudgetOverviewCardProps {
   stats: BudgetSummary;
 }
 
-const RSVPStatusCard: Component<RSVPStatusCardProps> = (props) => {
+const BudgetOverviewCard: Component<BudgetOverviewCardProps> = (props) => {
   return (
     <div class="bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg">
       <div class="flex items-center space-x-3 mb-6">
-        <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center">
+        <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
           <svg
             class="w-5 h-5 text-white"
             fill="none"
@@ -21,14 +24,14 @@ const RSVPStatusCard: Component<RSVPStatusCardProps> = (props) => {
               stroke-linecap="round"
               stroke-linejoin="round"
               stroke-width="2"
-              d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
             />
           </svg>
         </div>
         <div>
-          <h3 class="text-xl font-medium text-gray-900">RSVP Status</h3>
+          <h3 class="text-xl font-medium text-gray-900">Budget Overview</h3>
           <p class="text-sm text-gray-500 font-light">
-            Guest response tracking
+            Financial planning summary
           </p>
         </div>
       </div>
@@ -36,63 +39,89 @@ const RSVPStatusCard: Component<RSVPStatusCardProps> = (props) => {
       <div class="space-y-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <div class="w-3 h-3 bg-emerald-400 rounded-full"></div>
-            <span class="text-sm font-medium text-gray-700">Attending</span>
-          </div>
-          <div class="text-right">
-            <span class="text-lg font-medium text-gray-900">
-              {props.stats.attendingGuests}
-            </span>
-            <span class="text-sm text-gray-500 ml-2">
-              ({props.stats.totalAttendees} total)
-            </span>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-3">
-            <div class="w-3 h-3 bg-red-400 rounded-full"></div>
-            <span class="text-sm font-medium text-gray-700">Declined</span>
+            <div class="w-3 h-3 bg-blue-400 rounded-full"></div>
+            <span class="text-sm font-medium text-gray-700">Total Budget</span>
           </div>
           <span class="text-lg font-medium text-gray-900">
-            {props.stats.declinedGuests}
+            {formatCurrency(props.stats.totalBudget)}
           </span>
         </div>
 
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <div class="w-3 h-3 bg-amber-400 rounded-full"></div>
-            <span class="text-sm font-medium text-gray-700">Pending</span>
+            <div class="w-3 h-3 bg-orange-400 rounded-full"></div>
+            <span class="text-sm font-medium text-gray-700">Total Spent</span>
           </div>
           <span class="text-lg font-medium text-gray-900">
-            {props.stats.pendingGuests}
+            {formatCurrency(props.stats.totalSpent)}
           </span>
         </div>
 
-        <div class="mt-6">
-          <div class="flex justify-between text-sm text-gray-600 mb-2">
-            <span>Response Rate</span>
-            <span>
-              {calculateResponseRate(
-                props.stats.totalGuests,
-                props.stats.attendingGuests + props.stats.declinedGuests
-              )}
-              %
-            </span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
             <div
-              class="bg-gradient-to-r from-blue-400 to-cyan-400 h-2 rounded-full transition-all duration-1000"
-              style={`width: ${calculateResponseRate(
-                props.stats.totalGuests,
-                props.stats.attendingGuests + props.stats.declinedGuests
-              )}%`}
+              class={`w-3 h-3 rounded-full ${
+                props.stats.remainingBudget < 0
+                  ? "bg-red-400"
+                  : "bg-emerald-400"
+              }`}
             ></div>
+            <span class="text-sm font-medium text-gray-700">Remaining</span>
           </div>
+          <span
+            class={`text-lg font-medium ${
+              props.stats.remainingBudget < 0
+                ? "text-red-600"
+                : "text-emerald-600"
+            }`}
+          >
+            {formatCurrency(props.stats.remainingBudget)}
+          </span>
         </div>
+
+        <Show when={props.stats.totalBudget > 0}>
+          <div class="mt-6">
+            <div class="flex justify-between text-sm text-gray-600 mb-2">
+              <span>Budget Used</span>
+              <span>
+                {calculateBudgetPercentage(
+                  props.stats.totalSpent,
+                  props.stats.totalBudget
+                )}
+                %
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div
+                class={`h-2 rounded-full transition-all duration-1000 ${
+                  props.stats.totalSpent > props.stats.totalBudget
+                    ? "bg-gradient-to-r from-red-400 to-red-500"
+                    : props.stats.totalSpent > props.stats.totalBudget * 0.9
+                    ? "bg-gradient-to-r from-amber-400 to-orange-400"
+                    : "bg-gradient-to-r from-emerald-400 to-green-400"
+                }`}
+                style={`width: ${Math.min(
+                  calculateBudgetPercentage(
+                    props.stats.totalSpent,
+                    props.stats.totalBudget
+                  ),
+                  100
+                )}%`}
+              ></div>
+            </div>
+            <Show when={props.stats.totalSpent > props.stats.totalBudget}>
+              <p class="text-xs text-red-600 mt-2 font-medium">
+                Over budget by{" "}
+                {formatCurrency(
+                  props.stats.totalSpent - props.stats.totalBudget
+                )}
+              </p>
+            </Show>
+          </div>
+        </Show>
       </div>
     </div>
   );
 };
 
-export default RSVPStatusCard;
+export default BudgetOverviewCard;

@@ -1,6 +1,7 @@
 import { Component, For, Show, createMemo, createSignal } from "solid-js";
 import { Table, Guest, SeatAssignment } from "../../types";
 import { truncateText } from "../../utils/validation";
+import { getSeatPosition, getTableDimensions } from "./SeatLayout";
 
 interface SeatingOverviewProps {
   tables: Table[];
@@ -15,22 +16,27 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
   // Local state for viewing tables within overview mode
   const [viewingTableId, setViewingTableId] = createSignal<string | null>(null);
 
+  // Constants for consistent layout
+  const CONTAINER_WIDTH = 384; // 96 * 4 = 384px
+  const CONTAINER_HEIGHT = 384;
+  const CENTER_X = CONTAINER_WIDTH / 2; // 192px
+  const CENTER_Y = CONTAINER_HEIGHT / 2; // 192px
+
   const seatingStats = createMemo(() => {
-    const totalSeats = props.tables.reduce(
-      (sum, table) => sum + table.capacity,
-      0
-    );
-    const occupiedSeats = props.seatAssignments.length;
-    const totalTables = props.tables.length;
-    const fullTables = props.tables.filter((table) => {
-      const tableSeats = props.seatAssignments.filter(
+    const tables = props.tables || [];
+    const totalSeats = tables.reduce((sum, table) => sum + table.capacity, 0);
+    const seatAssignments = props.seatAssignments || [];
+    const occupiedSeats = seatAssignments.length;
+    const totalTables = tables.length;
+    const fullTables = tables.filter((table) => {
+      const tableSeats = seatAssignments.filter(
         (a) => a.tableId === table.id
       ).length;
       return tableSeats === table.capacity;
     }).length;
 
     // Calculate total attendees from attending guests
-    const attendingGuests = props.guests.filter(
+    const attendingGuests = (props.guests || []).filter(
       (g) => g.rsvp_status === "attending"
     );
     const totalAttendees = attendingGuests.reduce((sum, guest) => {
@@ -49,7 +55,8 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
   });
 
   const getTableOccupancy = (table: Table) => {
-    const occupiedSeats = props.seatAssignments.filter(
+    const seatAssignments = props.seatAssignments || [];
+    const occupiedSeats = seatAssignments.filter(
       (a) => a.tableId === table.id
     ).length;
     const percentage = Math.round((occupiedSeats / table.capacity) * 100);
@@ -57,14 +64,45 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
   };
 
   const getTableGuests = (tableId: string) => {
-    return props.seatAssignments
+    const seatAssignments = props.seatAssignments || [];
+    return seatAssignments
       .filter((a) => a.tableId === tableId)
       .sort((a, b) => a.seatNumber - b.seatNumber);
   };
 
   const viewingTable = createMemo(() => {
     const id = viewingTableId();
-    return id ? props.tables.find((t) => t.id === id) : null;
+    const tables = props.tables || [];
+    return id ? tables.find((t) => t.id === id) : null;
+  });
+
+  // Get table dimensions for the viewing table
+  const viewingTableDimensions = createMemo(() => {
+    const table = viewingTable();
+    if (!table) return null;
+    return getTableDimensions(table.capacity, table.shape || "round");
+  });
+
+  // Get seat positions for the viewing table
+  const viewingTableSeatPositions = createMemo(() => {
+    const table = viewingTable();
+    if (!table) return [];
+
+    return Array.from({ length: table.capacity }, (_, i) => {
+      const seatNumber = i + 1;
+      const position = getSeatPosition(
+        seatNumber,
+        table.capacity,
+        table.shape || "round"
+      );
+
+      // Adjust positions to use our container's center point
+      return {
+        seatNumber,
+        x: position.x + (CENTER_X - 140),
+        y: position.y + (CENTER_Y - 140),
+      };
+    });
   });
 
   // Local handler for viewing tables within overview
@@ -79,42 +117,6 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
 
   return (
     <div class="space-y-8">
-      {/* Completion Header */}
-      {/* <div class="bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 rounded-2xl p-8 text-white shadow-xl">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-6">
-            <div class="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center">
-              <svg
-                class="w-10 h-10 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <div>
-              <h2 class="text-4xl font-bold mb-2">🎉 Seating Complete!</h2>
-              <p class="text-green-100 text-lg font-light">
-                All {seatingStats().totalAttendees} guests have been assigned
-                seats
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={props.onBackToAssignment}
-            class="px-6 py-3 bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white rounded-xl font-medium transition-all duration-300 border border-white/30 hover:scale-105"
-          >
-            Make Changes
-          </button>
-        </div>
-      </div> */}
-
       {/* Table Detail View (shows when viewing a specific table) */}
       <Show when={viewingTable()}>
         <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
@@ -206,12 +208,21 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
             </div>
           </div>
 
-          {/* Table Layout Display */}
+          {/* Table Layout Display - Now with Correct Seat Positioning */}
           <div class="p-8">
             <div class="relative w-96 h-96 mx-auto">
               {/* Table Surface */}
               {(viewingTable()?.shape || "round") === "rectangular" ? (
-                <div class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg border-4 border-amber-200 shadow-xl left-20 top-20 w-56 h-24">
+                <div
+                  class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg border-4 border-amber-200 shadow-xl"
+                  style={`left: ${
+                    CENTER_X - (viewingTableDimensions()?.width || 200) / 2
+                  }px; top: ${
+                    CENTER_Y - (viewingTableDimensions()?.height || 80) / 2
+                  }px; width: ${
+                    viewingTableDimensions()?.width || 200
+                  }px; height: ${viewingTableDimensions()?.height || 80}px;`}
+                >
                   <div class="w-full h-full flex items-center justify-center">
                     <div class="text-center">
                       <div class="text-xl font-bold text-amber-800">
@@ -224,7 +235,18 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                   </div>
                 </div>
               ) : (
-                <div class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl left-20 top-20 w-56 h-56">
+                <div
+                  class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl"
+                  style={`left: ${
+                    CENTER_X - (viewingTableDimensions()?.tableRadius || 80)
+                  }px; top: ${
+                    CENTER_Y - (viewingTableDimensions()?.tableRadius || 80)
+                  }px; width: ${
+                    (viewingTableDimensions()?.tableRadius || 80) * 2
+                  }px; height: ${
+                    (viewingTableDimensions()?.tableRadius || 80) * 2
+                  }px;`}
+                >
                   <div class="w-full h-full flex items-center justify-center">
                     <div class="text-center">
                       <div class="text-2xl font-bold text-amber-800">
@@ -238,26 +260,13 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                 </div>
               )}
 
-              {/* Seats - Simple representation for overview */}
-              <For
-                each={Array.from(
-                  { length: viewingTable()?.capacity || 0 },
-                  (_, i) => i + 1
-                )}
-              >
-                {(seatNumber) => {
+              {/* Seats - Now Using Correct Positioning Based on Table Shape */}
+              <For each={viewingTableSeatPositions()}>
+                {(seatData) => {
                   const assignment = getTableGuests(viewingTableId()!).find(
-                    (a) => a.seatNumber === seatNumber
+                    (a) => a.seatNumber === seatData.seatNumber
                   );
                   const isOccupied = !!assignment;
-
-                  // Simple circular arrangement for overview
-                  const angle =
-                    ((seatNumber - 1) * 360) / (viewingTable()?.capacity || 1);
-                  const radian = (angle * Math.PI) / 180;
-                  const radius = 140;
-                  const x = 192 + radius * Math.cos(radian - Math.PI / 2);
-                  const y = 192 + radius * Math.sin(radian - Math.PI / 2);
 
                   return (
                     <div
@@ -266,11 +275,13 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                           ? "bg-gradient-to-br from-purple-400 to-violet-500 text-white"
                           : "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600"
                       }`}
-                      style={`left: ${x - 24}px; top: ${y - 24}px;`}
+                      style={`left: ${seatData.x - 24}px; top: ${
+                        seatData.y - 24
+                      }px;`}
                       title={
                         isOccupied
-                          ? `Seat ${seatNumber} - ${assignment?.guestName}`
-                          : `Seat ${seatNumber} - Empty`
+                          ? `Seat ${seatData.seatNumber} - ${assignment?.guestName}`
+                          : `Seat ${seatData.seatNumber} - Empty`
                       }
                     >
                       {isOccupied ? (
@@ -282,7 +293,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                           <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                         </svg>
                       ) : (
-                        seatNumber
+                        seatData.seatNumber
                       )}
                     </div>
                   );
@@ -461,7 +472,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <For each={props.tables}>
+          <For each={props.tables || []}>
             {(table) => {
               const occupancy = getTableOccupancy(table);
               const tableGuests = getTableGuests(table.id);

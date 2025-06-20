@@ -144,17 +144,6 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
                   : "0%"}
               </span>
             </div>
-
-            <div class="flex justify-between items-center p-3 bg-gray-50/50 rounded-lg">
-              <span class="text-sm font-medium text-gray-700">
-                Avg per task
-              </span>
-              <span class="text-sm text-gray-600">
-                {props.completedCount > 0
-                  ? formatCurrency(props.totalSpent / props.completedCount)
-                  : formatCurrency(0)}
-              </span>
-            </div>
           </div>
 
           <div class="text-xs text-gray-500 font-light text-center mt-4 p-3 bg-yellow-50/50 rounded-lg border border-yellow-100/50">

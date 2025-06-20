@@ -22,6 +22,12 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
     null
   );
 
+  // Container dimensions for proper centering
+  const CONTAINER_WIDTH = 384; // w-96 = 384px
+  const CONTAINER_HEIGHT = 384; // h-96 = 384px
+  const CENTER_X = CONTAINER_WIDTH / 2; // 192px
+  const CENTER_Y = CONTAINER_HEIGHT / 2; // 192px
+
   const tableDimensions = createMemo(() =>
     getTableDimensions(props.table.capacity, props.table.shape || "round")
   );
@@ -312,16 +318,17 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
             </div>
           </div>
 
-          {/* Table Layout */}
+          {/* Table Layout - Now Properly Centered */}
           <div class="p-8">
-            {/* TODO: Align the table to center */}
             <div class="relative w-96 h-96 mx-auto">
-              {/* Table Surface */}
+              {/* Table Surface - Perfectly Centered */}
               {props.table.shape === "rectangular" ? (
                 <div
                   class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg border-4 border-amber-200 shadow-xl"
-                  style={`left: ${140 - tableDimensions().width / 2}px; top: ${
-                    140 - tableDimensions().height / 2
+                  style={`left: ${
+                    CENTER_X - tableDimensions().width / 2
+                  }px; top: ${
+                    CENTER_Y - tableDimensions().height / 2
                   }px; width: ${tableDimensions().width}px; height: ${
                     tableDimensions().height
                   }px;`}
@@ -341,10 +348,12 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
                 <div
                   class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl"
                   style={`left: ${
-                    140 - tableDimensions().tableRadius
-                  }px; top: ${140 - tableDimensions().tableRadius}px; width: ${
+                    CENTER_X - tableDimensions().tableRadius
+                  }px; top: ${
+                    CENTER_Y - tableDimensions().tableRadius
+                  }px; width: ${tableDimensions().tableRadius * 2}px; height: ${
                     tableDimensions().tableRadius * 2
-                  }px; height: ${tableDimensions().tableRadius * 2}px;`}
+                  }px;`}
                 >
                   <div class="w-full h-full flex items-center justify-center">
                     <div class="text-center">
@@ -359,7 +368,7 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
                 </div>
               )}
 
-              {/* Seats */}
+              {/* Seats - Now Using Corrected Center Point */}
               <For each={seatPositions()}>
                 {(seatData) => {
                   const assignment = tableAssignments().find(
@@ -367,6 +376,10 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
                   );
                   const isOccupied = !!assignment;
                   const canClickToAssign = hasSelectedGuest() && !isOccupied;
+
+                  // Adjust seat positions to use the proper center point
+                  const adjustedX = seatData.position.x + (CENTER_X - 140);
+                  const adjustedY = seatData.position.y + (CENTER_Y - 140);
 
                   return (
                     <button
@@ -379,8 +392,8 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
                           ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white hover:shadow-xl"
                           : "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600 cursor-default"
                       }`}
-                      style={`left: ${seatData.position.x - 28}px; top: ${
-                        seatData.position.y - 28
+                      style={`left: ${adjustedX - 28}px; top: ${
+                        adjustedY - 28
                       }px;`}
                       onClick={() => handleSeatClick(seatData.seatNumber)}
                       title={

@@ -140,21 +140,3 @@ export const getWeddingCountdown = (weddingDate: string): CountdownInfo => {
     showCelebration: false,
   };
 };
-
-export const isDateInPast = (dateString: string): boolean => {
-  return new Date(dateString) < new Date();
-};
-
-export const isDateToday = (dateString: string): boolean => {
-  const today = new Date();
-  const date = new Date(dateString);
-  return today.toDateString() === date.toDateString();
-};
-
-export const getDateStatus = (
-  dateString: string
-): "past" | "today" | "future" => {
-  if (isDateToday(dateString)) return "today";
-  if (isDateInPast(dateString)) return "past";
-  return "future";
-};

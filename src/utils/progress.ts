@@ -21,18 +21,6 @@ export const calculateTodoProgress = (todos: TodoItem[]): ProgressInfo => {
   return { completed, total, percentage, remaining };
 };
 
-export const calculatePhaseProgress = (
-  phaseTodos: TodoItem[]
-): ProgressInfo => {
-  return calculateTodoProgress(phaseTodos);
-};
-
-export const calculateOverallProgress = (
-  allTodos: TodoItem[]
-): ProgressInfo => {
-  return calculateTodoProgress(allTodos);
-};
-
 export const calculateResponseRate = (
   totalGuests: number,
   respondedGuests: number
@@ -117,61 +105,4 @@ export const getProgressColorClass = (percentage: number): string => {
   if (percentage >= 60) return "from-blue-400 to-cyan-500";
   if (percentage >= 40) return "from-amber-400 to-orange-500";
   return "from-rose-400 to-pink-500";
-};
-
-export const getProgressUrgency = (
-  percentage: number,
-  daysUntilWedding: number | null
-): "low" | "medium" | "high" | "critical" => {
-  if (daysUntilWedding === null) return "low";
-
-  if (daysUntilWedding <= 7) {
-    return percentage < 90 ? "critical" : "low";
-  }
-
-  if (daysUntilWedding <= 30) {
-    return percentage < 80 ? "high" : "medium";
-  }
-
-  if (daysUntilWedding <= 90) {
-    return percentage < 60 ? "medium" : "low";
-  }
-
-  return "low";
-};
-
-export interface BudgetProgress {
-  spent: number;
-  budget: number;
-  percentage: number;
-  remaining: number;
-  isOverBudget: boolean;
-  status: "healthy" | "warning" | "danger";
-}
-
-export const calculateBudgetProgress = (
-  spent: number,
-  budget: number
-): BudgetProgress => {
-  const percentage = budget > 0 ? Math.round((spent / budget) * 100) : 0;
-  const remaining = budget - spent;
-  const isOverBudget = spent > budget;
-
-  let status: "healthy" | "warning" | "danger";
-  if (isOverBudget) {
-    status = "danger";
-  } else if (percentage >= 90) {
-    status = "warning";
-  } else {
-    status = "healthy";
-  }
-
-  return {
-    spent,
-    budget,
-    percentage,
-    remaining,
-    isOverBudget,
-    status,
-  };
 };

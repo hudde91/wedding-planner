@@ -55,39 +55,6 @@ export const getCardBorderColorByRSVP = (status: RSVPStatus): string => {
 
 export type Priority = "low" | "medium" | "high" | "critical";
 
-export const getPriorityStatusStyle = (priority: Priority): StatusStyle => {
-  switch (priority) {
-    case "critical":
-      return {
-        containerClass: "bg-red-100 text-red-700 border-red-200",
-        textClass: "text-red-700",
-        bgClass: "bg-red-100",
-        borderClass: "border-red-200",
-      };
-    case "high":
-      return {
-        containerClass: "bg-orange-100 text-orange-700 border-orange-200",
-        textClass: "text-orange-700",
-        bgClass: "bg-orange-100",
-        borderClass: "border-orange-200",
-      };
-    case "medium":
-      return {
-        containerClass: "bg-yellow-100 text-yellow-700 border-yellow-200",
-        textClass: "text-yellow-700",
-        bgClass: "bg-yellow-100",
-        borderClass: "border-yellow-200",
-      };
-    default:
-      return {
-        containerClass: "bg-gray-100 text-gray-700 border-gray-200",
-        textClass: "text-gray-700",
-        bgClass: "bg-gray-100",
-        borderClass: "border-gray-200",
-      };
-  }
-};
-
 export type PhaseStatus =
   | "upcoming"
   | "current"

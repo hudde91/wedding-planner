@@ -56,29 +56,6 @@ const Sidebar: Component<SidebarProps> = (props) => {
     },
   ];
 
-  // Calculate quick stats for the sidebar
-  const stats = () => {
-    const attendingGuests = props.weddingPlan.guests.filter(
-      (g) => g.rsvp_status === "attending"
-    );
-    const totalAttendees = attendingGuests.reduce(
-      (sum, guest) => sum + 1 + guest.plus_ones.length,
-      0
-    );
-    const completedTodos = props.weddingPlan.todos.filter(
-      (t) => t.completed
-    ).length;
-    const totalTodos = props.weddingPlan.todos.length;
-
-    return {
-      totalAttendees,
-      completedTodos,
-      totalTodos,
-      progressPercentage:
-        totalTodos > 0 ? Math.round((completedTodos / totalTodos) * 100) : 0,
-    };
-  };
-
   return (
     <div
       class={`fixed left-0 top-0 h-full bg-white/95 backdrop-blur-md shadow-2xl border-r border-gray-100 transition-all duration-500 z-50 ${
@@ -150,21 +127,6 @@ const Sidebar: Component<SidebarProps> = (props) => {
                 </Show>
               </div>
             </Show>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center border border-gray-100/60 shadow-sm">
-                <div class="text-lg font-medium text-rose-600">
-                  {stats().totalAttendees}
-                </div>
-                <div class="text-xs text-gray-600 font-light">Attendees</div>
-              </div>
-              <div class="bg-white/80 backdrop-blur-sm rounded-lg p-3 text-center border border-gray-100/60 shadow-sm">
-                <div class="text-lg font-medium text-emerald-600">
-                  {stats().progressPercentage}%
-                </div>
-                <div class="text-xs text-gray-600 font-light">Complete</div>
-              </div>
-            </div>
           </div>
         </div>
       </Show>

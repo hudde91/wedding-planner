@@ -3,7 +3,7 @@
  * Consolidates all guest-related calculations
  */
 
-import { Guest, RSVPStatus } from "../types";
+import { Guest, TableShape } from "../types";
 
 export interface GuestStats {
   totalGuests: number;
@@ -41,25 +41,6 @@ export const calculateGuestStats = (guests: Guest[]): GuestStats => {
     responseRate,
     attendanceRate,
   };
-};
-
-export const countGuestsByStatus = (
-  guests: Guest[],
-  status: RSVPStatus
-): number => {
-  return guests.filter((guest) => guest.rsvp_status === status).length;
-};
-
-export const countTotalAttendees = (guests: Guest[]): number => {
-  return guests
-    .filter((guest) => guest.rsvp_status === "attending")
-    .reduce((sum, guest) => sum + 1 + (guest.plus_ones?.length || 0), 0);
-};
-
-export const countPlusOnes = (guests: Guest[]): number => {
-  return guests
-    .filter((guest) => guest.rsvp_status === "attending")
-    .reduce((sum, guest) => sum + (guest.plus_ones?.length || 0), 0);
 };
 
 export const getGuestPartySize = (
@@ -111,82 +92,103 @@ export const getUnassignedAttendees = (
   );
 };
 
-export const getGuestsByMealPreference = (
-  guests: Guest[]
-): Record<string, Guest[]> => {
-  const attendingGuests = guests.filter((g) => g.rsvp_status === "attending");
-
-  return attendingGuests.reduce((acc, guest) => {
-    const preference = guest.meal_preference || "No preference";
-    if (!acc[preference]) {
-      acc[preference] = [];
-    }
-    acc[preference].push(guest);
-    return acc;
-  }, {} as Record<string, Guest[]>);
-};
-
-export const getGuestsWithPlusOnes = (guests: Guest[]): Guest[] => {
-  return guests.filter(
-    (guest) => guest.plus_ones && guest.plus_ones.length > 0
-  );
-};
-
-export const getGuestsWithoutRSVP = (guests: Guest[]): Guest[] => {
-  return guests.filter((guest) => guest.rsvp_status === "pending");
-};
-
-export const findGuestById = (
-  guests: Guest[],
-  id: string
-): Guest | undefined => {
-  return guests.find((guest) => guest.id === id);
-};
-
-export const searchGuests = (guests: Guest[], query: string): Guest[] => {
-  const lowercaseQuery = query.toLowerCase();
-  return guests.filter(
-    (guest) =>
-      guest.name.toLowerCase().includes(lowercaseQuery) ||
-      guest.email.toLowerCase().includes(lowercaseQuery) ||
-      guest.phone.includes(query)
-  );
-};
-
-export interface GuestInsights {
-  largestPartySize: number;
-  mostCommonMealPreference: string;
-  guestsNeedingFollowUp: Guest[];
-  estimatedFinalCount: number;
+export interface SeatPosition {
+  x: number;
+  y: number;
+  tableWidth?: number;
+  tableHeight?: number;
+  radius?: number;
+  tableRadius?: number;
 }
 
-export const generateGuestInsights = (guests: Guest[]): GuestInsights => {
-  const partySizes = guests.map((guest) => getGuestPartySize(guest).total);
-  const largestPartySize = Math.max(...partySizes, 0);
+import { JSX } from "solid-js";
 
-  const mealPreferences = getGuestsByMealPreference(guests);
-  const mostCommonMealPreference =
-    Object.entries(mealPreferences).sort(
-      ([, a], [, b]) => b.length - a.length
-    )[0]?.[0] || "No preference";
+interface SeatLayoutProps {
+  seatNumber: number;
+  totalSeats: number;
+  shape: TableShape;
+  children?: JSX.Element;
+}
 
-  const guestsNeedingFollowUp = guests.filter(
-    (guest) => guest.rsvp_status === "pending" && guest.email
-  );
+export const getSeatPosition = (
+  seatNumber: number,
+  totalSeats: number,
+  shape: TableShape
+): SeatPosition => {
+  if (shape === "rectangular") {
+    const dotsPerSide = Math.ceil(totalSeats / 2);
+    const remainingDots = totalSeats - dotsPerSide;
+    const minWidth = 200;
+    const maxWidth = 500;
+    const seatSpacing = 40;
+    const maxSeatsOnSide = Math.max(dotsPerSide, remainingDots);
 
-  // Estimate final count assuming 70% of pending guests will attend
-  const stats = calculateGuestStats(guests);
+    const calculatedWidth = Math.max(
+      minWidth,
+      (maxSeatsOnSide + 1) * seatSpacing
+    );
+    const tableWidth = Math.min(maxWidth, calculatedWidth);
+    const baseHeight = 80;
+    const tableHeight = Math.max(baseHeight, Math.min(150, tableWidth * 0.3));
+    const seatOffset = 30;
 
-  const estimatedFinalCount =
-    guests
-      .filter((g) => g.rsvp_status === "attending")
-      .reduce((sum, guest) => sum + getGuestPartySize(guest).total, 0) +
-    Math.round(stats.pendingGuests.length * 0.7 * 1.5); // Assume avg 1.5 people per pending guest
+    const centerX = 140;
+    const centerY = 140;
 
-  return {
-    largestPartySize,
-    mostCommonMealPreference,
-    guestsNeedingFollowUp,
-    estimatedFinalCount,
-  };
+    if (seatNumber <= dotsPerSide) {
+      const topSpacing = tableWidth / (dotsPerSide + 1);
+      const x = centerX - tableWidth / 2 + topSpacing * seatNumber;
+      const y = centerY - tableHeight / 2 - seatOffset;
+      return { x, y, tableWidth, tableHeight };
+    } else {
+      const bottomIndex = seatNumber - dotsPerSide;
+      const bottomSpacing = tableWidth / (remainingDots + 1);
+      const x = centerX - tableWidth / 2 + bottomSpacing * bottomIndex;
+      const y = centerY + tableHeight / 2 + seatOffset;
+      return { x, y, tableWidth, tableHeight };
+    }
+  } else {
+    // Round table
+    const minRadius = 80;
+    const maxRadius = 180;
+    const minSeatSpacing = 50;
+
+    const requiredRadius = (minSeatSpacing * totalSeats) / (2 * Math.PI);
+    const radius = Math.max(minRadius, Math.min(maxRadius, requiredRadius));
+    const tableRadius = Math.max(60, radius * 0.6);
+
+    const centerX = 140;
+    const centerY = 140;
+
+    const angleStep = (2 * Math.PI) / totalSeats;
+    const angle = (seatNumber - 1) * angleStep - Math.PI / 2;
+
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
+
+    return { x, y, radius, tableRadius };
+  }
+};
+
+export const getTableDimensions = (totalSeats: number, shape: TableShape) => {
+  if (totalSeats === 0)
+    return { width: 200, height: 80, radius: 80, tableRadius: 60 };
+
+  const firstSeatPos = getSeatPosition(1, totalSeats, shape);
+
+  if (shape === "rectangular") {
+    return {
+      width: firstSeatPos.tableWidth || 200,
+      height: firstSeatPos.tableHeight || 80,
+      radius: 0,
+      tableRadius: 0,
+    };
+  } else {
+    return {
+      width: 0,
+      height: 0,
+      radius: firstSeatPos.radius || 80,
+      tableRadius: firstSeatPos.tableRadius || 60,
+    };
+  }
 };
