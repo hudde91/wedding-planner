@@ -1,6 +1,6 @@
 import { Component, For, createMemo } from "solid-js";
 import { Table, SeatAssignment } from "../../types";
-import { getSeatPosition, getTableDimensions } from "./SeatLayout";
+import { getTableDimensions, getSeatPosition } from "../../utils/guest";
 
 interface TableViewProps {
   table: Table;

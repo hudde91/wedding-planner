@@ -1,7 +1,7 @@
 import { Component, For, Show, createMemo, createSignal } from "solid-js";
 import { Table, Guest, SeatAssignment } from "../../types";
 import { truncateText } from "../../utils/validation";
-import { getSeatPosition, getTableDimensions } from "./SeatLayout";
+import { getTableDimensions, getSeatPosition } from "../../utils/guest";
 
 interface SeatingOverviewProps {
   tables: Table[];
