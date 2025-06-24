@@ -20,6 +20,7 @@ import TodoList from "./components/todos/TodoList";
 import GuestList from "./components/guests/GuestList";
 import SeatingChart from "./components/seating/SeatingChart";
 import Timeline from "./components/timeline/Timeline";
+import UnifiedTimeline from "./components/timeline/UnifiedTimeline";
 
 type AppState = "loading" | "loaded";
 
@@ -297,7 +298,7 @@ const App: Component = () => {
 
           <Show when={activeTab() === "timeline"}>
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <Timeline
+              <UnifiedTimeline
                 weddingPlan={weddingPlan()}
                 onToggleTodo={toggleTodo}
                 onDeleteTodo={deleteTodo}
