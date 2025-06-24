@@ -19,7 +19,6 @@ import WeddingDetails from "./components/wedding-details/WeddingDetails";
 import TodoList from "./components/todos/TodoList";
 import GuestList from "./components/guests/GuestList";
 import SeatingChart from "./components/seating/SeatingChart";
-import Timeline from "./components/timeline/Timeline";
 import UnifiedTimeline from "./components/timeline/UnifiedTimeline";
 
 type AppState = "loading" | "loaded";
