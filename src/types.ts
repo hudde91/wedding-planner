@@ -2,6 +2,8 @@ export type RSVPStatus = "pending" | "attending" | "declined";
 
 export type TableShape = "round" | "rectangular";
 
+export type WishStatus = "available" | "reserved" | "purchased";
+
 export interface SeatAssignment {
   tableId: string;
   seatNumber: number;
@@ -15,7 +17,8 @@ export type TabId =
   | "todos"
   | "guests"
   | "seating"
-  | "timeline";
+  | "timeline"
+  | "wishlist";
 
 export interface PlusOne {
   id: string;
@@ -66,6 +69,19 @@ export interface TodoItem {
   completion_date?: string;
 }
 
+export interface WishlistItem {
+  id: string;
+  title: string;
+  price: number;
+  currency: string;
+  image_url: string;
+  product_url: string;
+  status: WishStatus;
+  reserved_by?: string; // Guest name who reserved it
+  reserved_at?: string;
+  notes?: string;
+}
+
 export interface WeddingPlan {
   couple_name1: string;
   couple_name2: string;
@@ -74,6 +90,7 @@ export interface WeddingPlan {
   todos: TodoItem[];
   guests: Guest[];
   tables: Table[];
+  wishlist: WishlistItem[];
 }
 
 export interface TableFormData {
@@ -90,6 +107,15 @@ export interface GuestFormData {
   meal_preference: string;
   plus_ones: PlusOne[];
   notes: string;
+}
+
+export interface WishlistFormData {
+  title: string;
+  price: number;
+  currency: string;
+  image_url: string;
+  product_url: string;
+  notes?: string;
 }
 
 export interface SeatingStats {

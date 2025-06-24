@@ -33,6 +33,20 @@
           TableShape::Round
       }
   }
+
+  #[derive(Serialize, Deserialize, Debug, Clone)]
+  #[serde(rename_all = "lowercase")]
+  pub enum WishStatus {
+      Available,
+      Reserved,
+      Purchased,
+  }
+  
+  impl Default for WishStatus {
+      fn default() -> Self {
+          WishStatus::Available
+      }
+  }
   
   #[derive(Serialize, Deserialize, Debug, Clone)]
   struct SeatAssignment {
@@ -44,6 +58,24 @@
       guest_id: String,
       #[serde(rename = "guestName")]
       guest_name: String,
+  }
+
+  #[derive(Serialize, Deserialize, Debug, Clone)]
+  struct WishlistItem {
+      id: String,
+      title: String,
+      price: f64,
+      currency: String,
+      image_url: String,
+      product_url: String,
+      #[serde(default)]
+      status: WishStatus,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      reserved_by: Option<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      reserved_at: Option<String>,
+      #[serde(skip_serializing_if = "Option::is_none")]
+      notes: Option<String>,
   }
   
   #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -57,6 +89,8 @@
       guests: Vec<Guest>,
       #[serde(default)]
       tables: Vec<Table>,
+      #[serde(default)]
+      wishlist: Vec<WishlistItem>,
   }
   
   #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -135,6 +169,7 @@
               todos: Vec::new(),
               guests: Vec::new(),
               tables: Vec::new(),
+              wishlist: Vec::new(),
           }
       }
   }

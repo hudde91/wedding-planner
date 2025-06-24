@@ -9,6 +9,8 @@ import type {
   Table,
   TodoFormData,
   TabId,
+  WishlistItem,
+  WishlistFormData,
 } from "./types";
 
 import LoadingSpinner from "./components/common/LoadingSpinner";
@@ -20,6 +22,7 @@ import TodoList from "./components/todos/TodoList";
 import GuestList from "./components/guests/GuestList";
 import SeatingChart from "./components/seating/SeatingChart";
 import Timeline from "./components/timeline/Timeline";
+import Wishlist from "./components/wishlist/Wishlist";
 
 type AppState = "loading" | "loaded";
 
@@ -35,6 +38,7 @@ const App: Component = () => {
     todos: [],
     guests: [],
     tables: [],
+    wishlist: [],
   });
 
   const defaultTodos: TodoItem[] = [];
@@ -50,12 +54,18 @@ const App: Component = () => {
             : defaultTodos,
         guests: savedPlan.guests || [],
         tables: savedPlan.tables || [],
+        wishlist: savedPlan.wishlist || [],
       };
       setWeddingPlan(plan);
       setAppState("loaded");
     } catch (error) {
       console.error("Failed to load wedding plan:", error);
-      setWeddingPlan((prev) => ({ ...prev, todos: defaultTodos, tables: [] }));
+      setWeddingPlan((prev) => ({
+        ...prev,
+        todos: defaultTodos,
+        tables: [],
+        wishlist: [],
+      }));
       setAppState("loaded");
     }
   });
@@ -234,6 +244,47 @@ const App: Component = () => {
     });
   };
 
+  // Wishlist functions
+  const addWishlistItem = (itemData: WishlistFormData): void => {
+    setWeddingPlan((prev) => {
+      const newItem: WishlistItem = {
+        id: nanoid(),
+        ...itemData,
+        status: "available",
+      };
+      const updated = { ...prev, wishlist: [...prev.wishlist, newItem] };
+      savePlanToBackend(updated);
+      return updated;
+    });
+  };
+
+  const updateWishlistItem = (
+    id: string,
+    itemData: Partial<WishlistItem>
+  ): void => {
+    setWeddingPlan((prev) => {
+      const updated = {
+        ...prev,
+        wishlist: prev.wishlist.map((item) =>
+          item.id === id ? { ...item, ...itemData } : item
+        ),
+      };
+      savePlanToBackend(updated);
+      return updated;
+    });
+  };
+
+  const deleteWishlistItem = (id: string): void => {
+    setWeddingPlan((prev) => {
+      const updated = {
+        ...prev,
+        wishlist: prev.wishlist.filter((item) => item.id !== id),
+      };
+      savePlanToBackend(updated);
+      return updated;
+    });
+  };
+
   return (
     <div class="min-h-screen bg-gray-50">
       <Show when={appState() === "loading"}>
@@ -305,6 +356,15 @@ const App: Component = () => {
                 onAddTodo={addTodo}
               />
             </div>
+          </Show>
+
+          <Show when={activeTab() === "wishlist"}>
+            <Wishlist
+              wishlistItems={weddingPlan().wishlist}
+              onAddWishlistItem={addWishlistItem}
+              onUpdateWishlistItem={updateWishlistItem}
+              onDeleteWishlistItem={deleteWishlistItem}
+            />
           </Show>
         </MainLayout>
       </Show>

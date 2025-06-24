@@ -1,4 +1,4 @@
-import { Component, createSignal, onMount } from "solid-js";
+import { Component } from "solid-js";
 import { WeddingPlan } from "../../types";
 import { formatCurrency } from "../../utils/currency";
 
@@ -11,22 +11,10 @@ interface WeddingDetailsProps {
 }
 
 const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
-  const [isLoaded, setIsLoaded] = createSignal(false);
-
-  onMount(() => {
-    setTimeout(() => setIsLoaded(true), 100);
-  });
-
   return (
     <div class="space-y-8">
       {/* Hero Section */}
-      <div
-        class={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-100 via-white to-purple-100 border border-rose-200/50 shadow-xl transition-all duration-1000 ${
-          isLoaded()
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform translate-y-8"
-        }`}
-      >
+      <div class="animate-fade-in-up relative overflow-hidden rounded-2xl bg-gradient-to-br from-rose-100 via-white to-purple-100 border border-rose-200/50 shadow-xl">
         {/* Background Image Overlay */}
         <div class="absolute inset-0 opacity-10">
           <img
@@ -61,13 +49,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
       {/* Form Sections */}
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Couple Information */}
-        <div
-          class={`bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg transition-all duration-1000 delay-200 ${
-            isLoaded()
-              ? "opacity-100 transform translate-y-0"
-              : "opacity-0 transform translate-y-8"
-          }`}
-        >
+        <div class="animate-fade-in-up-delay-200 bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg">
           <div class="flex items-center space-x-3 mb-6">
             <div class="w-10 h-10 bg-gradient-to-br from-rose-400 to-pink-400 rounded-lg flex items-center justify-center">
               <svg
@@ -134,13 +116,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
         </div>
 
         {/* Wedding Logistics */}
-        <div
-          class={`bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg transition-all duration-1000 delay-400 ${
-            isLoaded()
-              ? "opacity-100 transform translate-y-0"
-              : "opacity-0 transform translate-y-8"
-          }`}
-        >
+        <div class="animate-fade-in-up-delay-400 bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg">
           <div class="flex items-center space-x-3 mb-6">
             <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-indigo-400 rounded-lg flex items-center justify-center">
               <svg
@@ -216,13 +192,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
       </div>
 
       {/* Auto-save Indicator */}
-      <div
-        class={`text-center transition-all duration-1000 delay-800 ${
-          isLoaded()
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform translate-y-4"
-        }`}
-      >
+      <div class="animate-fade-in-up-delay-800 text-center">
         <div class="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 border border-gray-100 shadow-sm">
           <div class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
           <span class="text-sm text-gray-600 font-light">

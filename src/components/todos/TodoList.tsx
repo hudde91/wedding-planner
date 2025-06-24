@@ -4,7 +4,6 @@ import {
   For,
   Show,
   createMemo,
-  onMount,
   createEffect,
 } from "solid-js";
 import { TodoItem as TodoItemType, TodoFormData } from "../../types";
@@ -23,20 +22,15 @@ interface TodoListProps {
 
 const TodoList: Component<TodoListProps> = (props) => {
   const [expandedTodoId, setExpandedTodoId] = createSignal<number | null>(null);
-  const [isLoaded, setIsLoaded] = createSignal(false);
   const [newlyAddedTodoId, setNewlyAddedTodoId] = createSignal<number | null>(
     null
   );
-
-  onMount(() => {
-    setTimeout(() => setIsLoaded(true), 100);
-  });
 
   // Track when a new todo is added and auto-expand it
   let previousTodoCount = props.todos.length;
   createEffect(() => {
     const currentTodos = props.todos;
-    // If a new todo was added and it's at the beginning of the list
+
     if (currentTodos.length > previousTodoCount && currentTodos.length > 0) {
       const newestTodo = currentTodos[0];
       setExpandedTodoId(newestTodo.id);
@@ -68,13 +62,7 @@ const TodoList: Component<TodoListProps> = (props) => {
   return (
     <div class="space-y-8">
       {/* Header with Background */}
-      <div
-        class={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-100 via-white to-teal-100 border border-emerald-200/50 shadow-xl transition-all duration-1000 ${
-          isLoaded()
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform translate-y-8"
-        }`}
-      >
+      <div class="animate-fade-in-up relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-100 via-white to-teal-100 border border-emerald-200/50 shadow-xl">
         <div class="absolute inset-0 opacity-10">
           <img
             src="https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=1200&h=400&fit=crop&auto=format"
@@ -107,13 +95,7 @@ const TodoList: Component<TodoListProps> = (props) => {
       </div>
 
       {/* Progress Section */}
-      <div
-        class={`transition-all duration-1000 delay-200 ${
-          isLoaded()
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform translate-y-8"
-        }`}
-      >
+      <div class="animate-fade-in-up-delay-200">
         <TodoProgress
           completedCount={completedCount()}
           totalCount={totalCount()}
@@ -122,24 +104,12 @@ const TodoList: Component<TodoListProps> = (props) => {
       </div>
 
       {/* Add Todo Form */}
-      <div
-        class={`transition-all duration-1000 delay-400 ${
-          isLoaded()
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform translate-y-8"
-        }`}
-      >
+      <div class="animate-fade-in-up-delay-400">
         <AddTodoForm onAdd={props.addTodo} todos={props.todos} />
       </div>
 
       {/* Todo Items */}
-      <div
-        class={`space-y-4 transition-all duration-1000 delay-600 ${
-          isLoaded()
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform translate-y-8"
-        }`}
-      >
+      <div class="animate-fade-in-up-delay-600 space-y-4">
         <For each={props.todos}>
           {(todo, index) => (
             <div
@@ -161,13 +131,7 @@ const TodoList: Component<TodoListProps> = (props) => {
       </div>
 
       <Show when={props.todos.length === 0}>
-        <div
-          class={`text-center py-16 transition-all duration-1000 delay-800 ${
-            isLoaded()
-              ? "opacity-100 transform translate-y-0"
-              : "opacity-0 transform translate-y-8"
-          }`}
-        >
+        <div class="animate-fade-in-up-delay-800 text-center py-16">
           <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-12 border border-gray-100 shadow-lg max-w-md mx-auto">
             <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <svg

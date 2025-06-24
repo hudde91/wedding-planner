@@ -4,7 +4,6 @@ import { formatWeddingDate, getWeddingCountdown } from "../../utils/date";
 
 interface HeroSectionProps {
   weddingPlan: WeddingPlan;
-  isLoaded: () => boolean;
 }
 
 const HeroSection: Component<HeroSectionProps> = (props) => {
@@ -28,13 +27,7 @@ const HeroSection: Component<HeroSectionProps> = (props) => {
   const countdown = () => getWeddingCountdown(props.weddingPlan.wedding_date);
 
   return (
-    <div
-      class={`relative overflow-hidden rounded-2xl shadow-2xl transition-all duration-1000 ${
-        props.isLoaded()
-          ? "opacity-100 transform translate-y-0"
-          : "opacity-0 transform translate-y-8"
-      }`}
-    >
+    <div class="animate-fade-in-up relative overflow-hidden rounded-2xl shadow-2xl">
       {/* Background Images with Smooth Transition */}
       <div class="absolute inset-0">
         {heroImages.map((image, index) => (

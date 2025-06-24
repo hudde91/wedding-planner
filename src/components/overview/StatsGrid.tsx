@@ -5,20 +5,13 @@ import { getWeddingCountdown } from "../../utils/date";
 
 interface StatsGridProps {
   stats: BudgetSummary;
-  isLoaded: () => boolean;
 }
 
 const StatsGrid: Component<StatsGridProps> = (props) => {
   const countdown = () => getWeddingCountdown(props.stats.weddingDate);
 
   return (
-    <div
-      class={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 transition-all duration-1000 delay-200 ${
-        props.isLoaded()
-          ? "opacity-100 transform translate-y-0"
-          : "opacity-0 transform translate-y-8"
-      }`}
-    >
+    <div class="animate-fade-in-up-delay-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Days Until Wedding */}
       <div class="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
         <div class="absolute inset-0 bg-gradient-to-br from-rose-50/50 to-pink-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

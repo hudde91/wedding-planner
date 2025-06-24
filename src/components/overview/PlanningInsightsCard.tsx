@@ -3,19 +3,12 @@ import { BudgetSummary } from "../../types";
 
 interface PlanningInsightsCardProps {
   stats: BudgetSummary;
-  isLoaded: () => boolean;
 }
 
 const PlanningInsightsCard: Component<PlanningInsightsCardProps> = (props) => {
   return (
     <Show when={props.stats.totalTodos > 0 || props.stats.totalGuests > 0}>
-      <div
-        class={`bg-gradient-to-br from-indigo-50 via-white to-purple-50 rounded-xl p-8 border border-indigo-200/50 shadow-lg transition-all duration-1000 delay-600 ${
-          props.isLoaded()
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform translate-y-8"
-        }`}
-      >
+      <div class="animate-fade-in-up-delay-600 bg-gradient-to-br from-indigo-50 via-white to-purple-50 rounded-xl p-8 border border-indigo-200/50 shadow-lg">
         <div class="flex items-center space-x-3 mb-6">
           <div class="w-10 h-10 bg-gradient-to-br from-indigo-400 to-purple-400 rounded-lg flex items-center justify-center">
             <svg

@@ -1,4 +1,4 @@
-import { createSignal, Component, For, Show, onMount } from "solid-js";
+import { createSignal, Component, For, Show } from "solid-js";
 import {
   Guest,
   GuestFormData,
@@ -19,11 +19,6 @@ interface GuestListProps {
 const GuestList: Component<GuestListProps> = (props) => {
   const [showAddForm, setShowAddForm] = createSignal(false);
   const [editingGuest, setEditingGuest] = createSignal<Guest | null>(null);
-  const [isLoaded, setIsLoaded] = createSignal(false);
-
-  onMount(() => {
-    setTimeout(() => setIsLoaded(true), 100);
-  });
 
   const stats = (): GuestStatsType => {
     const guestStats = calculateGuestStats(props.guests);
@@ -61,13 +56,7 @@ const GuestList: Component<GuestListProps> = (props) => {
   return (
     <div class="space-y-8">
       {/* Header with Background */}
-      <div
-        class={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-100 via-white to-cyan-100 border border-blue-200/50 shadow-xl transition-all duration-1000 ${
-          isLoaded()
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform translate-y-8"
-        }`}
-      >
+      <div class="animate-fade-in-up relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-100 via-white to-cyan-100 border border-blue-200/50 shadow-xl">
         <div class="absolute inset-0 opacity-10">
           <img
             src="https://images.unsplash.com/photo-1511578314322-379afb476865?w=1200&h=400&fit=crop&auto=format"
@@ -116,26 +105,14 @@ const GuestList: Component<GuestListProps> = (props) => {
 
       {/* Stats Section */}
       <Show when={props.guests.length > 0}>
-        <div
-          class={`transition-all duration-1000 delay-200 ${
-            isLoaded()
-              ? "opacity-100 transform translate-y-0"
-              : "opacity-0 transform translate-y-8"
-          }`}
-        >
+        <div class="animate-fade-in-up-delay-200">
           <GuestStats stats={stats()} totalGuests={props.guests.length} />
         </div>
       </Show>
 
       {/* Add/Edit Form */}
       <Show when={showAddForm()}>
-        <div
-          class={`transition-all duration-1000 delay-400 ${
-            isLoaded()
-              ? "opacity-100 transform translate-y-0"
-              : "opacity-0 transform translate-y-8"
-          }`}
-        >
+        <div class="animate-fade-in-up-delay-400">
           <GuestForm
             editingGuest={editingGuest()}
             onSubmit={editingGuest() ? handleUpdateGuest : handleAddGuest}
@@ -145,13 +122,7 @@ const GuestList: Component<GuestListProps> = (props) => {
       </Show>
 
       {/* Guest Cards */}
-      <div
-        class={`space-y-4 transition-all duration-1000 delay-600 ${
-          isLoaded()
-            ? "opacity-100 transform translate-y-0"
-            : "opacity-0 transform translate-y-8"
-        }`}
-      >
+      <div class="animate-fade-in-up-delay-600 space-y-4">
         <Show when={props.guests.length === 0}>
           <div class="text-center py-16">
             <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-12 border border-gray-100 shadow-lg max-w-md mx-auto">

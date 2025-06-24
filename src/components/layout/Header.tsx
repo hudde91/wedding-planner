@@ -22,6 +22,8 @@ const Header: Component<HeaderProps> = (props) => {
         return "Guest Management";
       case "seating":
         return "Seating Arrangements";
+      case "wishlist":
+        return "Wedding Wishlist";
       default:
         return "Wedding Planner";
     }
@@ -41,6 +43,8 @@ const Header: Component<HeaderProps> = (props) => {
         return "Invitations and RSVP tracking";
       case "seating":
         return "Table arrangements and layout";
+      case "wishlist":
+        return "Share your dreams with loved ones";
       default:
         return "Plan your perfect day";
     }

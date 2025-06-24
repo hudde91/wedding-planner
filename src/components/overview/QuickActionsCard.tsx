@@ -3,18 +3,11 @@ import { TabId } from "../../types";
 
 interface QuickActionsCardProps {
   onNavigateToTab?: (tabId: TabId) => void;
-  isLoaded: () => boolean;
 }
 
 const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
   return (
-    <div
-      class={`bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 p-8 transition-all duration-1000 delay-800 ${
-        props.isLoaded()
-          ? "opacity-100 transform translate-y-0"
-          : "opacity-0 transform translate-y-8"
-      }`}
-    >
+    <div class="animate-fade-in-up-delay-800 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 p-8">
       <div class="flex items-center space-x-3 mb-6">
         <div class="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center">
           <svg
