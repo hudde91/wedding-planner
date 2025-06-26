@@ -30,8 +30,8 @@ const Gallery: Component<GalleryProps> = (props) => {
 
   // Upload state
   const [uploadData, setUploadData] = createSignal<MediaUploadData>({
-    category: "candid",
-    uploadedBy: "You",
+    category: "ceremony",
+    uploadedBy: "",
     caption: "",
     tags: [],
   });

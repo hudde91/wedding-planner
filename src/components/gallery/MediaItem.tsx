@@ -13,7 +13,7 @@ const MediaItem: Component<MediaItemProps> = (props) => {
     { id: "reception", label: "Reception" },
     { id: "preparation", label: "Getting Ready" },
     { id: "portraits", label: "Portraits" },
-    { id: "candid", label: "Candid" },
+    { id: "party", label: "Party" },
     { id: "other", label: "Other" },
   ];
 
