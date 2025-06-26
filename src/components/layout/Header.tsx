@@ -24,6 +24,8 @@ const Header: Component<HeaderProps> = (props) => {
         return "Seating Arrangements";
       case "wishlist":
         return "Wedding Wishlist";
+      case "gallery":
+        return "Wedding Gallery";
       default:
         return "Wedding Planner";
     }
@@ -45,6 +47,8 @@ const Header: Component<HeaderProps> = (props) => {
         return "Table arrangements and layout";
       case "wishlist":
         return "Share your dreams with loved ones";
+      case "gallery":
+        return "Capture and share your precious moments";
       default:
         return "Plan your perfect day";
     }
@@ -111,6 +115,22 @@ const Header: Component<HeaderProps> = (props) => {
                 )}
               </div>
               <div class="text-xs text-gray-500">Wedding Date</div>
+            </div>
+          </Show>
+
+          {/* Gallery specific stats */}
+          <Show
+            when={
+              props.activeTab === "gallery" &&
+              props.weddingPlan.media &&
+              props.weddingPlan.media.length > 0
+            }
+          >
+            <div class="text-right space-y-1">
+              <div class="text-sm font-medium text-gray-900">
+                {props.weddingPlan.media.length} items
+              </div>
+              <div class="text-xs text-gray-500">Media Files</div>
             </div>
           </Show>
         </div>

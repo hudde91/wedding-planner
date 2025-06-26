@@ -4,6 +4,16 @@ export type TableShape = "round" | "rectangular";
 
 export type WishStatus = "available" | "reserved" | "purchased";
 
+export type MediaType = "image" | "video";
+
+export type MediaCategory =
+  | "ceremony"
+  | "reception"
+  | "preparation"
+  | "portraits"
+  | "party"
+  | "other";
+
 export interface SeatAssignment {
   tableId: string;
   seatNumber: number;
@@ -18,7 +28,8 @@ export type TabId =
   | "guests"
   | "seating"
   | "timeline"
-  | "wishlist";
+  | "wishlist"
+  | "gallery";
 
 export interface PlusOne {
   id: string;
@@ -82,6 +93,26 @@ export interface WishlistItem {
   notes?: string;
 }
 
+export interface MediaItem {
+  id: string;
+  filename: string;
+  originalName: string;
+  type: MediaType;
+  category: MediaCategory;
+  uploadedAt: string;
+  uploadedBy: string; // Name of person who uploaded
+  caption?: string;
+  tags?: string[];
+  isFavorite: boolean;
+  fileSize: number;
+  dimensions?: {
+    width: number;
+    height: number;
+  };
+  duration?: number; // For videos, in seconds
+  thumbnailPath?: string; // For videos
+}
+
 export interface WeddingPlan {
   couple_name1: string;
   couple_name2: string;
@@ -91,6 +122,7 @@ export interface WeddingPlan {
   guests: Guest[];
   tables: Table[];
   wishlist: WishlistItem[];
+  media: MediaItem[];
 }
 
 export interface TableFormData {
@@ -116,6 +148,13 @@ export interface WishlistFormData {
   image_url: string;
   product_url: string;
   notes?: string;
+}
+
+export interface MediaUploadData {
+  category: MediaCategory;
+  caption?: string;
+  tags?: string[];
+  uploadedBy: string;
 }
 
 export interface SeatingStats {

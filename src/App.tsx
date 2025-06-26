@@ -11,6 +11,8 @@ import type {
   TabId,
   WishlistItem,
   WishlistFormData,
+  MediaItem,
+  MediaUploadData,
 } from "./types";
 
 import LoadingSpinner from "./components/common/LoadingSpinner";
@@ -23,6 +25,7 @@ import GuestList from "./components/guests/GuestList";
 import SeatingChart from "./components/seating/SeatingChart";
 import Timeline from "./components/timeline/Timeline";
 import Wishlist from "./components/wishlist/Wishlist";
+import Gallery from "./components/gallery/Gallery";
 
 type AppState = "loading" | "loaded";
 
@@ -39,6 +42,7 @@ const App: Component = () => {
     guests: [],
     tables: [],
     wishlist: [],
+    media: [],
   });
 
   const defaultTodos: TodoItem[] = [];
@@ -55,6 +59,7 @@ const App: Component = () => {
         guests: savedPlan.guests || [],
         tables: savedPlan.tables || [],
         wishlist: savedPlan.wishlist || [],
+        media: savedPlan.media || [],
       };
       setWeddingPlan(plan);
       setAppState("loaded");
@@ -65,6 +70,7 @@ const App: Component = () => {
         todos: defaultTodos,
         tables: [],
         wishlist: [],
+        media: [],
       }));
       setAppState("loaded");
     }
@@ -285,6 +291,101 @@ const App: Component = () => {
     });
   };
 
+  // Media functions
+  const addMedia = async (
+    files: File[],
+    uploadData: MediaUploadData
+  ): Promise<void> => {
+    try {
+      const newMediaItems: MediaItem[] = [];
+
+      for (const file of files) {
+        const fileId = nanoid();
+        const fileExtension = file.name.split(".").pop() || "";
+        const fileName = `${fileId}.${fileExtension}`;
+
+        // Convert file to array buffer and then to Uint8Array
+        const arrayBuffer = await file.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        const fileData = Array.from(uint8Array);
+
+        // Save file to backend
+        await invoke<string>("save_media_file", {
+          fileName,
+          fileData,
+        });
+
+        // Get file info
+        const [fileSize] = await invoke<[number, any]>("get_media_file_info", {
+          filename: fileName,
+        });
+
+        const mediaItem: MediaItem = {
+          id: fileId,
+          filename: fileName,
+          originalName: file.name,
+          type: file.type.startsWith("image/") ? "image" : "video",
+          category: uploadData.category,
+          uploadedAt: new Date().toISOString(),
+          uploadedBy: uploadData.uploadedBy,
+          caption: uploadData.caption,
+          tags: uploadData.tags || [],
+          isFavorite: false,
+          fileSize,
+        };
+
+        newMediaItems.push(mediaItem);
+      }
+
+      setWeddingPlan((prev) => {
+        const updated = {
+          ...prev,
+          media: [...prev.media, ...newMediaItems],
+        };
+        savePlanToBackend(updated);
+        return updated;
+      });
+    } catch (error) {
+      console.error("Failed to upload media:", error);
+      alert("Failed to upload media files. Please try again.");
+    }
+  };
+
+  const updateMedia = (id: string, updates: Partial<MediaItem>): void => {
+    setWeddingPlan((prev) => {
+      const updated = {
+        ...prev,
+        media: prev.media.map((item) =>
+          item.id === id ? { ...item, ...updates } : item
+        ),
+      };
+      savePlanToBackend(updated);
+      return updated;
+    });
+  };
+
+  const deleteMedia = async (id: string): Promise<void> => {
+    try {
+      const mediaItem = weddingPlan().media.find((item) => item.id === id);
+      if (mediaItem) {
+        // Delete file from backend
+        await invoke("delete_media_file", { filename: mediaItem.filename });
+
+        setWeddingPlan((prev) => {
+          const updated = {
+            ...prev,
+            media: prev.media.filter((item) => item.id !== id),
+          };
+          savePlanToBackend(updated);
+          return updated;
+        });
+      }
+    } catch (error) {
+      console.error("Failed to delete media:", error);
+      alert("Failed to delete media file. Please try again.");
+    }
+  };
+
   return (
     <div class="min-h-screen bg-gray-50">
       <Show when={appState() === "loading"}>
@@ -364,6 +465,15 @@ const App: Component = () => {
               onAddWishlistItem={addWishlistItem}
               onUpdateWishlistItem={updateWishlistItem}
               onDeleteWishlistItem={deleteWishlistItem}
+            />
+          </Show>
+
+          <Show when={activeTab() === "gallery"}>
+            <Gallery
+              mediaItems={weddingPlan().media}
+              onAddMedia={addMedia}
+              onUpdateMedia={updateMedia}
+              onDeleteMedia={deleteMedia}
             />
           </Show>
         </MainLayout>
