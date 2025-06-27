@@ -113,6 +113,41 @@ export interface MediaItem {
   thumbnailPath?: string; // For videos
 }
 
+// Extended wedding details
+export interface CeremonyDetails {
+  venue?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  time?: string;
+  duration?: string;
+  officiant?: string;
+}
+
+export interface ReceptionDetails {
+  venue?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  time?: string;
+  endTime?: string;
+  cocktailHour?: string;
+  dinnerTime?: string;
+  dancingTime?: string;
+}
+
+export interface WeddingContactInfo {
+  coupleEmail?: string;
+  couplePhone?: string;
+  plannerName?: string;
+  plannerEmail?: string;
+  plannerPhone?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+}
+
 export interface WeddingPlan {
   couple_name1: string;
   couple_name2: string;
@@ -123,6 +158,35 @@ export interface WeddingPlan {
   tables: Table[];
   wishlist: WishlistItem[];
   media: MediaItem[];
+
+  // Extended wedding details
+  ceremony?: CeremonyDetails;
+  reception?: ReceptionDetails;
+  contactInfo?: WeddingContactInfo;
+
+  // Additional details
+  dressCode?: string;
+  theme?: string;
+  colors?: string;
+  rsvpDeadline?: string;
+  giftMessage?: string;
+  specialInstructions?: string;
+  parking?: string;
+  transportation?: string;
+  accommodation?: string;
+  weatherPlan?: string;
+  website?: string;
+  hashtag?: string;
+
+  // Schedule/Timeline
+  gettingReadyTime?: string;
+  photosTime?: string;
+  ceremonyStartTime?: string;
+  cocktailStartTime?: string;
+  receptionStartTime?: string;
+  cakeTime?: string;
+  bouquetTossTime?: string;
+  lastDanceTime?: string;
 }
 
 export interface TableFormData {

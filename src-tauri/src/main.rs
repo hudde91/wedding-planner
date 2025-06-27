@@ -63,7 +63,7 @@ pub enum MediaCategory {
     Reception,
     Preparation,
     Portraits,
-    Candid,
+    Party,
     Other,
 }
 
@@ -132,6 +132,71 @@ struct WishlistItem {
     notes: Option<String>,
 }
 
+// Extended ceremony details
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+struct CeremonyDetails {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    venue: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    address: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    city: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    state: Option<String>,
+    #[serde(rename = "zipCode", skip_serializing_if = "Option::is_none")]
+    zip_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    time: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    duration: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    officiant: Option<String>,
+}
+
+// Extended reception details
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+struct ReceptionDetails {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    venue: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    address: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    city: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    state: Option<String>,
+    #[serde(rename = "zipCode", skip_serializing_if = "Option::is_none")]
+    zip_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    time: Option<String>,
+    #[serde(rename = "endTime", skip_serializing_if = "Option::is_none")]
+    end_time: Option<String>,
+    #[serde(rename = "cocktailHour", skip_serializing_if = "Option::is_none")]
+    cocktail_hour: Option<String>,
+    #[serde(rename = "dinnerTime", skip_serializing_if = "Option::is_none")]
+    dinner_time: Option<String>,
+    #[serde(rename = "dancingTime", skip_serializing_if = "Option::is_none")]
+    dancing_time: Option<String>,
+}
+
+// Contact information
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+struct WeddingContactInfo {
+    #[serde(rename = "coupleEmail", skip_serializing_if = "Option::is_none")]
+    couple_email: Option<String>,
+    #[serde(rename = "couplePhone", skip_serializing_if = "Option::is_none")]
+    couple_phone: Option<String>,
+    #[serde(rename = "plannerName", skip_serializing_if = "Option::is_none")]
+    planner_name: Option<String>,
+    #[serde(rename = "plannerEmail", skip_serializing_if = "Option::is_none")]
+    planner_email: Option<String>,
+    #[serde(rename = "plannerPhone", skip_serializing_if = "Option::is_none")]
+    planner_phone: Option<String>,
+    #[serde(rename = "emergencyContactName", skip_serializing_if = "Option::is_none")]
+    emergency_contact_name: Option<String>,
+    #[serde(rename = "emergencyContactPhone", skip_serializing_if = "Option::is_none")]
+    emergency_contact_phone: Option<String>,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 struct WeddingPlan {
     couple_name1: String,
@@ -147,6 +212,58 @@ struct WeddingPlan {
     wishlist: Vec<WishlistItem>,
     #[serde(default)]
     media: Vec<MediaItem>,
+    
+    // Extended wedding details
+    #[serde(default)]
+    ceremony: CeremonyDetails,
+    #[serde(default)]
+    reception: ReceptionDetails,
+    #[serde(rename = "contactInfo", default)]
+    contact_info: WeddingContactInfo,
+    
+    // Additional details
+    #[serde(rename = "dressCode", skip_serializing_if = "Option::is_none")]
+    dress_code: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    theme: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    colors: Option<String>,
+    #[serde(rename = "rsvpDeadline", skip_serializing_if = "Option::is_none")]
+    rsvp_deadline: Option<String>,
+    #[serde(rename = "giftMessage", skip_serializing_if = "Option::is_none")]
+    gift_message: Option<String>,
+    #[serde(rename = "specialInstructions", skip_serializing_if = "Option::is_none")]
+    special_instructions: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    parking: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    transportation: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    accommodation: Option<String>,
+    #[serde(rename = "weatherPlan", skip_serializing_if = "Option::is_none")]
+    weather_plan: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    website: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    hashtag: Option<String>,
+    
+    // Schedule/Timeline
+    #[serde(rename = "gettingReadyTime", skip_serializing_if = "Option::is_none")]
+    getting_ready_time: Option<String>,
+    #[serde(rename = "photosTime", skip_serializing_if = "Option::is_none")]
+    photos_time: Option<String>,
+    #[serde(rename = "ceremonyStartTime", skip_serializing_if = "Option::is_none")]
+    ceremony_start_time: Option<String>,
+    #[serde(rename = "cocktailStartTime", skip_serializing_if = "Option::is_none")]
+    cocktail_start_time: Option<String>,
+    #[serde(rename = "receptionStartTime", skip_serializing_if = "Option::is_none")]
+    reception_start_time: Option<String>,
+    #[serde(rename = "cakeTime", skip_serializing_if = "Option::is_none")]
+    cake_time: Option<String>,
+    #[serde(rename = "bouquetTossTime", skip_serializing_if = "Option::is_none")]
+    bouquet_toss_time: Option<String>,
+    #[serde(rename = "lastDanceTime", skip_serializing_if = "Option::is_none")]
+    last_dance_time: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -227,6 +344,29 @@ impl Default for WeddingPlan {
             tables: Vec::new(),
             wishlist: Vec::new(),
             media: Vec::new(),
+            ceremony: CeremonyDetails::default(),
+            reception: ReceptionDetails::default(),
+            contact_info: WeddingContactInfo::default(),
+            dress_code: None,
+            theme: None,
+            colors: None,
+            rsvp_deadline: None,
+            gift_message: None,
+            special_instructions: None,
+            parking: None,
+            transportation: None,
+            accommodation: None,
+            weather_plan: None,
+            website: None,
+            hashtag: None,
+            getting_ready_time: None,
+            photos_time: None,
+            ceremony_start_time: None,
+            cocktail_start_time: None,
+            reception_start_time: None,
+            cake_time: None,
+            bouquet_toss_time: None,
+            last_dance_time: None,
         }
     }
 }
