@@ -2,7 +2,7 @@ import { Component } from "solid-js";
 import { TabId } from "../../types";
 
 interface QuickActionsCardProps {
-  onNavigateToTab?: (tabId: TabId) => void;
+  onNavigateToRoute?: (tabId: TabId) => void;
 }
 
 const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
@@ -34,7 +34,7 @@ const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <button
-          onClick={() => props.onNavigateToTab?.("details")}
+          onClick={() => props.onNavigateToRoute?.("details")}
           class="group p-6 border border-gray-200 rounded-xl hover:border-rose-300 hover:bg-rose-50/50 transition-all duration-300 text-left"
         >
           <div class="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -61,7 +61,7 @@ const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
         </button>
 
         <button
-          onClick={() => props.onNavigateToTab?.("guests")}
+          onClick={() => props.onNavigateToRoute?.("guests")}
           class="group p-6 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300 text-left"
         >
           <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -88,7 +88,7 @@ const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
         </button>
 
         <button
-          onClick={() => props.onNavigateToTab?.("todos")}
+          onClick={() => props.onNavigateToRoute?.("todos")}
           class="group p-6 border border-gray-200 rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-300 text-left"
         >
           <div class="w-12 h-12 bg-gradient-to-br from-emerald-100 to-green-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -115,7 +115,7 @@ const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
         </button>
 
         <button
-          onClick={() => props.onNavigateToTab?.("seating")}
+          onClick={() => props.onNavigateToRoute?.("seating")}
           class="group p-6 border border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50/50 transition-all duration-300 text-left"
         >
           <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-violet-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">

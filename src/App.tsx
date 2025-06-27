@@ -1,4 +1,5 @@
 import { createSignal, onMount, Show, Component } from "solid-js";
+import { Router, Route } from "@solidjs/router";
 import { invoke } from "@tauri-apps/api/tauri";
 import { nanoid } from "nanoid";
 import type {
@@ -8,7 +9,6 @@ import type {
   GuestFormData,
   Table,
   TodoFormData,
-  TabId,
   WishlistItem,
   WishlistFormData,
   MediaItem,
@@ -16,23 +16,29 @@ import type {
 } from "./types";
 
 import LoadingSpinner from "./components/common/LoadingSpinner";
-import MainLayout from "./components/layout/MainLayout";
+import CoupleLayout from "./components/layout/CoupleLayout";
+import GuestLayout from "./components/layout/GuestLayout";
 
+// Couple Pages
 import Overview from "./components/overview/Overview";
 import WeddingDetails from "./components/wedding-details/WeddingDetails";
 import TodoList from "./components/todos/TodoList";
-import GuestList from "./components/guests/GuestList";
+import GuestList from "./components/invitations/GuestList";
 import SeatingChart from "./components/seating/SeatingChart";
 import Timeline from "./components/timeline/Timeline";
 import Wishlist from "./components/wishlist/Wishlist";
 import Gallery from "./components/gallery/Gallery";
 
+// Guest Pages
+import GuestWelcome from "./components/guest/GuestWelcome";
+import GuestWishlist from "./components/guest/GuestWishlist";
+import GuestGallery from "./components/guest/GuestGallery";
+import GuestInfo from "./components/guest/GuestInfo";
+
 type AppState = "loading" | "loaded";
 
 const App: Component = () => {
   const [appState, setAppState] = createSignal<AppState>("loading");
-  const [activeTab, setActiveTab] = createSignal<TabId>("overview");
-  const [sidebarOpen, setSidebarOpen] = createSignal(true);
   const [weddingPlan, setWeddingPlan] = createSignal<WeddingPlan>({
     couple_name1: "",
     couple_name2: "",
@@ -393,90 +399,158 @@ const App: Component = () => {
       </Show>
 
       <Show when={appState() === "loaded"}>
-        <MainLayout
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          sidebarOpen={sidebarOpen}
-          setSidebarOpen={setSidebarOpen}
-          weddingPlan={weddingPlan()}
-        >
-          <Show when={activeTab() === "overview"}>
-            <Overview
-              weddingPlan={weddingPlan()}
-              onNavigateToTab={setActiveTab}
-            />
-          </Show>
+        <Router>
+          {/* Couple Routes */}
+          <Route
+            path="/"
+            component={() => (
+              <CoupleLayout weddingPlan={weddingPlan()}>
+                <Overview
+                  weddingPlan={weddingPlan()}
+                  onNavigateToRoute={(route) => (window.location.href = route)}
+                />
+              </CoupleLayout>
+            )}
+          />
+          <Route
+            path="/details"
+            component={() => (
+              <CoupleLayout weddingPlan={weddingPlan()}>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <WeddingDetails
+                    weddingPlan={weddingPlan()}
+                    updateWeddingDetails={updateWeddingDetails}
+                  />
+                </div>
+              </CoupleLayout>
+            )}
+          />
+          <Route
+            path="/todos"
+            component={() => (
+              <CoupleLayout weddingPlan={weddingPlan()}>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <TodoList
+                    todos={weddingPlan().todos}
+                    addTodo={addTodo}
+                    toggleTodo={toggleTodo}
+                    deleteTodo={deleteTodo}
+                    updateTodo={updateTodo}
+                  />
+                </div>
+              </CoupleLayout>
+            )}
+          />
+          <Route
+            path="/guests"
+            component={() => (
+              <CoupleLayout weddingPlan={weddingPlan()}>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <GuestList
+                    guests={weddingPlan().guests}
+                    addGuest={addGuest}
+                    updateGuest={updateGuest}
+                    deleteGuest={deleteGuest}
+                  />
+                </div>
+              </CoupleLayout>
+            )}
+          />
+          <Route
+            path="/seating"
+            component={() => (
+              <CoupleLayout weddingPlan={weddingPlan()}>
+                <SeatingChart
+                  tables={weddingPlan().tables}
+                  guests={weddingPlan().guests}
+                  onUpdateTables={updateTables}
+                />
+              </CoupleLayout>
+            )}
+          />
+          <Route
+            path="/timeline"
+            component={() => (
+              <CoupleLayout weddingPlan={weddingPlan()}>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                  <Timeline
+                    weddingPlan={weddingPlan()}
+                    onToggleTodo={toggleTodo}
+                    onDeleteTodo={deleteTodo}
+                    onUpdateTodo={updateTodo}
+                    onAddTodo={addTodo}
+                  />
+                </div>
+              </CoupleLayout>
+            )}
+          />
+          <Route
+            path="/wishlist"
+            component={() => (
+              <CoupleLayout weddingPlan={weddingPlan()}>
+                <Wishlist
+                  wishlistItems={weddingPlan().wishlist}
+                  onAddWishlistItem={addWishlistItem}
+                  onUpdateWishlistItem={updateWishlistItem}
+                  onDeleteWishlistItem={deleteWishlistItem}
+                />
+              </CoupleLayout>
+            )}
+          />
+          <Route
+            path="/gallery"
+            component={() => (
+              <CoupleLayout weddingPlan={weddingPlan()}>
+                <Gallery
+                  mediaItems={weddingPlan().media}
+                  onAddMedia={addMedia}
+                  onUpdateMedia={updateMedia}
+                  onDeleteMedia={deleteMedia}
+                />
+              </CoupleLayout>
+            )}
+          />
 
-          <Show when={activeTab() === "details"}>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <WeddingDetails
-                weddingPlan={weddingPlan()}
-                updateWeddingDetails={updateWeddingDetails}
-              />
-            </div>
-          </Show>
-
-          <Show when={activeTab() === "todos"}>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <TodoList
-                todos={weddingPlan().todos}
-                addTodo={addTodo}
-                toggleTodo={toggleTodo}
-                deleteTodo={deleteTodo}
-                updateTodo={updateTodo}
-              />
-            </div>
-          </Show>
-
-          <Show when={activeTab() === "guests"}>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <GuestList
-                guests={weddingPlan().guests}
-                addGuest={addGuest}
-                updateGuest={updateGuest}
-                deleteGuest={deleteGuest}
-              />
-            </div>
-          </Show>
-
-          <Show when={activeTab() === "seating"}>
-            <SeatingChart
-              tables={weddingPlan().tables}
-              guests={weddingPlan().guests}
-              onUpdateTables={updateTables}
-            />
-          </Show>
-
-          <Show when={activeTab() === "timeline"}>
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <Timeline
-                weddingPlan={weddingPlan()}
-                onToggleTodo={toggleTodo}
-                onDeleteTodo={deleteTodo}
-                onUpdateTodo={updateTodo}
-                onAddTodo={addTodo}
-              />
-            </div>
-          </Show>
-
-          <Show when={activeTab() === "wishlist"}>
-            <Wishlist
-              wishlistItems={weddingPlan().wishlist}
-              onAddWishlistItem={addWishlistItem}
-              onUpdateWishlistItem={updateWishlistItem}
-              onDeleteWishlistItem={deleteWishlistItem}
-            />
-          </Show>
-
-          <Show when={activeTab() === "gallery"}>
-            <Gallery
-              mediaItems={weddingPlan().media}
-              onAddMedia={addMedia}
-              onUpdateMedia={updateMedia}
-              onDeleteMedia={deleteMedia}
-            />
-          </Show>
-        </MainLayout>
+          {/* Guest Routes */}
+          <Route
+            path="/guest"
+            component={() => (
+              <GuestLayout weddingPlan={weddingPlan()}>
+                <GuestWelcome weddingPlan={weddingPlan()} />
+              </GuestLayout>
+            )}
+          />
+          <Route
+            path="/guest/info"
+            component={() => (
+              <GuestLayout weddingPlan={weddingPlan()}>
+                <GuestInfo weddingPlan={weddingPlan()} />
+              </GuestLayout>
+            )}
+          />
+          <Route
+            path="/guest/wishlist"
+            component={() => (
+              <GuestLayout weddingPlan={weddingPlan()}>
+                <GuestWishlist
+                  wishlistItems={weddingPlan().wishlist}
+                  onUpdateWishlistItem={updateWishlistItem}
+                />
+              </GuestLayout>
+            )}
+          />
+          <Route
+            path="/guest/gallery"
+            component={() => (
+              <GuestLayout weddingPlan={weddingPlan()}>
+                <GuestGallery
+                  mediaItems={weddingPlan().media}
+                  onAddMedia={addMedia}
+                />
+              </GuestLayout>
+            )}
+          />
+        </Router>
       </Show>
     </div>
   );

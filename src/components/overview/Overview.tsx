@@ -11,7 +11,7 @@ import QuickActionsCard from "./QuickActionsCard";
 
 interface OverviewProps {
   weddingPlan: WeddingPlan;
-  onNavigateToTab?: (tabId: TabId) => void;
+  onNavigateToRoute?: (tabId: TabId) => void;
 }
 
 const Overview: Component<OverviewProps> = (props) => {
@@ -31,7 +31,7 @@ const Overview: Component<OverviewProps> = (props) => {
 
       <PlanningInsightsCard stats={stats()} />
 
-      <QuickActionsCard onNavigateToTab={props.onNavigateToTab} />
+      <QuickActionsCard onNavigateToRoute={props.onNavigateToRoute} />
     </div>
   );
 };
