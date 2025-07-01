@@ -2,7 +2,7 @@ import { Component } from "solid-js";
 
 const AssignmentInstructions: Component = () => {
   return (
-    <div class="bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-2xl p-8 border border-blue-100/50">
+    <div class="animate-fade-in-up bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-2xl p-8 border border-blue-100/50">
       <div class="flex items-center space-x-6">
         <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-2xl flex items-center justify-center shadow-lg">
           <svg

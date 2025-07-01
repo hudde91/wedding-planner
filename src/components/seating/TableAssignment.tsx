@@ -99,12 +99,12 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
   };
 
   return (
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="animate-fade-in-up grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Guest Selection Panel */}
       <div class="space-y-6">
         {/* Selected Guest Info */}
         <Show when={selectedGuest()}>
-          <div class="bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
+          <div class="animate-fade-in-up-delay-200 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
             <div class="flex items-center space-x-4 mb-4">
               <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
                 {getInitials(selectedGuest()!.name)}
@@ -129,7 +129,7 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
         </Show>
 
         {/* Available Guests */}
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+        <div class="animate-fade-in-up-delay-400 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
           <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 p-6">
             <div class="flex items-center space-x-4">
               <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -250,7 +250,7 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
         </div>
 
         {/* Current Table Status */}
-        <div class="bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl p-6 border border-gray-200">
+        <div class="animate-fade-in-up-delay-600 bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl p-6 border border-gray-200">
           <h4 class="text-lg font-semibold text-gray-900 mb-4">Table Status</h4>
           <div class="space-y-3">
             <div class="flex justify-between items-center">
@@ -285,7 +285,7 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
 
       {/* Table Layout */}
       <div class="lg:col-span-2">
-        <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+        <div class="animate-fade-in-up-delay-800 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
           <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 p-6">
             <div class="flex items-center space-x-4">
               <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -317,7 +317,6 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
               </div>
             </div>
           </div>
-
           {/* Table Layout - Now Properly Centered */}
           <div class="p-8">
             <div class="relative w-96 h-96 mx-auto">

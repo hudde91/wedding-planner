@@ -16,7 +16,7 @@ interface GuestListProps {
 
 const GuestList: Component<GuestListProps> = (props) => {
   return (
-    <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-xl overflow-hidden sticky top-6">
+    <div class="animate-fade-in-up bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-xl overflow-hidden sticky top-6">
       <div class="p-6 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border-b border-amber-100/60">
         <div class="flex items-center space-x-4">
           <div class="w-12 h-12 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl flex items-center justify-center shadow-lg">

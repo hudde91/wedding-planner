@@ -34,7 +34,7 @@ const TableView: Component<TableViewProps> = (props) => {
     props.seatAssignments.filter((a) => a.tableId === props.table.id);
 
   return (
-    <div class="p-8">
+    <div class="animate-fade-in-up p-8">
       <div class="relative w-96 h-96 mx-auto">
         {/* Table Surface */}
         {props.table.shape === "rectangular" ? (

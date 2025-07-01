@@ -116,7 +116,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
   };
 
   return (
-    <div class="space-y-8">
+    <div class="animate-fade-in-up space-y-8">
       {/* Table Detail View (shows when viewing a specific table) */}
       <Show when={viewingTable()}>
         <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
@@ -331,7 +331,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
       </Show>
 
       {/* Seating Statistics */}
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="animate-fade-in-up-delay-200 grid grid-cols-1 md:grid-cols-4 gap-6">
         <div class="bg-white/90 backdrop-blur-sm rounded-xl p-6 border border-gray-200 shadow-lg">
           <div class="flex items-center space-x-3">
             <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -438,7 +438,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
       </div>
 
       {/* Table Overview Grid */}
-      <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl p-8">
+      <div class="animate-fade-in-up-delay-400 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl p-8">
         <div class="flex items-center justify-between mb-8">
           <div class="flex items-center space-x-4">
             <div class="w-12 h-12 bg-gradient-to-br from-slate-600 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
@@ -648,7 +648,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
       </div>
 
       {/* Quick Actions */}
-      <div class="bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl p-6 border border-gray-200">
+      <div class="animate-fade-in-up-delay-600 bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl p-6 border border-gray-200">
         <h4 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h4>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button

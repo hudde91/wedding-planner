@@ -20,7 +20,7 @@ const TableSelection: Component<TableSelectionProps> = (props) => {
   });
 
   return (
-    <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+    <div class="animate-fade-in-up bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
       <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 p-6">
         <div class="flex items-center space-x-4">
           <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">

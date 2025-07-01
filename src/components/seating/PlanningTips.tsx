@@ -2,7 +2,7 @@ import { Component } from "solid-js";
 
 const PlanningTips: Component = () => {
   return (
-    <div class="mt-6 p-4 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 rounded-lg border border-blue-100/50">
+    <div class="animate-fade-in-up-delay-200 mt-6 p-4 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 rounded-lg border border-blue-100/50">
       <div class="flex items-start space-x-3">
         <svg
           class="w-5 h-5 text-blue-500 mt-0.5"

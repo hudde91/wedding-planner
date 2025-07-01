@@ -262,7 +262,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30">
       <div class="max-w-7xl mx-auto p-8">
         {/* Elegant Header */}
-        <div class="text-center mb-12 relative">
+        <div class="animate-fade-in-up text-center mb-12 relative">
           <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl shadow-xl mb-6">
             <svg
               class="w-10 h-10 text-white"
@@ -498,7 +498,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
 
         {/* Quick Add Presets */}
         <Show when={!showTableForm() && props.tables.length === 0}>
-          <div class="mb-8 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl p-8">
+          <div class="animate-fade-in-up-delay-200 mb-8 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl p-8">
             <h4 class="text-lg font-medium text-gray-900 mb-4">
               Quick Add Common Tables
             </h4>
@@ -578,7 +578,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
 
         {/* Collapsible Overview - Only shown in main view */}
         <Show when={currentStep() === 1 && !showTableForm()}>
-          <div class="mb-8">
+          <div class="animate-fade-in-up-delay-400 mb-8">
             <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
               <button
                 onClick={() => setOverviewExpanded(!overviewExpanded())}
@@ -658,12 +658,14 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
 
         {/* Progress Steps */}
         <Show when={props.tables.length > 0}>
-          <SeatingSteps currentStep={currentStep()} />
+          <div class="animate-fade-in-up-delay-600">
+            <SeatingSteps currentStep={currentStep()} />
+          </div>
         </Show>
 
         {/* Selected Table Header */}
         <Show when={selectedTable()}>
-          <div class="bg-white/80 backdrop-blur-sm rounded-2xl border border-purple-200 shadow-xl p-6 mb-8">
+          <div class="animate-fade-in-up-delay-800 bg-white/80 backdrop-blur-sm rounded-2xl border border-purple-200 shadow-xl p-6 mb-8">
             <div class="flex items-center justify-between">
               <div class="flex items-center space-x-6">
                 <div
@@ -738,7 +740,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
 
         {/* Main Assignment Interface */}
         <Show when={props.tables.length === 0}>
-          <div class="text-center py-16">
+          <div class="animate-fade-in-up-delay-200 text-center py-16">
             <div class="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <svg
                 class="w-10 h-10 text-gray-400"
@@ -769,22 +771,26 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
             when={currentStep() === 1}
             fallback={
               <Show when={currentStep() === 2 && selectedTable()}>
-                <TableAssignment
-                  table={selectedTable()!}
-                  unassignedAttendees={unassignedAttendees()}
-                  seatAssignments={seatAssignments()}
-                  onSeatAssign={handleSeatAssign}
-                  onRemoveAssignment={handleRemoveAssignment}
-                />
+                <div class="animate-fade-in-up">
+                  <TableAssignment
+                    table={selectedTable()!}
+                    unassignedAttendees={unassignedAttendees()}
+                    seatAssignments={seatAssignments()}
+                    onSeatAssign={handleSeatAssign}
+                    onRemoveAssignment={handleRemoveAssignment}
+                  />
+                </div>
               </Show>
             }
           >
-            <TableSelection
-              tables={props.tables}
-              seatAssignments={seatAssignments()}
-              selectedTableId={selectedTableId()}
-              onTableSelect={handleTableSelect}
-            />
+            <div class="animate-fade-in-up">
+              <TableSelection
+                tables={props.tables}
+                seatAssignments={seatAssignments()}
+                selectedTableId={selectedTableId()}
+                onTableSelect={handleTableSelect}
+              />
+            </div>
           </Show>
         </Show>
       </div>
