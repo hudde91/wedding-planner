@@ -1,0 +1,486 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 54;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		1CD7F83F78B4F17069F632A3 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = 86B4302F50B7881AAA2E8C82 /* assets */; };
+		2642797AF51DB7962C1BB725 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05FCCE3647BEA7524ABF39F6 /* QuartzCore.framework */; };
+		265251E52BE4C0CF340B6929 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AD56EF8AA28A57F9BA8B4A7 /* CoreGraphics.framework */; };
+		409FAEDE5D1B0FD21A0A6E00 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F83C62B57FD9A3F4EFFB9A0E /* MetalKit.framework */; };
+		46A36449C137A639717A0047 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6E80DE17777A71EA94D83BF0 /* Assets.xcassets */; };
+		5B35C9C0FB53473C207A99F1 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 237055455548C3A2EC5085EF /* Security.framework */; };
+		69659E1CCAA455BCD8EE5F99 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33975247594B3B58A02D3E85 /* Metal.framework */; };
+		71598A0D116EFE3AB6DF265F /* main.mm in Sources */ = {isa = PBXBuildFile; fileRef = B2295A6A301FBA3BEF56855F /* main.mm */; };
+		7B7A0CEEA08BBE5536598C6F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5A0662CE6971BC6C6AFBB41 /* LaunchScreen.storyboard */; };
+		A313B09502448584052BA6DC /* libapp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F2393D44E39713F4B82FD1FE /* libapp.a */; };
+		B8121C5FF37EF4E168667B58 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 39D7DA71F8D07571C34D6D13 /* WebKit.framework */; };
+		C1D6EC7E49B4AA0ECC707ADC /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8D67D3974950100578A0D43 /* UIKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		05FCCE3647BEA7524ABF39F6 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		0EDDBC0520370948EC0AEBE2 /* main.rs */ = {isa = PBXFileReference; path = main.rs; sourceTree = "<group>"; };
+		1FE880626570214FA7D1DBF0 /* tauri.ts */ = {isa = PBXFileReference; path = tauri.ts; sourceTree = "<group>"; };
+		237055455548C3A2EC5085EF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		33975247594B3B58A02D3E85 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
+		39D7DA71F8D07571C34D6D13 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		5AD56EF8AA28A57F9BA8B4A7 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		67B2114B3AA0717F9AE026EE /* wedding-planner-app_iOS.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "wedding-planner-app_iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6E80DE17777A71EA94D83BF0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		86B4302F50B7881AAA2E8C82 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; path = assets; sourceTree = SOURCE_ROOT; };
+		928C992DE14934741A6DC044 /* bindings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
+		93BB1590A7E01BBD1DAD93ED /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		B2295A6A301FBA3BEF56855F /* main.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = main.mm; sourceTree = "<group>"; };
+		B639E92F5990303E397EEC86 /* wedding-planner-app_iOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "wedding-planner-app_iOS.entitlements"; sourceTree = "<group>"; };
+		B8D67D3974950100578A0D43 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		D8C1F8CB3936231D8B5A7CF2 /* mobile.rs */ = {isa = PBXFileReference; path = mobile.rs; sourceTree = "<group>"; };
+		DAF010F0D5682254C79F2417 /* lib.rs */ = {isa = PBXFileReference; path = lib.rs; sourceTree = "<group>"; };
+		E5A0662CE6971BC6C6AFBB41 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		F2393D44E39713F4B82FD1FE /* libapp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libapp.a; sourceTree = "<group>"; };
+		F83C62B57FD9A3F4EFFB9A0E /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FC366950DD9D1E6F81C3DC42 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A313B09502448584052BA6DC /* libapp.a in Frameworks */,
+				265251E52BE4C0CF340B6929 /* CoreGraphics.framework in Frameworks */,
+				69659E1CCAA455BCD8EE5F99 /* Metal.framework in Frameworks */,
+				409FAEDE5D1B0FD21A0A6E00 /* MetalKit.framework in Frameworks */,
+				2642797AF51DB7962C1BB725 /* QuartzCore.framework in Frameworks */,
+				5B35C9C0FB53473C207A99F1 /* Security.framework in Frameworks */,
+				C1D6EC7E49B4AA0ECC707ADC /* UIKit.framework in Frameworks */,
+				B8121C5FF37EF4E168667B58 /* WebKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0515BD7360D59E253CC85B65 /* Externals */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Externals;
+			sourceTree = "<group>";
+		};
+		1B4A51CF1A4871E680FC6BE1 /* wedding-planner-app */ = {
+			isa = PBXGroup;
+			children = (
+				B2295A6A301FBA3BEF56855F /* main.mm */,
+				65ECF3F9258F908E62F3609C /* bindings */,
+			);
+			path = "wedding-planner-app";
+			sourceTree = "<group>";
+		};
+		3B8708ED6FE756DBCBB4F06A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				67B2114B3AA0717F9AE026EE /* wedding-planner-app_iOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		5A3CCDB881E7D52517456EFD /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				1FE880626570214FA7D1DBF0 /* tauri.ts */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
+		65ECF3F9258F908E62F3609C /* bindings */ = {
+			isa = PBXGroup;
+			children = (
+				928C992DE14934741A6DC044 /* bindings.h */,
+			);
+			path = bindings;
+			sourceTree = "<group>";
+		};
+		676E3E06FAB1CBBBD217F039 /* wedding-planner-app_iOS */ = {
+			isa = PBXGroup;
+			children = (
+				93BB1590A7E01BBD1DAD93ED /* Info.plist */,
+				B639E92F5990303E397EEC86 /* wedding-planner-app_iOS.entitlements */,
+			);
+			path = "wedding-planner-app_iOS";
+			sourceTree = "<group>";
+		};
+		67B663A4B4EA7A6D239052DF /* src */ = {
+			isa = PBXGroup;
+			children = (
+				DAF010F0D5682254C79F2417 /* lib.rs */,
+				0EDDBC0520370948EC0AEBE2 /* main.rs */,
+				D8C1F8CB3936231D8B5A7CF2 /* mobile.rs */,
+				5A3CCDB881E7D52517456EFD /* lib */,
+			);
+			name = src;
+			path = ../../src;
+			sourceTree = "<group>";
+		};
+		912F08350B0D70A942AF7F77 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5AD56EF8AA28A57F9BA8B4A7 /* CoreGraphics.framework */,
+				F2393D44E39713F4B82FD1FE /* libapp.a */,
+				33975247594B3B58A02D3E85 /* Metal.framework */,
+				F83C62B57FD9A3F4EFFB9A0E /* MetalKit.framework */,
+				05FCCE3647BEA7524ABF39F6 /* QuartzCore.framework */,
+				237055455548C3A2EC5085EF /* Security.framework */,
+				B8D67D3974950100578A0D43 /* UIKit.framework */,
+				39D7DA71F8D07571C34D6D13 /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A9B17B30FD3A79DEA5B704D1 = {
+			isa = PBXGroup;
+			children = (
+				86B4302F50B7881AAA2E8C82 /* assets */,
+				6E80DE17777A71EA94D83BF0 /* Assets.xcassets */,
+				E5A0662CE6971BC6C6AFBB41 /* LaunchScreen.storyboard */,
+				0515BD7360D59E253CC85B65 /* Externals */,
+				CDDB62C42FAC56C4957645AA /* Sources */,
+				67B663A4B4EA7A6D239052DF /* src */,
+				676E3E06FAB1CBBBD217F039 /* wedding-planner-app_iOS */,
+				912F08350B0D70A942AF7F77 /* Frameworks */,
+				3B8708ED6FE756DBCBB4F06A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		CDDB62C42FAC56C4957645AA /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				1B4A51CF1A4871E680FC6BE1 /* wedding-planner-app */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		"TEMP_C5E66008-1A30-4581-8E23-B1E0E8B07EF0" /* arm64 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = arm64;
+			sourceTree = "<group>";
+		};
+		"TEMP_EFC9F8DD-C8A7-402E-9EC9-1AB1EDE38146" /* x86_64 */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = x86_64;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		0162ADAD234788E68F3D0C48 /* wedding-planner-app_iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B465D9FE0071A93CC5A5BD37 /* Build configuration list for PBXNativeTarget "wedding-planner-app_iOS" */;
+			buildPhases = (
+				56A2ACBE2A930FA6F878A255 /* Build Rust Code */,
+				63464548E46FCF97904C1BEF /* Sources */,
+				97D5A0EE5FDED5E008B18C6E /* Resources */,
+				FC366950DD9D1E6F81C3DC42 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "wedding-planner-app_iOS";
+			packageProductDependencies = (
+			);
+			productName = "wedding-planner-app_iOS";
+			productReference = 67B2114B3AA0717F9AE026EE /* wedding-planner-app_iOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		DB289A0F89CF2A812DD0CD2B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+				};
+			};
+			buildConfigurationList = 9D09F6F1CF38A00C4E387D01 /* Build configuration list for PBXProject "wedding-planner-app" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = A9B17B30FD3A79DEA5B704D1;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 54;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				0162ADAD234788E68F3D0C48 /* wedding-planner-app_iOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		97D5A0EE5FDED5E008B18C6E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				46A36449C137A639717A0047 /* Assets.xcassets in Resources */,
+				7B7A0CEEA08BBE5536598C6F /* LaunchScreen.storyboard in Resources */,
+				1CD7F83F78B4F17069F632A3 /* assets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		56A2ACBE2A930FA6F878A255 /* Build Rust Code */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build Rust Code";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Externals/x86_64/${CONFIGURATION}/libapp.a",
+				"$(SRCROOT)/Externals/arm64/${CONFIGURATION}/libapp.a",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "npm run -- tauri ios xcode-script -v --platform ${PLATFORM_DISPLAY_NAME:?} --sdk-root ${SDKROOT:?} --framework-search-paths \"${FRAMEWORK_SEARCH_PATHS:?}\" --header-search-paths \"${HEADER_SEARCH_PATHS:?}\" --gcc-preprocessor-definitions \"${GCC_PREPROCESSOR_DEFINITIONS:-}\" --configuration ${CONFIGURATION:?} ${FORCE_COLOR} ${ARCHS:?}";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		63464548E46FCF97904C1BEF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				71598A0D116EFE3AB6DF265F /* main.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0F5230E07999C19FA0CE19DB /* release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = (
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "wedding-planner-app_iOS/wedding-planner-app_iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				INFOPLIST_FILE = "wedding-planner-app_iOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.weddingplanner.app;
+				PRODUCT_NAME = "Wedding Planner";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = arm64;
+			};
+			name = release;
+		};
+		430FE6392983BD80E9725F87 /* debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ARCHS = (
+					arm64,
+				);
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "wedding-planner-app_iOS/wedding-planner-app_iOS.entitlements";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_BITCODE = NO;
+				"EXCLUDED_ARCHS[sdk=iphoneos*]" = x86_64;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\".\"",
+				);
+				INFOPLIST_FILE = "wedding-planner-app_iOS/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				"LIBRARY_SEARCH_PATHS[arch=arm64]" = "$(inherited) $(PROJECT_DIR)/Externals/arm64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				"LIBRARY_SEARCH_PATHS[arch=x86_64]" = "$(inherited) $(PROJECT_DIR)/Externals/x86_64/$(CONFIGURATION) $(SDKROOT)/usr/lib/swift $(TOOLCHAIN_DIR)/usr/lib/swift/$(PLATFORM_NAME) $(TOOLCHAIN_DIR)/usr/lib/swift-5.0/$(PLATFORM_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = com.weddingplanner.app;
+				PRODUCT_NAME = "Wedding Planner";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALID_ARCHS = arm64;
+			};
+			name = debug;
+		};
+		908374A2D94CC673B88E9D6C /* release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = release;
+		};
+		D8E8329A326F4973B5B9D3D0 /* debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9D09F6F1CF38A00C4E387D01 /* Build configuration list for PBXProject "wedding-planner-app" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D8E8329A326F4973B5B9D3D0 /* debug */,
+				908374A2D94CC673B88E9D6C /* release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = debug;
+		};
+		B465D9FE0071A93CC5A5BD37 /* Build configuration list for PBXNativeTarget "wedding-planner-app_iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				430FE6392983BD80E9725F87 /* debug */,
+				0F5230E07999C19FA0CE19DB /* release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = DB289A0F89CF2A812DD0CD2B /* Project object */;
+}

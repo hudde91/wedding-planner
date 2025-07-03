@@ -1,5 +1,12 @@
-import { Component, createSignal, createMemo, createEffect } from "solid-js";
-import { invoke } from "@tauri-apps/api/tauri";
+import {
+  Component,
+  createSignal,
+  createMemo,
+  onMount,
+  onCleanup,
+} from "solid-js";
+// Updated import for Tauri 2.0
+import { invoke } from "@tauri-apps/api/core";
 import type { MediaItem, MediaCategory, MediaUploadData } from "../../types";
 
 // Import child components
@@ -36,16 +43,17 @@ const Gallery: Component<GalleryProps> = (props) => {
     tags: [],
   });
 
-  // Media URL management
+  // Media URL management - using a simple approach
   const [mediaUrls, setMediaUrls] = createSignal<Map<string, string>>(
     new Map()
   );
+  let urlCleanupSet = new Set<string>();
 
-  // Load URLs for all media items
-  const loadMediaUrls = async () => {
+  // Load URLs for media items
+  const loadMediaUrls = async (items: MediaItem[]) => {
     const urlMap = new Map<string, string>();
 
-    for (const item of props.mediaItems) {
+    for (const item of items) {
       try {
         const fileData = await invoke<number[]>("get_media_file_data", {
           filename: item.filename,
@@ -76,6 +84,7 @@ const Gallery: Component<GalleryProps> = (props) => {
         // Create object URL
         const url = URL.createObjectURL(blob);
         urlMap.set(item.id, url);
+        urlCleanupSet.add(url);
       } catch (error) {
         console.error(`Failed to load data for ${item.filename}:`, error);
         // Set fallback URL
@@ -87,20 +96,48 @@ const Gallery: Component<GalleryProps> = (props) => {
       }
     }
 
-    setMediaUrls(urlMap);
+    return urlMap;
   };
 
-  // Load URLs when media items change
-  createEffect(() => {
-    // Clean up old URLs to prevent memory leaks
-    const oldUrls = mediaUrls();
-    oldUrls.forEach((url) => {
+  // Load media URLs when component mounts and when items change
+  onMount(async () => {
+    if (props.mediaItems.length > 0) {
+      const urls = await loadMediaUrls(props.mediaItems);
+      setMediaUrls(urls);
+    }
+  });
+
+  // Watch for changes in media items (manual tracking to avoid reactive loops)
+  let lastItemCount = 0;
+  const checkForChanges = async () => {
+    if (props.mediaItems.length !== lastItemCount) {
+      lastItemCount = props.mediaItems.length;
+
+      // Clean up old URLs
+      urlCleanupSet.forEach((url) => {
+        if (url.startsWith("blob:")) {
+          URL.revokeObjectURL(url);
+        }
+      });
+      urlCleanupSet.clear();
+
+      // Load new URLs
+      const urls = await loadMediaUrls(props.mediaItems);
+      setMediaUrls(urls);
+    }
+  };
+
+  // Check for changes periodically
+  const interval = setInterval(checkForChanges, 1000);
+
+  // Cleanup on unmount
+  onCleanup(() => {
+    clearInterval(interval);
+    urlCleanupSet.forEach((url) => {
       if (url.startsWith("blob:")) {
         URL.revokeObjectURL(url);
       }
     });
-
-    loadMediaUrls();
   });
 
   // Filter media items

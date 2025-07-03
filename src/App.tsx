@@ -1,6 +1,6 @@
 import { createSignal, onMount, Show, Component } from "solid-js";
 import { Router, Route } from "@solidjs/router";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import { nanoid } from "nanoid";
 import type {
   WeddingPlan,

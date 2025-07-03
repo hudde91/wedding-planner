@@ -1,70 +1,51 @@
 {
-  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/v1.5/tooling/cli/schema.json",
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/tauri-v2.0.0/crates/tauri-schema-generator/schemas/config.schema.json",
+  "productName": "Wedding Planner",
+  "version": "0.1.0",
+  "identifier": "com.weddingplanner.app",
   "build": {
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build",
-    "devPath": "http://localhost:5173",
-    "distDir": "../dist"
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
   },
-  "package": {
-    "productName": "Wedding Planner",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "dialog": {
-        "all": true
-      },
-      "fs": {
-        "all": true,
-        "scope": ["$APPDATA/*", "$APPDATA/wedding_plan.json"]
-      },
-      "path": {
-        "all": true
-      }
-    },
-    "bundle": {
-      "active": true,
-      "category": "Productivity",
-      "copyright": "",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "icon": ["icons/32x32.png", "icons/icon.ico"],
-      "identifier": "com.wedding-planner.dev",
-      "longDescription": "A wedding planning application",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "Wedding Planner App",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
-    "security": {
-      "csp": null
-    },
-    "updater": {
-      "active": false
-    },
+  "app": {
     "windows": [
       {
-        "fullscreen": false,
-        "height": 800,
-        "resizable": true,
+        "label": "main",
         "title": "Wedding Planner",
-        "width": 1000
+        "width": 1000,
+        "height": 800,
+        "minWidth": 800,
+        "minHeight": 600,
+        "resizable": true,
+        "maximizable": true,
+        "minimizable": true,
+        "closable": true,
+        "decorations": true,
+        "titleBarStyle": "Visible"
       }
-    ]
-  }
+    ],
+    "security": {
+      "csp": "default-src 'self' tauri: https: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "category": "Productivity",
+    "copyright": "© 2025 Wedding Planner App",
+    "shortDescription": "Luxurious wedding planning application",
+    "longDescription": "A comprehensive and elegant wedding planning application that helps couples organize their perfect day with budget tracking, guest management, seating arrangements, wishlists, and media galleries.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "targets": ["app", "msi", "deb", "dmg"],
+    "createUpdaterArtifacts": false,
+    "publisher": "Wedding Planner Inc",
+    "homepage": "https://weddingplanner.app",
+    "license": "MIT",
+    "licenseFile": "LICENSE"
+  },
+  "plugins": {}
 }
