@@ -233,13 +233,13 @@ const TodoItem: Component<TodoItemProps> = (props) => {
   return (
     <>
       <div
-        class={`group backdrop-blur-sm border rounded-xl hover:shadow-xl transition-all duration-500 ${status.bgColor}`}
+        class={`group backdrop-blur-sm border rounded-lg lg:rounded-xl hover:shadow-xl transition-all duration-500 ${status.bgColor}`}
       >
-        <div class="flex items-center justify-between p-6">
-          <div class="flex items-center space-x-4 flex-1">
+        <div class="flex items-center justify-between p-4 lg:p-6">
+          <div class="flex items-start space-x-3 lg:space-x-4 flex-1 min-w-0">
             {/* Checkbox */}
             <div
-              class="flex items-center space-x-2"
+              class="flex items-center space-x-2 pt-1"
               onClick={(e) => e.stopPropagation()}
             >
               <div class="relative">
@@ -250,7 +250,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                   class="sr-only"
                 />
                 <div
-                  class={`w-6 h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all duration-300 ${
+                  class={`w-5 h-5 lg:w-6 lg:h-6 rounded-lg border-2 flex items-center justify-center cursor-pointer transition-all duration-300 touch-manipulation ${
                     props.todo.completed
                       ? "bg-gradient-to-r from-emerald-400 to-green-400 border-emerald-400"
                       : "border-gray-300 hover:border-emerald-400 bg-white"
@@ -259,7 +259,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                 >
                   {props.todo.completed && (
                     <svg
-                      class="w-4 h-4 text-white"
+                      class="w-3 h-3 lg:w-4 lg:h-4 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -277,10 +277,13 @@ const TodoItem: Component<TodoItemProps> = (props) => {
             </div>
 
             {/* Task Content */}
-            <div class="flex-1 cursor-pointer" onClick={handleToggleExpanded}>
-              <div class="flex items-center space-x-3">
+            <div
+              class="flex-1 cursor-pointer min-w-0"
+              onClick={handleToggleExpanded}
+            >
+              <div class="space-y-2">
                 <span
-                  class={`font-medium text-lg transition-all duration-300 ${
+                  class={`font-medium text-base lg:text-lg transition-all duration-300 block ${
                     props.todo.completed
                       ? "line-through text-gray-500"
                       : status.textColor
@@ -289,11 +292,11 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                   {props.todo.text}
                 </span>
 
-                {/* Status indicators */}
+                {/* Status indicators - Stack on mobile */}
                 {(props.todo.vendor_name || props.todo.cost) && (
-                  <div class="flex items-center space-x-2">
+                  <div class="flex flex-wrap gap-2">
                     {props.todo.vendor_name && (
-                      <div class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs">
+                      <div class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs">
                         <svg
                           class="w-3 h-3 mr-1"
                           fill="none"
@@ -307,11 +310,13 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                           />
                         </svg>
-                        {props.todo.vendor_name}
+                        <span class="truncate max-w-20 lg:max-w-none">
+                          {props.todo.vendor_name}
+                        </span>
                       </div>
                     )}
                     {props.todo.cost && (
-                      <div class="inline-flex items-center px-2 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium">
+                      <div class="inline-flex items-center px-2 py-1 bg-emerald-100 text-emerald-700 rounded-md text-xs font-medium">
                         <svg
                           class="w-3 h-3 mr-1"
                           fill="none"
@@ -330,7 +335,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                     )}
                     {todoFormData().payment_status && (
                       <div
-                        class={`inline-flex items-center px-2 py-1 rounded-lg text-xs font-medium ${
+                        class={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
                           getPaymentStatusStyle(
                             (todoFormData().payment_status as PaymentStatus) ||
                               "not_paid"
@@ -350,9 +355,11 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                           />
                         </svg>
-                        {todoFormData()
-                          .payment_status?.replace("_", " ")
-                          .replace(/\b\w/g, (l) => l.toUpperCase())}
+                        <span class="truncate">
+                          {todoFormData()
+                            .payment_status?.replace("_", " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -362,9 +369,9 @@ const TodoItem: Component<TodoItemProps> = (props) => {
           </div>
 
           {/* Action Buttons */}
-          <div class="flex items-center space-x-2">
+          <div class="flex items-center space-x-1 lg:space-x-2 flex-shrink-0">
             <Show when={props.todo.completed && props.todo.completion_date}>
-              <div class="text-xs text-gray-500 font-light mr-3">
+              <div class="text-xs text-gray-500 font-light mr-2 hidden sm:block">
                 Completed {formatCompactDate(props.todo.completion_date!)}
               </div>
             </Show>
@@ -373,7 +380,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
             <button
               type="button"
               onClick={handleToggleExpanded}
-              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300"
+              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
               title={props.isExpanded ? "Collapse details" : "Expand details"}
             >
               <svg
@@ -397,7 +404,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
             <button
               type="button"
               onClick={handleDelete}
-              class="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300"
+              class="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
               title="Delete task"
             >
               <svg
@@ -429,14 +436,14 @@ const TodoItem: Component<TodoItemProps> = (props) => {
             ref={formContainerRef}
             class="border-t border-gray-200/60 bg-gradient-to-br from-gray-50/30 to-white/60 backdrop-blur-sm"
           >
-            <div class="p-8 space-y-8">
+            <div class="p-4 lg:p-8 space-y-6 lg:space-y-8">
               {/* Pinterest Inspiration Section */}
-              <div class="bg-gradient-to-r from-pink-50 via-rose-50 to-purple-50 rounded-xl p-6 border border-pink-200/50">
-                <div class="flex items-center justify-between">
+              <div class="bg-gradient-to-r from-pink-50 via-rose-50 to-purple-50 rounded-lg lg:rounded-xl p-4 lg:p-6 border border-pink-200/50">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
                   <div class="flex items-center space-x-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-pink-400 to-rose-400 rounded-lg flex items-center justify-center">
+                    <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-pink-400 to-rose-400 rounded-lg flex items-center justify-center">
                       <svg
-                        class="w-6 h-6 text-white"
+                        class="w-5 h-5 lg:w-6 lg:h-6 text-white"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                       >
@@ -444,7 +451,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                       </svg>
                     </div>
                     <div>
-                      <h4 class="text-lg font-medium text-gray-900">
+                      <h4 class="text-base lg:text-lg font-medium text-gray-900">
                         Get Inspiration
                       </h4>
                       <p class="text-sm text-gray-600 font-light">
@@ -455,21 +462,21 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                   <button
                     type="button"
                     onClick={handleGetInspiration}
-                    class="px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
+                    class="w-full sm:w-auto px-4 py-3 lg:px-6 lg:py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-lg lg:rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300 min-h-[44px] touch-manipulation"
                   >
                     Browse Ideas
                   </button>
                 </div>
               </div>
 
-              {/* Form Sections */}
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Form Sections - Stack on mobile */}
+              <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
                 {/* Cost Section */}
-                <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-6 border border-emerald-200/50">
+                <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg lg:rounded-xl p-4 lg:p-6 border border-emerald-200/50">
                   <div class="flex items-center space-x-3 mb-4">
-                    <div class="w-10 h-10 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
+                    <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
                       <svg
-                        class="w-5 h-5 text-white"
+                        class="w-4 h-4 lg:w-5 lg:h-5 text-white"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -483,7 +490,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                       </svg>
                     </div>
                     <div>
-                      <h4 class="text-lg font-medium text-gray-900">
+                      <h4 class="text-base lg:text-lg font-medium text-gray-900">
                         Budget & Costs
                       </h4>
                       <p class="text-sm text-gray-600 font-light">
@@ -514,7 +521,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             )
                           }
                           onBlur={handleInputBlur}
-                          class="w-full pl-8 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
+                          class="w-full pl-8 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
                           placeholder="0"
                         />
                       </div>
@@ -533,7 +540,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             )
                           }
                           onBlur={handleInputBlur}
-                          class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light appearance-none cursor-pointer pr-10"
+                          class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light appearance-none cursor-pointer pr-10 text-mobile-readable"
                         >
                           <option value="">Select status</option>
                           <option value="not_paid">Not Paid</option>
@@ -573,18 +580,18 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           )
                         }
                         onBlur={handleInputBlur}
-                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light"
+                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
                       />
                     </div>
                   </div>
                 </div>
 
                 {/* Vendor Section */}
-                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200/50">
+                <div class="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg lg:rounded-xl p-4 lg:p-6 border border-blue-200/50">
                   <div class="flex items-center space-x-3 mb-4">
-                    <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center">
+                    <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center">
                       <svg
-                        class="w-5 h-5 text-white"
+                        class="w-4 h-4 lg:w-5 lg:h-5 text-white"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -598,7 +605,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                       </svg>
                     </div>
                     <div>
-                      <h4 class="text-lg font-medium text-gray-900">
+                      <h4 class="text-base lg:text-lg font-medium text-gray-900">
                         Vendor Information
                       </h4>
                       <p class="text-sm text-gray-600 font-light">
@@ -621,7 +628,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           )
                         }
                         onBlur={handleInputBlur}
-                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light"
+                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
                         placeholder="Vendor name"
                       />
                     </div>
@@ -639,7 +646,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           )
                         }
                         onBlur={handlePhoneBlur}
-                        class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light ${
+                        class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable ${
                           !isValidVendorPhone()
                             ? "border-red-300 ring-2 ring-red-100"
                             : "border-blue-200"
@@ -661,7 +668,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           )
                         }
                         onBlur={handleInputBlur}
-                        class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light ${
+                        class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable ${
                           !isValidVendorEmail()
                             ? "border-red-300 ring-2 ring-red-100"
                             : "border-blue-200"
@@ -683,7 +690,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           )
                         }
                         onBlur={handleInputBlur}
-                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light"
+                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
                         placeholder="Contact person name"
                       />
                     </div>
@@ -692,11 +699,11 @@ const TodoItem: Component<TodoItemProps> = (props) => {
               </div>
 
               {/* Notes Section */}
-              <div class="bg-gradient-to-br from-purple-50 to-violet-50 rounded-xl p-6 border border-purple-200/50">
+              <div class="bg-gradient-to-br from-purple-50 to-violet-50 rounded-lg lg:rounded-xl p-4 lg:p-6 border border-purple-200/50">
                 <div class="flex items-center space-x-3 mb-4">
-                  <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-violet-400 rounded-lg flex items-center justify-center">
+                  <div class="w-8 h-8 lg:w-10 lg:h-10 bg-gradient-to-br from-purple-400 to-violet-400 rounded-lg flex items-center justify-center">
                     <svg
-                      class="w-5 h-5 text-white"
+                      class="w-4 h-4 lg:w-5 lg:h-5 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -710,7 +717,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                     </svg>
                   </div>
                   <div>
-                    <h4 class="text-lg font-medium text-gray-900">
+                    <h4 class="text-base lg:text-lg font-medium text-gray-900">
                       Additional Notes
                     </h4>
                     <p class="text-sm text-gray-600 font-light">
@@ -731,7 +738,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                       )
                     }
                     onBlur={handleInputBlur}
-                    class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light"
+                    class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
                     rows="4"
                     placeholder="Any additional details, preferences, or inspiration notes..."
                   ></textarea>
@@ -740,7 +747,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
 
               {/* Save Status indicator */}
               <div class="text-center">
-                <div class="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-6 py-3 border border-gray-100 shadow-sm">
+                <div class="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm rounded-full px-4 lg:px-6 py-2 lg:py-3 border border-gray-100 shadow-sm">
                   <Show
                     when={hasUnsavedChanges()}
                     fallback={
@@ -754,7 +761,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                   >
                     <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
                     <span class="text-sm text-amber-600 font-medium">
-                      Click outside or tab away to save
+                      Tap outside to save
                     </span>
                   </Show>
                 </div>

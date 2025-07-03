@@ -11,15 +11,15 @@ const StatsGrid: Component<StatsGridProps> = (props) => {
   const countdown = () => getWeddingCountdown(props.stats.weddingDate);
 
   return (
-    <div class="animate-fade-in-up-delay-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="animate-fade-in-up-delay-200 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
       {/* Days Until Wedding */}
-      <div class="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
+      <div class="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
         <div class="absolute inset-0 bg-gradient-to-br from-rose-50/50 to-pink-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <div class="relative z-10">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-rose-400 to-pink-400 rounded-lg flex items-center justify-center">
+          <div class="flex items-center justify-between mb-3 lg:mb-4">
+            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-rose-400 to-pink-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 lg:w-6 lg:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -34,10 +34,10 @@ const StatsGrid: Component<StatsGridProps> = (props) => {
             </div>
           </div>
           <div class="space-y-1">
-            <p class="text-sm font-medium text-gray-600 tracking-wide">
+            <p class="text-xs lg:text-sm font-medium text-gray-600 tracking-wide">
               Days Until Wedding
             </p>
-            <p class={`text-3xl font-light ${countdown().color}`}>
+            <p class={`text-2xl lg:text-3xl font-light ${countdown().color}`}>
               {props.stats.daysUntilWedding !== null
                 ? props.stats.daysUntilWedding
                 : "—"}
@@ -47,13 +47,13 @@ const StatsGrid: Component<StatsGridProps> = (props) => {
       </div>
 
       {/* Total Attendees */}
-      <div class="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
+      <div class="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
         <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <div class="relative z-10">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-lg flex items-center justify-center">
+          <div class="flex items-center justify-between mb-3 lg:mb-4">
+            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-400 to-indigo-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 lg:w-6 lg:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -68,10 +68,10 @@ const StatsGrid: Component<StatsGridProps> = (props) => {
             </div>
           </div>
           <div class="space-y-1">
-            <p class="text-sm font-medium text-gray-600 tracking-wide">
+            <p class="text-xs lg:text-sm font-medium text-gray-600 tracking-wide">
               Total Attendees
             </p>
-            <p class="text-3xl font-light text-blue-600">
+            <p class="text-2xl lg:text-3xl font-light text-blue-600">
               {props.stats.totalAttendees}
             </p>
             <p class="text-xs text-gray-500 font-light">
@@ -82,13 +82,13 @@ const StatsGrid: Component<StatsGridProps> = (props) => {
       </div>
 
       {/* Budget Status */}
-      <div class="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
+      <div class="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
         <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-green-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <div class="relative z-10">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
+          <div class="flex items-center justify-between mb-3 lg:mb-4">
+            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 lg:w-6 lg:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -103,11 +103,11 @@ const StatsGrid: Component<StatsGridProps> = (props) => {
             </div>
           </div>
           <div class="space-y-1">
-            <p class="text-sm font-medium text-gray-600 tracking-wide">
+            <p class="text-xs lg:text-sm font-medium text-gray-600 tracking-wide">
               Budget Remaining
             </p>
             <p
-              class={`text-3xl font-light ${
+              class={`text-2xl lg:text-3xl font-light ${
                 props.stats.remainingBudget < 0
                   ? "text-red-600"
                   : "text-emerald-600"
@@ -124,13 +124,13 @@ const StatsGrid: Component<StatsGridProps> = (props) => {
       </div>
 
       {/* Planning Progress */}
-      <div class="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
+      <div class="group relative overflow-hidden bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
         <div class="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-violet-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         <div class="relative z-10">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-violet-400 rounded-lg flex items-center justify-center">
+          <div class="flex items-center justify-between mb-3 lg:mb-4">
+            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-purple-400 to-violet-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 lg:w-6 lg:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -144,12 +144,12 @@ const StatsGrid: Component<StatsGridProps> = (props) => {
               </svg>
             </div>
           </div>
-          <div class="space-y-3">
+          <div class="space-y-2 lg:space-y-3">
             <div class="space-y-1">
-              <p class="text-sm font-medium text-gray-600 tracking-wide">
+              <p class="text-xs lg:text-sm font-medium text-gray-600 tracking-wide">
                 Planning Progress
               </p>
-              <p class="text-3xl font-light text-purple-600">
+              <p class="text-2xl lg:text-3xl font-light text-purple-600">
                 {Math.round(props.stats.todoProgress)}%
               </p>
               <p class="text-xs text-gray-500 font-light">

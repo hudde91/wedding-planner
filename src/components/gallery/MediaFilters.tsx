@@ -1,4 +1,4 @@
-import { Component, For, Accessor, Setter } from "solid-js";
+import { Component, For, Accessor, Setter, createSignal, Show } from "solid-js";
 import type { MediaCategory } from "../../types";
 
 interface MediaFiltersProps {
@@ -11,6 +11,8 @@ interface MediaFiltersProps {
 }
 
 const MediaFilters: Component<MediaFiltersProps> = (props) => {
+  const [showAllCategories, setShowAllCategories] = createSignal(false);
+
   const categories: {
     id: MediaCategory | "all";
     label: string;
@@ -48,7 +50,6 @@ const MediaFilters: Component<MediaFiltersProps> = (props) => {
       color: "blue",
     },
     {
-      // TODO: Update icon to a more party-like symbol
       id: "party",
       label: "Party",
       icon: "M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z M15 13a3 3 0 11-6 0 3 3 0 016 0z",
@@ -62,23 +63,136 @@ const MediaFilters: Component<MediaFiltersProps> = (props) => {
     },
   ];
 
+  // Show first 4 categories + selected category on mobile
+  const visibleCategories = () => {
+    if (showAllCategories() || window.innerWidth >= 1024) {
+      return categories;
+    }
+
+    const firstFour = categories.slice(0, 4);
+    const selected = categories.find(
+      (cat) => cat.id === props.selectedCategory()
+    );
+
+    if (selected && !firstFour.includes(selected)) {
+      return [...firstFour.slice(0, 3), selected];
+    }
+
+    return firstFour;
+  };
+
+  const hiddenCategoriesCount = () => {
+    return categories.length - visibleCategories().length;
+  };
+
   return (
-    <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-        {/* Categories */}
-        <div class="flex flex-wrap gap-2">
-          <For each={categories}>
-            {(category) => (
+    <div class="bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 lg:p-6 border border-gray-100 shadow-lg">
+      <div class="space-y-4">
+        {/* Search Bar - Top on mobile */}
+        <div class="relative order-first lg:order-last">
+          <svg
+            class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
+          </svg>
+          <input
+            type="text"
+            value={props.searchQuery()}
+            onInput={(e) =>
+              props.setSearchQuery((e.target as HTMLInputElement).value)
+            }
+            class="w-full pl-10 pr-4 py-2.5 lg:py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/50 backdrop-blur-sm text-sm"
+            placeholder="Search photos..."
+          />
+        </div>
+
+        {/* Categories and View Mode */}
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+          {/* Categories */}
+          <div class="space-y-3 lg:space-y-0">
+            <div class="flex flex-wrap gap-2">
+              <For each={visibleCategories()}>
+                {(category) => (
+                  <button
+                    onClick={() => props.setSelectedCategory(category.id)}
+                    class={`inline-flex items-center space-x-2 px-3 py-2 lg:px-4 lg:py-2 rounded-lg transition-all duration-300 min-h-[44px] touch-manipulation ${
+                      props.selectedCategory() === category.id
+                        ? `bg-${category.color}-100 text-${category.color}-700 border border-${category.color}-200`
+                        : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                    }`}
+                  >
+                    <svg
+                      class="w-4 h-4 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.5"
+                        d={category.icon}
+                      />
+                    </svg>
+                    <span class="text-sm font-medium">{category.label}</span>
+                  </button>
+                )}
+              </For>
+
+              {/* Show More Button on mobile */}
+              <Show
+                when={hiddenCategoriesCount() > 0 && window.innerWidth < 1024}
+              >
+                <button
+                  onClick={() => setShowAllCategories(!showAllCategories())}
+                  class="inline-flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-300 min-h-[44px] touch-manipulation bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                >
+                  <span class="text-sm font-medium">
+                    {showAllCategories()
+                      ? "Show Less"
+                      : `+${hiddenCategoriesCount()} More`}
+                  </span>
+                  <svg
+                    class={`w-4 h-4 transition-transform duration-300 ${
+                      showAllCategories() ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+              </Show>
+            </div>
+          </div>
+
+          {/* View Mode Toggle */}
+          <div class="flex items-center justify-center lg:justify-end">
+            <div class="flex items-center space-x-1 bg-gray-100 rounded-lg p-1">
               <button
-                onClick={() => props.setSelectedCategory(category.id)}
-                class={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                  props.selectedCategory() === category.id
-                    ? `bg-${category.color}-100 text-${category.color}-700 border border-${category.color}-200`
-                    : "bg-gray-50 text-gray-600 hover:bg-gray-100 border border-gray-200"
+                onClick={() => props.setViewMode("grid")}
+                class={`p-2 rounded-md transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation ${
+                  props.viewMode() === "grid"
+                    ? "bg-white text-purple-700 shadow-sm"
+                    : "text-gray-400 hover:text-gray-600"
                 }`}
               >
                 <svg
-                  class="w-4 h-4"
+                  class="w-5 h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -86,88 +200,34 @@ const MediaFilters: Component<MediaFiltersProps> = (props) => {
                   <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    stroke-width="1.5"
-                    d={category.icon}
+                    stroke-width="2"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
                   />
                 </svg>
-                <span class="text-sm font-medium">{category.label}</span>
               </button>
-            )}
-          </For>
-        </div>
-
-        {/* Search and View Mode */}
-        <div class="flex items-center space-x-4">
-          <div class="relative">
-            <svg
-              class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-            <input
-              type="text"
-              value={props.searchQuery()}
-              onInput={(e) =>
-                props.setSearchQuery((e.target as HTMLInputElement).value)
-              }
-              class="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white/50 backdrop-blur-sm text-sm"
-              placeholder="Search photos..."
-            />
-          </div>
-
-          <div class="flex items-center space-x-2">
-            <button
-              onClick={() => props.setViewMode("grid")}
-              class={`p-2 rounded-lg transition-colors duration-300 ${
-                props.viewMode() === "grid"
-                  ? "bg-purple-100 text-purple-700"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+              <button
+                onClick={() => props.setViewMode("masonry")}
+                class={`p-2 rounded-md transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation ${
+                  props.viewMode() === "masonry"
+                    ? "bg-white text-purple-700 shadow-sm"
+                    : "text-gray-400 hover:text-gray-600"
+                }`}
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={() => props.setViewMode("masonry")}
-              class={`p-2 rounded-lg transition-colors duration-300 ${
-                props.viewMode() === "masonry"
-                  ? "bg-purple-100 text-purple-700"
-                  : "text-gray-400 hover:text-gray-600"
-              }`}
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
-                />
-              </svg>
-            </button>
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>

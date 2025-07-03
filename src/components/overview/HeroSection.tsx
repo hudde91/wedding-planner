@@ -27,7 +27,7 @@ const HeroSection: Component<HeroSectionProps> = (props) => {
   const countdown = () => getWeddingCountdown(props.weddingPlan.wedding_date);
 
   return (
-    <div class="animate-fade-in-up relative overflow-hidden rounded-2xl shadow-2xl">
+    <div class="animate-fade-in-up relative overflow-hidden rounded-xl lg:rounded-2xl shadow-xl lg:shadow-2xl">
       {/* Background Images with Smooth Transition */}
       <div class="absolute inset-0">
         {heroImages.map((image, index) => (
@@ -47,49 +47,49 @@ const HeroSection: Component<HeroSectionProps> = (props) => {
       </div>
 
       {/* Content */}
-      <div class="relative z-10 p-8 md:p-16 text-white min-h-[400px] flex items-center">
-        <div class="max-w-4xl space-y-6">
+      <div class="relative z-10 p-6 sm:p-8 lg:p-16 text-white min-h-[300px] sm:min-h-[350px] lg:min-h-[400px] flex items-center">
+        <div class="max-w-4xl space-y-4 sm:space-y-6">
           <Show
             when={
               props.weddingPlan.couple_name1 && props.weddingPlan.couple_name2
             }
             fallback={
-              <div class="space-y-4">
-                <h1 class="text-4xl md:text-6xl font-light tracking-wide">
+              <div class="space-y-3 sm:space-y-4">
+                <h1 class="text-3xl sm:text-4xl lg:text-6xl font-light tracking-wide">
                   Welcome to Your
                 </h1>
-                <h1 class="text-4xl md:text-6xl font-light tracking-wide text-rose-200">
+                <h1 class="text-3xl sm:text-4xl lg:text-6xl font-light tracking-wide text-rose-200">
                   Wedding Journey
                 </h1>
-                <p class="text-xl md:text-2xl font-light opacity-90 max-w-2xl">
+                <p class="text-lg sm:text-xl lg:text-2xl font-light opacity-90 max-w-2xl">
                   Begin planning your perfect day with elegance and ease
                 </p>
               </div>
             }
           >
-            <div class="space-y-4">
-              <h1 class="text-5xl md:text-7xl font-light tracking-wide">
+            <div class="space-y-3 sm:space-y-4">
+              <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light tracking-wide leading-tight">
                 {props.weddingPlan.couple_name1}
               </h1>
-              <div class="flex items-center space-x-6">
-                <div class="w-16 h-px bg-white/60"></div>
-                <span class="text-2xl md:text-3xl font-light text-rose-200">
+              <div class="flex items-center justify-center sm:justify-start space-x-4 sm:space-x-6">
+                <div class="w-8 sm:w-12 lg:w-16 h-px bg-white/60"></div>
+                <span class="text-xl sm:text-2xl lg:text-3xl font-light text-rose-200">
                   &
                 </span>
-                <div class="w-16 h-px bg-white/60"></div>
+                <div class="w-8 sm:w-12 lg:w-16 h-px bg-white/60"></div>
               </div>
-              <h1 class="text-5xl md:text-7xl font-light tracking-wide">
+              <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-light tracking-wide leading-tight">
                 {props.weddingPlan.couple_name2}
               </h1>
             </div>
 
             <Show when={props.weddingPlan.wedding_date}>
-              <div class="space-y-2">
-                <p class="text-xl md:text-2xl font-light opacity-90">
+              <div class="space-y-2 text-center sm:text-left">
+                <p class="text-lg sm:text-xl lg:text-2xl font-light opacity-90">
                   {formatWeddingDate(props.weddingPlan.wedding_date)}
                 </p>
                 <p
-                  class={`text-2xl md:text-3xl font-light ${countdown().color.replace(
+                  class={`text-xl sm:text-2xl lg:text-3xl font-light ${countdown().color.replace(
                     "text-",
                     "text-white "
                   )}`}
@@ -103,7 +103,7 @@ const HeroSection: Component<HeroSectionProps> = (props) => {
       </div>
 
       {/* Image Indicators */}
-      <div class="absolute bottom-6 right-6 flex space-x-2">
+      <div class="absolute bottom-4 sm:bottom-6 right-4 sm:right-6 flex space-x-2">
         {heroImages.map((_, index) => (
           <button
             aria-label={`Show hero image ${index + 1}`}

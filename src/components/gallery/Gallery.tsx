@@ -5,11 +5,9 @@ import {
   onMount,
   onCleanup,
 } from "solid-js";
-// Updated import for Tauri 2.0
 import { invoke } from "@tauri-apps/api/core";
 import type { MediaItem, MediaCategory, MediaUploadData } from "../../types";
 
-// Import child components
 import MediaUploadArea from "./MediaUploadArea";
 import UploadSettings from "./UploadSettings";
 import MediaFilters from "./MediaFilters";
@@ -29,11 +27,12 @@ const Gallery: Component<GalleryProps> = (props) => {
   const [selectedCategory, setSelectedCategory] = createSignal<
     MediaCategory | "all"
   >("all");
-  const [viewMode, setViewMode] = createSignal<"grid" | "masonry">("masonry");
+  const [viewMode, setViewMode] = createSignal<"grid" | "masonry">("grid"); // Default to grid for mobile
   const [selectedMedia, setSelectedMedia] = createSignal<MediaItem | null>(
     null
   );
   const [searchQuery, setSearchQuery] = createSignal("");
+  const [showUploadSection, setShowUploadSection] = createSignal(false); // Collapsible on mobile
 
   // Upload state
   const [uploadData, setUploadData] = createSignal<MediaUploadData>({
@@ -172,6 +171,10 @@ const Gallery: Component<GalleryProps> = (props) => {
 
     if (validFiles.length > 0) {
       props.onAddMedia(validFiles, uploadData());
+      // Auto-collapse upload section on mobile after upload
+      if (window.innerWidth < 1024) {
+        setShowUploadSection(false);
+      }
     }
   };
 
@@ -185,10 +188,10 @@ const Gallery: Component<GalleryProps> = (props) => {
   };
 
   return (
-    <div class="space-y-8">
+    <div class="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Hero Section */}
-      <div class="animate-fade-in-up relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-100 via-white to-rose-100 border border-purple-200/50 shadow-xl">
-        <div class="absolute inset-0 opacity-10">
+      <div class="animate-fade-in-up relative overflow-hidden rounded-lg lg:rounded-2xl bg-gradient-to-br from-purple-100 via-white to-rose-100 border border-purple-200/50 shadow-lg lg:shadow-xl">
+        <div class="absolute inset-0 opacity-5 lg:opacity-10">
           <img
             src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=1200&h=400&fit=crop&auto=format"
             alt="Wedding photography"
@@ -196,12 +199,12 @@ const Gallery: Component<GalleryProps> = (props) => {
           />
         </div>
 
-        <div class="relative z-10 p-8 md:p-12">
+        <div class="relative z-10 p-4 sm:p-6 lg:p-12">
           <div class="max-w-4xl">
-            <h1 class="text-4xl md:text-5xl font-light text-gray-800 mb-4 tracking-wide">
+            <h1 class="text-2xl sm:text-3xl lg:text-5xl font-light text-gray-800 mb-2 lg:mb-4 tracking-wide">
               Wedding Gallery
             </h1>
-            <p class="text-lg text-gray-600 font-light leading-relaxed mb-6">
+            <p class="text-sm sm:text-base lg:text-lg text-gray-600 font-light leading-relaxed mb-4 lg:mb-6">
               Preserve your precious moments and share them with loved ones.
               Upload and organize your wedding photos and videos in one
               beautiful place.
@@ -212,12 +215,51 @@ const Gallery: Component<GalleryProps> = (props) => {
         </div>
       </div>
 
+      {/* Mobile Upload Toggle Button */}
+      <div class="lg:hidden">
+        <button
+          onClick={() => setShowUploadSection(!showUploadSection())}
+          class={`w-full flex items-center justify-center space-x-3 p-4 rounded-lg border-2 border-dashed transition-all duration-300 ${
+            showUploadSection()
+              ? "border-purple-400 bg-purple-50 text-purple-700"
+              : "border-gray-300 hover:border-purple-300 text-gray-600"
+          }`}
+        >
+          <svg
+            class={`w-5 h-5 transition-transform duration-300 ${
+              showUploadSection() ? "rotate-45" : ""
+            }`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          <span class="font-medium">
+            {showUploadSection() ? "Hide Upload" : "Upload Photos"}
+          </span>
+        </button>
+      </div>
+
       {/* Upload Section */}
-      <div class="animate-fade-in-up-delay-200 bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div
+        class={`animate-fade-in-up-delay-200 bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl shadow-lg border border-gray-100 transition-all duration-300 overflow-hidden ${
+          showUploadSection() || window.innerWidth >= 1024
+            ? "opacity-100 max-h-screen p-4 sm:p-6 lg:p-8"
+            : "lg:opacity-100 lg:max-h-screen lg:p-8 opacity-0 max-h-0 p-0"
+        }`}
+      >
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Upload Area */}
           <div>
-            <h3 class="text-xl font-medium text-gray-900 mb-4">Upload Media</h3>
+            <h3 class="text-lg lg:text-xl font-medium text-gray-900 mb-3 lg:mb-4">
+              Upload Media
+            </h3>
             <MediaUploadArea onFilesSelected={handleFileUpload} />
           </div>
 

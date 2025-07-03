@@ -60,10 +60,10 @@ const TodoList: Component<TodoListProps> = (props) => {
   };
 
   return (
-    <div class="space-y-8">
+    <div class="space-y-4 sm:space-y-6 lg:space-y-8">
       {/* Header with Background */}
-      <div class="animate-fade-in-up relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-100 via-white to-teal-100 border border-emerald-200/50 shadow-xl">
-        <div class="absolute inset-0 opacity-10">
+      <div class="animate-fade-in-up relative overflow-hidden rounded-lg lg:rounded-2xl bg-gradient-to-br from-emerald-100 via-white to-teal-100 border border-emerald-200/50 shadow-lg lg:shadow-xl">
+        <div class="absolute inset-0 opacity-5 lg:opacity-10">
           <img
             src="https://images.unsplash.com/photo-1586985289688-ca3cf47d3e6e?w=1200&h=400&fit=crop&auto=format"
             alt="Wedding planning"
@@ -71,19 +71,19 @@ const TodoList: Component<TodoListProps> = (props) => {
           />
         </div>
 
-        <div class="relative z-10 p-8">
+        <div class="relative z-10 p-4 sm:p-6 lg:p-8">
           <div class="max-w-3xl">
-            <h1 class="text-4xl font-light text-gray-800 mb-4 tracking-wide">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-light text-gray-800 mb-2 lg:mb-4 tracking-wide">
               Planning Checklist
             </h1>
-            <p class="text-lg text-gray-600 font-light leading-relaxed">
+            <p class="text-sm sm:text-base lg:text-lg text-gray-600 font-light leading-relaxed">
               Stay organized with your wedding tasks. Track progress, manage
               vendors, and ensure nothing is forgotten for your perfect day.
             </p>
           </div>
         </div>
 
-        <div class="absolute top-4 right-4 w-32 h-32 opacity-5">
+        <div class="absolute top-2 right-2 lg:top-4 lg:right-4 w-16 h-16 lg:w-32 lg:h-32 opacity-5">
           <svg
             viewBox="0 0 100 100"
             fill="currentColor"
@@ -109,7 +109,7 @@ const TodoList: Component<TodoListProps> = (props) => {
       </div>
 
       {/* Todo Items */}
-      <div class="animate-fade-in-up-delay-600 space-y-4">
+      <div class="animate-fade-in-up-delay-600 space-y-3 lg:space-y-4">
         <For each={props.todos}>
           {(todo, index) => (
             <div
@@ -131,11 +131,11 @@ const TodoList: Component<TodoListProps> = (props) => {
       </div>
 
       <Show when={props.todos.length === 0}>
-        <div class="animate-fade-in-up-delay-800 text-center py-16">
-          <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-12 border border-gray-100 shadow-lg max-w-md mx-auto">
-            <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <div class="animate-fade-in-up-delay-800 text-center py-12 lg:py-16">
+          <div class="bg-white/80 backdrop-blur-sm rounded-xl lg:rounded-2xl p-8 lg:p-12 border border-gray-100 shadow-lg max-w-md mx-auto">
+            <div class="w-16 h-16 lg:w-24 lg:h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl lg:rounded-2xl flex items-center justify-center mx-auto mb-4 lg:mb-6">
               <svg
-                class="w-12 h-12 text-gray-400"
+                class="w-8 h-8 lg:w-12 lg:h-12 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -148,8 +148,10 @@ const TodoList: Component<TodoListProps> = (props) => {
                 />
               </svg>
             </div>
-            <h3 class="text-xl font-medium text-gray-900 mb-2">No tasks yet</h3>
-            <p class="text-gray-600 font-light">
+            <h3 class="text-lg lg:text-xl font-medium text-gray-900 mb-2">
+              No tasks yet
+            </h3>
+            <p class="text-sm lg:text-base text-gray-600 font-light">
               Add your first wedding planning task above to get started!
             </p>
           </div>

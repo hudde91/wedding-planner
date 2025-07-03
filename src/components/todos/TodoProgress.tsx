@@ -20,14 +20,14 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
   const _getProgressMessage = () => getProgressMessage(progressPercentage());
 
   return (
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-4 lg:gap-6">
       {/* Main Progress Card */}
-      <div class="lg:col-span-2 bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg">
-        <div class="flex items-center justify-between mb-6">
+      <div class="xl:col-span-2 bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-100 shadow-lg">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 lg:mb-6 space-y-3 sm:space-y-0">
           <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
+            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 lg:w-6 lg:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -41,7 +41,7 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
               </svg>
             </div>
             <div>
-              <h2 class="text-xl font-medium text-gray-900">
+              <h2 class="text-lg lg:text-xl font-medium text-gray-900">
                 Planning Progress
               </h2>
               <p class="text-sm text-gray-500 font-light">
@@ -50,8 +50,8 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
             </div>
           </div>
 
-          <div class="text-right">
-            <div class="text-3xl font-light text-gray-900">
+          <div class="text-center sm:text-right">
+            <div class="text-2xl lg:text-3xl font-light text-gray-900">
               {Math.round(progressPercentage())}%
             </div>
             <div class="text-sm text-gray-500 font-light">Complete</div>
@@ -60,17 +60,19 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
 
         {/* Progress Bar */}
         <div class="space-y-3">
-          <div class="flex justify-between text-sm text-gray-600">
+          <div class="flex flex-col sm:flex-row sm:justify-between text-sm text-gray-600 space-y-1 sm:space-y-0">
             <span class="font-medium">
               {props.completedCount} of {props.totalCount} tasks completed
             </span>
-            <span class="font-light">{_getProgressMessage()}</span>
+            <span class="font-light text-xs sm:text-sm">
+              {_getProgressMessage()}
+            </span>
           </div>
 
           <div class="relative">
-            <div class="w-full bg-gray-200 rounded-full h-3">
+            <div class="w-full bg-gray-200 rounded-full h-2 lg:h-3">
               <div
-                class={`bg-gradient-to-r ${getProgressColor()} h-3 rounded-full transition-all duration-1000 ease-out relative overflow-hidden`}
+                class={`bg-gradient-to-r ${getProgressColor()} h-2 lg:h-3 rounded-full transition-all duration-1000 ease-out relative overflow-hidden`}
                 style={`width: ${Math.min(progressPercentage(), 100)}%`}
               >
                 {/* Animated shine effect */}
@@ -79,8 +81,8 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
             </div>
           </div>
 
-          {/* Progress milestones */}
-          <div class="flex justify-between text-xs text-gray-400 font-light">
+          {/* Progress milestones - Hidden on mobile */}
+          <div class="hidden sm:flex justify-between text-xs text-gray-400 font-light">
             <span>Started</span>
             <span>25%</span>
             <span>50%</span>
@@ -90,18 +92,17 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
         </div>
 
         {/* Tip */}
-        <div class="mt-6 p-4 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 rounded-lg border border-blue-100/50">
-          <p class="text-sm text-gray-700 font-light">
+        <div class="mt-4 lg:mt-6 p-3 lg:p-4 bg-gradient-to-r from-blue-50/50 to-cyan-50/50 rounded-lg border border-blue-100/50">
+          <p class="text-xs lg:text-sm text-gray-700 font-light">
             <span class="font-medium">💡 Pro tip:</span> Click on any task to
-            add vendor details, costs, and inspiration notes. Completing
-            detailed information automatically marks tasks as done.
+            add vendor details, costs, and inspiration notes.
           </p>
         </div>
       </div>
 
       {/* Budget Summary Card */}
-      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-8 border border-gray-100 shadow-lg">
-        <div class="flex items-center space-x-3 mb-6">
+      <div class="bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-100 shadow-lg">
+        <div class="flex items-center space-x-3 mb-4 lg:mb-6">
           <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-violet-400 rounded-lg flex items-center justify-center">
             <svg
               class="w-5 h-5 text-white"
@@ -118,14 +119,16 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
             </svg>
           </div>
           <div>
-            <h3 class="text-lg font-medium text-gray-900">Task Spending</h3>
+            <h3 class="text-base lg:text-lg font-medium text-gray-900">
+              Task Spending
+            </h3>
             <p class="text-sm text-gray-500 font-light">Vendor costs tracked</p>
           </div>
         </div>
 
         <div class="space-y-4">
-          <div class="text-center p-6 bg-gradient-to-br from-purple-50/50 to-violet-50/50 rounded-lg border border-purple-100/50">
-            <div class="text-3xl font-light text-purple-600 mb-1">
+          <div class="text-center p-4 lg:p-6 bg-gradient-to-br from-purple-50/50 to-violet-50/50 rounded-lg border border-purple-100/50">
+            <div class="text-2xl lg:text-3xl font-light text-purple-600 mb-1">
               {formatCurrency(props.totalSpent)}
             </div>
             <div class="text-sm text-gray-600 font-light">Total Allocated</div>
@@ -146,7 +149,7 @@ const TodoProgress: Component<TodoProgressProps> = (props) => {
             </div>
           </div>
 
-          <div class="text-xs text-gray-500 font-light text-center mt-4 p-3 bg-yellow-50/50 rounded-lg border border-yellow-100/50">
+          <div class="text-xs text-gray-500 font-light text-center p-3 bg-yellow-50/50 rounded-lg border border-yellow-100/50">
             <span class="font-medium">Note:</span> Add vendor details to tasks
             to track your actual wedding costs
           </div>

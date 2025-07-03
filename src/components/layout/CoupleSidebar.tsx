@@ -82,127 +82,224 @@ const CoupleSidebar: Component<CoupleSidebarProps> = (props) => {
     return props.currentRoute === itemId;
   };
 
+  const handleLinkClick = () => {
+    // Close sidebar on mobile after navigation
+    // Use a slight delay to ensure navigation happens first
+    setTimeout(() => {
+      if (window.innerWidth < 1024) {
+        props.setIsOpen(false);
+      }
+    }, 100);
+  };
+
   return (
-    <div
-      class={`fixed left-0 top-0 h-full bg-white/95 backdrop-blur-md shadow-2xl border-r border-gray-100 transition-all duration-500 z-50 ${
-        props.isOpen() ? "w-80" : "w-20"
-      }`}
-    >
-      {/* Background Pattern */}
-      <div class="absolute inset-0 bg-gradient-to-b from-rose-50/40 via-white/60 to-purple-50/40"></div>
+    <>
+      {/* Mobile Backdrop */}
+      <Show when={props.isOpen()}>
+        <div
+          class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => props.setIsOpen(false)}
+        />
+      </Show>
 
-      {/* Logo/Brand Area */}
-      <div class="relative h-20 flex items-center justify-center border-b border-gray-100/80 bg-gradient-to-r from-rose-100/50 to-purple-100/50">
-        <Show when={props.isOpen()}>
-          <div class="text-center">
-            <div class="text-xl font-light text-gray-800 tracking-wide">
-              Wedding Planner
-            </div>
-            <div class="text-xs text-gray-500 font-light tracking-wider uppercase">
-              Elegant Planning
-            </div>
-          </div>
-        </Show>
-        <Show when={!props.isOpen()}>
-          <svg
-            class="w-8 h-8 text-rose-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-            />
-          </svg>
-        </Show>
-      </div>
-
-      {/* Quick Stats - Only show when sidebar is open */}
-      <Show
-        when={
-          props.isOpen() &&
-          (props.weddingPlan.couple_name1 ||
-            props.weddingPlan.guests.length > 0)
-        }
+      {/* Sidebar */}
+      <div
+        class={`fixed left-0 top-0 h-full bg-white/95 backdrop-blur-md shadow-2xl border-r border-gray-100 z-50 transition-all duration-300 ease-in-out overflow-y-auto ${
+          props.isOpen() ? "w-80 translate-x-0" : "w-0 -translate-x-full"
+        }`}
       >
-        <div class="relative p-6 border-b border-gray-100/60 bg-gradient-to-r from-white/60 to-gray-50/40">
-          <div class="space-y-4">
-            <Show
-              when={
-                props.weddingPlan.couple_name1 && props.weddingPlan.couple_name2
-              }
-            >
-              <div class="text-center space-y-1">
-                <div class="text-lg font-light text-gray-900 tracking-wide">
-                  {props.weddingPlan.couple_name1} &{" "}
-                  {props.weddingPlan.couple_name2}
+        {/* Background Pattern */}
+        <div class="absolute inset-0 bg-gradient-to-b from-rose-50/40 via-white/60 to-purple-50/40 pointer-events-none"></div>
+
+        {/* Scrollable Content */}
+        <div class="relative h-full flex flex-col">
+          {/* Logo/Brand Area */}
+          <div class="flex-shrink-0 h-16 lg:h-20 flex items-center justify-center border-b border-gray-100/80 bg-gradient-to-r from-rose-100/50 to-purple-100/50">
+            <Show when={props.isOpen()}>
+              <div class="text-center px-4">
+                <div class="text-lg lg:text-xl font-light text-gray-800 tracking-wide">
+                  Wedding Planner
                 </div>
-                <Show when={props.weddingPlan.wedding_date}>
-                  <div class="text-xs text-gray-500 font-light">
-                    {new Date(
-                      props.weddingPlan.wedding_date
-                    ).toLocaleDateString("en-US", {
-                      month: "long",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                <div class="text-xs text-gray-500 font-light tracking-wider uppercase">
+                  Elegant Planning
+                </div>
+              </div>
+            </Show>
+          </div>
+
+          {/* Quick Stats - Only show when sidebar is open */}
+          <Show
+            when={
+              props.isOpen() &&
+              (props.weddingPlan.couple_name1 ||
+                props.weddingPlan.guests.length > 0)
+            }
+          >
+            <div class="flex-shrink-0 p-4 lg:p-6 border-b border-gray-100/60 bg-gradient-to-r from-white/60 to-gray-50/40">
+              <div class="space-y-3 lg:space-y-4">
+                <Show
+                  when={
+                    props.weddingPlan.couple_name1 &&
+                    props.weddingPlan.couple_name2
+                  }
+                >
+                  <div class="text-center space-y-1">
+                    <div class="text-base lg:text-lg font-light text-gray-900 tracking-wide">
+                      {props.weddingPlan.couple_name1} &{" "}
+                      {props.weddingPlan.couple_name2}
+                    </div>
+                    <Show when={props.weddingPlan.wedding_date}>
+                      <div class="text-xs text-gray-500 font-light">
+                        {new Date(
+                          props.weddingPlan.wedding_date
+                        ).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </div>
+                    </Show>
+                  </div>
+                </Show>
+
+                {/* Guest sharing link */}
+                <Show when={props.weddingPlan.couple_name1}>
+                  <div class="pt-2 border-t border-gray-100">
+                    <div class="text-xs text-gray-500 mb-2">Guest Access</div>
+                    <div class="flex items-center space-x-2">
+                      <input
+                        type="text"
+                        value={`${window.location.origin}/guest`}
+                        readonly
+                        class="flex-1 text-xs bg-gray-50 border border-gray-200 rounded px-2 py-1 text-gray-600 min-w-0"
+                      />
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            `${window.location.origin}/guest`
+                          );
+                          alert("Guest link copied to clipboard!");
+                        }}
+                        class="p-1 text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0"
+                        title="Copy guest link"
+                      >
+                        <svg
+                          class="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </Show>
+
+                {/* Media count */}
+                <Show
+                  when={
+                    props.weddingPlan.media &&
+                    props.weddingPlan.media.length > 0
+                  }
+                >
+                  <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
+                    <div class="flex items-center space-x-1">
+                      <svg
+                        class="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                        />
+                      </svg>
+                      <span>{props.weddingPlan.media.length} photos</span>
+                    </div>
                   </div>
                 </Show>
               </div>
-            </Show>
+            </div>
+          </Show>
 
-            {/* Guest sharing link */}
-            <Show when={props.weddingPlan.couple_name1}>
-              <div class="pt-2 border-t border-gray-100">
-                <div class="text-xs text-gray-500 mb-2">Guest Access</div>
-                <div class="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={`${window.location.origin}/guest`}
-                    readonly
-                    class="flex-1 text-xs bg-gray-50 border border-gray-200 rounded px-2 py-1 text-gray-600"
-                  />
-                  <button
-                    onClick={() => {
-                      navigator.clipboard.writeText(
-                        `${window.location.origin}/guest`
-                      );
-                      alert("Guest link copied to clipboard!");
-                    }}
-                    class="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                    title="Copy guest link"
+          {/* Navigation Items - Scrollable */}
+          <nav class="flex-1 p-3 lg:p-4 overflow-y-auto">
+            <ul class="space-y-1 lg:space-y-2">
+              {sidebarItems.map((item) => (
+                <li>
+                  <A
+                    href={item.href}
+                    onClick={handleLinkClick}
+                    class={`w-full flex items-center rounded-xl transition-all duration-300 group ${
+                      isActiveRoute(item.id)
+                        ? "bg-gradient-to-r from-rose-100/80 to-purple-100/80 text-gray-800 shadow-md border border-rose-200/60"
+                        : "text-gray-600 hover:bg-white/60 hover:text-gray-900 hover:shadow-sm"
+                    } px-3 lg:px-4 py-3 lg:py-4`}
                   >
                     <svg
-                      class="w-3 h-3"
+                      class="w-5 h-5 flex-shrink-0 transition-colors duration-300"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      stroke-width="1.5"
                     >
                       <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        d={item.icon}
                       />
                     </svg>
-                  </button>
-                </div>
-              </div>
-            </Show>
+                    <Show when={props.isOpen()}>
+                      <div class="ml-3 lg:ml-4 flex-1 text-left min-w-0">
+                        <div class="font-medium text-sm truncate">
+                          {item.label}
+                        </div>
+                        <div class="text-xs opacity-60 font-light truncate">
+                          {item.description}
+                        </div>
+                      </div>
+                    </Show>
 
-            {/* Media count */}
-            <Show
-              when={
-                props.weddingPlan.media && props.weddingPlan.media.length > 0
-              }
-            >
-              <div class="flex items-center justify-center space-x-4 text-xs text-gray-500">
-                <div class="flex items-center space-x-1">
+                    {/* Active indicator */}
+                    <Show when={isActiveRoute(item.id) && props.isOpen()}>
+                      <div class="w-2 h-2 bg-rose-500 rounded-full flex-shrink-0"></div>
+                    </Show>
+
+                    {/* Badge for gallery with media count */}
+                    <Show
+                      when={
+                        item.id === "gallery" &&
+                        props.weddingPlan.media &&
+                        props.weddingPlan.media.length > 0 &&
+                        props.isOpen()
+                      }
+                    >
+                      <div class="bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+                        {props.weddingPlan.media.length}
+                      </div>
+                    </Show>
+                  </A>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          {/* Footer - Only show when expanded */}
+          <Show when={props.isOpen()}>
+            <div class="flex-shrink-0 p-4 lg:p-6 border-t border-gray-100/60 bg-gradient-to-r from-gray-50/40 to-white/60">
+              <div class="text-xs text-gray-500 text-center space-y-2">
+                <div class="flex items-center justify-center space-x-2">
                   <svg
-                    class="w-3 h-3"
+                    class="w-3 h-3 text-rose-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -211,106 +308,20 @@ const CoupleSidebar: Component<CoupleSidebarProps> = (props) => {
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
+                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                    ></path>
                   </svg>
-                  <span>{props.weddingPlan.media.length} photos</span>
+                  <span class="font-light">Crafted with love</span>
+                </div>
+                <div class="font-light text-gray-400">
+                  Wedding Planner Premium
                 </div>
               </div>
-            </Show>
-          </div>
-        </div>
-      </Show>
-
-      {/* Navigation Items */}
-      <nav class="relative flex-1 p-4">
-        <ul class="space-y-2">
-          {sidebarItems.map((item) => (
-            <li>
-              <A
-                href={item.href}
-                class={`w-full flex items-center rounded-xl transition-all duration-300 group ${
-                  isActiveRoute(item.id)
-                    ? "bg-gradient-to-r from-rose-100/80 to-purple-100/80 text-gray-800 shadow-md border border-rose-200/60"
-                    : "text-gray-600 hover:bg-white/60 hover:text-gray-900 hover:shadow-sm"
-                } ${props.isOpen() ? "px-4 py-4" : "px-4 py-4 justify-center"}`}
-                title={
-                  !props.isOpen()
-                    ? `${item.label} - ${item.description}`
-                    : undefined
-                }
-              >
-                <svg
-                  class="w-5 h-5 flex-shrink-0 transition-colors duration-300"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d={item.icon}
-                  />
-                </svg>
-                <Show when={props.isOpen()}>
-                  <div class="ml-4 flex-1 text-left">
-                    <div class="font-medium text-sm">{item.label}</div>
-                    <div class="text-xs opacity-60 font-light">
-                      {item.description}
-                    </div>
-                  </div>
-                </Show>
-
-                {/* Active indicator */}
-                <Show when={isActiveRoute(item.id) && props.isOpen()}>
-                  <div class="w-2 h-2 bg-rose-500 rounded-full"></div>
-                </Show>
-
-                {/* Badge for gallery with media count */}
-                <Show
-                  when={
-                    item.id === "gallery" &&
-                    props.weddingPlan.media &&
-                    props.weddingPlan.media.length > 0 &&
-                    props.isOpen()
-                  }
-                >
-                  <div class="bg-rose-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {props.weddingPlan.media.length}
-                  </div>
-                </Show>
-              </A>
-            </li>
-          ))}
-        </ul>
-      </nav>
-
-      {/* Footer - Only show when expanded */}
-      <Show when={props.isOpen()}>
-        <div class="relative p-6 border-t border-gray-100/60 bg-gradient-to-r from-gray-50/40 to-white/60">
-          <div class="text-xs text-gray-500 text-center space-y-2">
-            <div class="flex items-center justify-center space-x-2">
-              <svg
-                class="w-3 h-3 text-rose-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                ></path>
-              </svg>
-              <span class="font-light">Crafted with love</span>
             </div>
-            <div class="font-light text-gray-400">Wedding Planner Premium</div>
-          </div>
+          </Show>
         </div>
-      </Show>
-    </div>
+      </div>
+    </>
   );
 };
 

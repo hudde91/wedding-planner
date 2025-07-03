@@ -1,5 +1,5 @@
 import { Component } from "solid-js";
-import { WeddingPlan, TabId } from "../../types";
+import { WeddingPlan } from "../../types";
 import { useWeddingStats } from "../../hooks/useWeddingStats";
 
 import HeroSection from "./HeroSection";
@@ -11,21 +11,20 @@ import QuickActionsCard from "./QuickActionsCard";
 
 interface OverviewProps {
   weddingPlan: WeddingPlan;
-  onNavigateToRoute?: (tabId: TabId) => void;
+  onNavigateToRoute?: (route: string) => void;
 }
 
 const Overview: Component<OverviewProps> = (props) => {
   const stats = useWeddingStats(() => props.weddingPlan);
 
   return (
-    <div class="space-y-8">
+    <div class="space-y-6 lg:space-y-8">
       <HeroSection weddingPlan={props.weddingPlan} />
 
       <StatsGrid stats={stats()} />
 
-      <div class="animate-fade-in-up-delay-400 grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="animate-fade-in-up-delay-400 grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         <RSVPStatusCard stats={stats()} />
-
         <BudgetOverviewCard stats={stats()} />
       </div>
 

@@ -1,4 +1,4 @@
-import { Component, createSignal } from "solid-js";
+import { Component, createSignal, onMount } from "solid-js";
 import { useLocation } from "@solidjs/router";
 import type { WeddingPlan } from "../../types";
 import CoupleSidebar from "./CoupleSidebar";
@@ -10,8 +10,29 @@ interface CoupleLayoutProps {
 }
 
 const CoupleLayout: Component<CoupleLayoutProps> = (props) => {
-  const [sidebarOpen, setSidebarOpen] = createSignal(true);
+  const [sidebarOpen, setSidebarOpen] = createSignal(false); // Start closed on mobile
+  const [isDesktop, setIsDesktop] = createSignal(false);
   const location = useLocation();
+
+  // Check if we're on desktop and set initial sidebar state
+  onMount(() => {
+    const checkDesktop = () => {
+      const desktop = window.innerWidth >= 1024;
+      setIsDesktop(desktop);
+
+      // Auto-open sidebar on desktop, close on mobile
+      if (desktop && !sidebarOpen()) {
+        setSidebarOpen(true);
+      } else if (!desktop && sidebarOpen()) {
+        setSidebarOpen(false);
+      }
+    };
+
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+
+    return () => window.removeEventListener("resize", checkDesktop);
+  });
 
   const getCurrentRoute = () => {
     const path = location.pathname;
@@ -20,7 +41,7 @@ const CoupleLayout: Component<CoupleLayoutProps> = (props) => {
   };
 
   return (
-    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-rose-50/30 flex relative overflow-hidden">
+    <div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-rose-50/30 relative overflow-hidden">
       {/* Background Pattern */}
       <div class="fixed inset-0 opacity-5 pointer-events-none">
         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -79,6 +100,7 @@ const CoupleLayout: Component<CoupleLayoutProps> = (props) => {
         </svg>
       </div>
 
+      {/* Sidebar */}
       <CoupleSidebar
         currentRoute={getCurrentRoute()}
         isOpen={sidebarOpen}
@@ -86,22 +108,26 @@ const CoupleLayout: Component<CoupleLayoutProps> = (props) => {
         weddingPlan={props.weddingPlan}
       />
 
+      {/* Main Content Area */}
       <div
-        class={`flex-1 transition-all duration-500 ease-in-out relative ${
-          sidebarOpen() ? "ml-80" : "ml-20"
+        class={`min-h-screen transition-all duration-300 ease-in-out ${
+          sidebarOpen() && isDesktop() ? "lg:ml-80" : "ml-0"
         }`}
       >
+        {/* Header */}
         <CoupleHeader
           currentRoute={getCurrentRoute()}
           weddingPlan={props.weddingPlan}
           onToggleSidebar={() => setSidebarOpen(!sidebarOpen())}
         />
 
+        {/* Main Content */}
         <main class="relative min-h-screen">
           {/* Content Background */}
-          <div class="absolute inset-0 bg-gradient-to-b from-white/80 via-gray-50/40 to-white/60"></div>
+          <div class="absolute inset-0 bg-gradient-to-b from-white/80 via-gray-50/40 to-white/60 pointer-events-none"></div>
 
-          <div class="relative z-10 p-8">
+          {/* Content Container */}
+          <div class="relative z-10 p-4 sm:p-6 lg:p-8">
             <div class="max-w-7xl mx-auto">
               <div class="transform transition-all duration-700 ease-out">
                 {props.children}

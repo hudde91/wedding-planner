@@ -1,14 +1,13 @@
 import { Component } from "solid-js";
-import { TabId } from "../../types";
 
 interface QuickActionsCardProps {
-  onNavigateToRoute?: (tabId: TabId) => void;
+  onNavigateToRoute?: (route: string) => void;
 }
 
 const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
   return (
-    <div class="animate-fade-in-up-delay-800 bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-gray-100 p-8">
-      <div class="flex items-center space-x-3 mb-6">
+    <div class="animate-fade-in-up-delay-800 bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl shadow-lg border border-gray-100 p-4 sm:p-6 lg:p-8">
+      <div class="flex items-center space-x-3 mb-4 lg:mb-6">
         <div class="w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center">
           <svg
             class="w-5 h-5 text-white"
@@ -25,21 +24,23 @@ const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
           </svg>
         </div>
         <div>
-          <h3 class="text-xl font-medium text-gray-900">Quick Actions</h3>
+          <h3 class="text-lg lg:text-xl font-medium text-gray-900">
+            Quick Actions
+          </h3>
           <p class="text-sm text-gray-500 font-light">
             Jump to key planning areas
           </p>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <button
-          onClick={() => props.onNavigateToRoute?.("details")}
-          class="group p-6 border border-gray-200 rounded-xl hover:border-rose-300 hover:bg-rose-50/50 transition-all duration-300 text-left"
+          onClick={() => props.onNavigateToRoute?.("/details")}
+          class="group p-4 lg:p-6 border border-gray-200 rounded-lg lg:rounded-xl hover:border-rose-300 hover:bg-rose-50/50 transition-all duration-300 text-left"
         >
-          <div class="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+          <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-lg flex items-center justify-center mb-3 lg:mb-4 group-hover:scale-110 transition-transform duration-300">
             <svg
-              class="w-6 h-6 text-rose-600"
+              class="w-5 h-5 lg:w-6 lg:h-6 text-rose-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -61,12 +62,12 @@ const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
         </button>
 
         <button
-          onClick={() => props.onNavigateToRoute?.("guests")}
-          class="group p-6 border border-gray-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300 text-left"
+          onClick={() => props.onNavigateToRoute?.("/guests")}
+          class="group p-4 lg:p-6 border border-gray-200 rounded-lg lg:rounded-xl hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-300 text-left"
         >
-          <div class="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+          <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center mb-3 lg:mb-4 group-hover:scale-110 transition-transform duration-300">
             <svg
-              class="w-6 h-6 text-blue-600"
+              class="w-5 h-5 lg:w-6 lg:h-6 text-blue-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -88,12 +89,12 @@ const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
         </button>
 
         <button
-          onClick={() => props.onNavigateToRoute?.("todos")}
-          class="group p-6 border border-gray-200 rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-300 text-left"
+          onClick={() => props.onNavigateToRoute?.("/todos")}
+          class="group p-4 lg:p-6 border border-gray-200 rounded-lg lg:rounded-xl hover:border-emerald-300 hover:bg-emerald-50/50 transition-all duration-300 text-left"
         >
-          <div class="w-12 h-12 bg-gradient-to-br from-emerald-100 to-green-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+          <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-100 to-green-100 rounded-lg flex items-center justify-center mb-3 lg:mb-4 group-hover:scale-110 transition-transform duration-300">
             <svg
-              class="w-6 h-6 text-emerald-600"
+              class="w-5 h-5 lg:w-6 lg:h-6 text-emerald-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -115,12 +116,12 @@ const QuickActionsCard: Component<QuickActionsCardProps> = (props) => {
         </button>
 
         <button
-          onClick={() => props.onNavigateToRoute?.("seating")}
-          class="group p-6 border border-gray-200 rounded-xl hover:border-purple-300 hover:bg-purple-50/50 transition-all duration-300 text-left"
+          onClick={() => props.onNavigateToRoute?.("/seating")}
+          class="group p-4 lg:p-6 border border-gray-200 rounded-lg lg:rounded-xl hover:border-purple-300 hover:bg-purple-50/50 transition-all duration-300 text-left"
         >
-          <div class="w-12 h-12 bg-gradient-to-br from-purple-100 to-violet-100 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+          <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-purple-100 to-violet-100 rounded-lg flex items-center justify-center mb-3 lg:mb-4 group-hover:scale-110 transition-transform duration-300">
             <svg
-              class="w-6 h-6 text-purple-600"
+              class="w-5 h-5 lg:w-6 lg:h-6 text-purple-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
