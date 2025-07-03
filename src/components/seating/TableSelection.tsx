@@ -21,11 +21,11 @@ const TableSelection: Component<TableSelectionProps> = (props) => {
 
   return (
     <div class="animate-fade-in-up bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
-      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 p-6">
-        <div class="flex items-center space-x-4">
-          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+      <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 p-4 sm:p-6">
+        <div class="flex items-center space-x-3 sm:space-x-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
             <svg
-              class="w-6 h-6 text-white"
+              class="w-5 h-5 sm:w-6 sm:h-6 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -39,24 +39,24 @@ const TableSelection: Component<TableSelectionProps> = (props) => {
             </svg>
           </div>
           <div>
-            <h3 class="text-xl font-semibold text-gray-900">
+            <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
               Available Tables
             </h3>
-            <p class="text-gray-600 font-light">
+            <p class="text-sm sm:text-base text-gray-600 font-light">
               {pluralize(availableTables().length, "table")} with space
             </p>
           </div>
         </div>
       </div>
 
-      <div class="p-6">
+      <div class="p-4 sm:p-6">
         <Show
           when={availableTables().length > 0}
           fallback={
-            <div class="text-center py-12">
-              <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <div class="text-center py-8 sm:py-12">
+              <div class="w-12 h-12 sm:w-16 sm:h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <svg
-                  class="w-8 h-8 text-red-600"
+                  class="w-6 h-6 sm:w-8 sm:h-8 text-red-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -73,7 +73,7 @@ const TableSelection: Component<TableSelectionProps> = (props) => {
             </div>
           }
         >
-          <div class="space-y-4 max-h-96 overflow-y-auto">
+          <div class="space-y-3 sm:space-y-4 max-h-80 sm:max-h-96 overflow-y-auto overflow-touch">
             <For each={availableTables()}>
               {(table) => {
                 const occupiedSeats = props.seatAssignments.filter(
@@ -84,23 +84,23 @@ const TableSelection: Component<TableSelectionProps> = (props) => {
                 return (
                   <button
                     onClick={() => props.onTableSelect(table.id)}
-                    class={`w-full p-4 rounded-xl text-left transition-all duration-300 transform hover:scale-[1.02] border ${
+                    class={`w-full p-3 sm:p-4 rounded-xl text-left transition-all duration-300 transform hover:scale-[1.02] active:scale-95 border touch-manipulation ${
                       props.selectedTableId === table.id
                         ? "bg-gradient-to-r from-purple-100 to-violet-100 border-purple-300 shadow-lg"
                         : "bg-gradient-to-r from-white to-blue-50/30 border-blue-200 hover:border-blue-300 hover:shadow-md"
                     }`}
                   >
                     <div class="flex items-center justify-between">
-                      <div class="flex items-center space-x-4">
+                      <div class="flex items-center space-x-3 sm:space-x-4 flex-1">
                         <div
-                          class={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shadow-md ${
+                          class={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white font-bold shadow-md ${
                             props.selectedTableId === table.id
                               ? "bg-gradient-to-br from-purple-500 to-violet-600"
                               : "bg-gradient-to-br from-blue-500 to-indigo-600"
                           }`}
                         >
                           <svg
-                            class="w-6 h-6"
+                            class="w-5 h-5 sm:w-6 sm:h-6"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -113,20 +113,20 @@ const TableSelection: Component<TableSelectionProps> = (props) => {
                             />
                           </svg>
                         </div>
-                        <div>
-                          <h4 class="font-semibold text-gray-900">
+                        <div class="flex-1 min-w-0">
+                          <h4 class="font-semibold text-gray-900 text-sm sm:text-base truncate">
                             {table.name}
                           </h4>
-                          <p class="text-blue-600 text-sm">
+                          <p class="text-xs sm:text-sm text-blue-600">
                             {pluralize(availableSeats, "seat")} of{" "}
                             {table.capacity} available
                           </p>
                         </div>
                       </div>
                       <Show when={props.selectedTableId === table.id}>
-                        <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                        <div class="w-5 h-5 sm:w-6 sm:h-6 bg-purple-500 rounded-full flex items-center justify-center ml-2">
                           <svg
-                            class="w-4 h-4 text-white"
+                            class="w-3 h-3 sm:w-4 sm:h-4 text-white"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"

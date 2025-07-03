@@ -13,14 +13,13 @@ interface SeatingOverviewProps {
 }
 
 const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
-  // Local state for viewing tables within overview mode
   const [viewingTableId, setViewingTableId] = createSignal<string | null>(null);
 
-  // Constants for consistent layout
-  const CONTAINER_WIDTH = 384; // 96 * 4 = 384px
-  const CONTAINER_HEIGHT = 384;
-  const CENTER_X = CONTAINER_WIDTH / 2; // 192px
-  const CENTER_Y = CONTAINER_HEIGHT / 2; // 192px
+  // Mobile-friendly container dimensions
+  const CONTAINER_WIDTH = 320;
+  const CONTAINER_HEIGHT = 320;
+  const CENTER_X = CONTAINER_WIDTH / 2;
+  const CENTER_Y = CONTAINER_HEIGHT / 2;
 
   const seatingStats = createMemo(() => {
     const tables = props.tables || [];
@@ -35,7 +34,6 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
       return tableSeats === table.capacity;
     }).length;
 
-    // Calculate total attendees from attending guests
     const attendingGuests = (props.guests || []).filter(
       (g) => g.rsvp_status === "attending"
     );
@@ -76,14 +74,12 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
     return id ? tables.find((t) => t.id === id) : null;
   });
 
-  // Get table dimensions for the viewing table
   const viewingTableDimensions = createMemo(() => {
     const table = viewingTable();
     if (!table) return null;
     return getTableDimensions(table.capacity, table.shape || "round");
   });
 
-  // Get seat positions for the viewing table
   const viewingTableSeatPositions = createMemo(() => {
     const table = viewingTable();
     if (!table) return [];
@@ -96,35 +92,32 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
         table.shape || "round"
       );
 
-      // Adjust positions to use our container's center point
       return {
         seatNumber,
-        x: position.x + (CENTER_X - 140),
-        y: position.y + (CENTER_Y - 140),
+        x: position.x + (CENTER_X - 120), // Adjusted for mobile
+        y: position.y + (CENTER_Y - 120),
       };
     });
   });
 
-  // Local handler for viewing tables within overview
   const handleViewTableLocal = (tableId: string) => {
     setViewingTableId(viewingTableId() === tableId ? null : tableId);
   };
 
-  // Handler for editing tables (goes back to assignment mode)
   const handleEditTable = (tableId: string) => {
     props.onEditTable(tableId);
   };
 
   return (
-    <div class="animate-fade-in-up space-y-8">
-      {/* Table Detail View (shows when viewing a specific table) */}
+    <div class="animate-fade-in-up space-y-6 sm:space-y-8">
+      {/* Mobile Table Detail View */}
       <Show when={viewingTable()}>
         <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
-          <div class="bg-gradient-to-r from-violet-50 to-purple-50 border-b border-violet-100 p-6">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-4">
+          <div class="bg-gradient-to-r from-violet-50 to-purple-50 border-b border-violet-100 p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div class="flex items-center space-x-3 sm:space-x-4">
                 <div
-                  class={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shadow-lg ${
+                  class={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white font-bold shadow-lg ${
                     (viewingTable()?.shape || "round") === "rectangular"
                       ? "bg-gradient-to-br from-emerald-500 to-teal-600"
                       : "bg-gradient-to-br from-blue-500 to-indigo-600"
@@ -132,7 +125,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                 >
                   {(viewingTable()?.shape || "round") === "rectangular" ? (
                     <svg
-                      class="w-7 h-7"
+                      class="w-5 h-5 sm:w-7 sm:h-7"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -150,7 +143,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                     </svg>
                   ) : (
                     <svg
-                      class="w-7 h-7"
+                      class="w-5 h-5 sm:w-7 sm:h-7"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -165,33 +158,33 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                     </svg>
                   )}
                 </div>
-                <div>
-                  <h3 class="text-2xl font-semibold text-gray-900">
+                <div class="flex-1">
+                  <h3 class="text-lg sm:text-2xl font-semibold text-gray-900">
                     {viewingTable()?.name}
                   </h3>
-                  <p class="text-gray-600 font-light">
+                  <p class="text-sm sm:text-base text-gray-600 font-light">
                     {(viewingTable()?.shape || "round") === "rectangular"
                       ? "Rectangular"
                       : "Round"}{" "}
-                    table •{getTableGuests(viewingTableId()!).length}/
+                    table • {getTableGuests(viewingTableId()!).length}/
                     {viewingTable()?.capacity} seats occupied
                   </p>
                 </div>
               </div>
-              <div class="flex space-x-3">
+              <div class="flex space-x-2 sm:space-x-3">
                 <button
                   onClick={() => handleEditTable(viewingTableId()!)}
-                  class="px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg font-medium transition-all duration-300 hover:scale-105"
+                  class="btn-mobile px-3 py-2 sm:px-4 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg font-medium transition-all duration-300 hover:scale-105"
                 >
-                  Edit This Table
+                  <span class="hidden sm:inline">Edit This Table</span>
+                  <span class="sm:hidden">Edit</span>
                 </button>
                 <button
                   onClick={() => setViewingTableId(null)}
-                  class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300"
-                  title="Close view"
+                  class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300 touch-manipulation"
                 >
                   <svg
-                    class="w-6 h-6"
+                    class="w-5 h-5 sm:w-6 sm:h-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -208,28 +201,28 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
             </div>
           </div>
 
-          {/* Table Layout Display - Now with Correct Seat Positioning */}
-          <div class="p-8">
-            <div class="relative w-96 h-96 mx-auto">
+          {/* Mobile Table Layout Display */}
+          <div class="p-4 sm:p-8">
+            <div class="relative w-80 h-80 mx-auto">
               {/* Table Surface */}
               {(viewingTable()?.shape || "round") === "rectangular" ? (
                 <div
                   class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg border-4 border-amber-200 shadow-xl"
                   style={`left: ${
-                    CENTER_X - (viewingTableDimensions()?.width || 200) / 2
+                    CENTER_X - (viewingTableDimensions()?.width || 160) / 2
                   }px; top: ${
-                    CENTER_Y - (viewingTableDimensions()?.height || 80) / 2
+                    CENTER_Y - (viewingTableDimensions()?.height || 60) / 2
                   }px; width: ${
-                    viewingTableDimensions()?.width || 200
-                  }px; height: ${viewingTableDimensions()?.height || 80}px;`}
+                    viewingTableDimensions()?.width || 160
+                  }px; height: ${viewingTableDimensions()?.height || 60}px;`}
                 >
                   <div class="w-full h-full flex items-center justify-center">
                     <div class="text-center">
-                      <div class="text-xl font-bold text-amber-800">
-                        {viewingTable()?.name}
+                      <div class="text-sm sm:text-xl font-bold text-amber-800">
+                        {truncateText(viewingTable()?.name || "", 10)}
                       </div>
                       <div class="text-xs text-amber-700 mt-1">
-                        Rectangular • {viewingTable()?.capacity} seats
+                        {viewingTable()?.capacity} seats
                       </div>
                     </div>
                   </div>
@@ -238,29 +231,29 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                 <div
                   class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl"
                   style={`left: ${
-                    CENTER_X - (viewingTableDimensions()?.tableRadius || 80)
+                    CENTER_X - (viewingTableDimensions()?.tableRadius || 60)
                   }px; top: ${
-                    CENTER_Y - (viewingTableDimensions()?.tableRadius || 80)
+                    CENTER_Y - (viewingTableDimensions()?.tableRadius || 60)
                   }px; width: ${
-                    (viewingTableDimensions()?.tableRadius || 80) * 2
+                    (viewingTableDimensions()?.tableRadius || 60) * 2
                   }px; height: ${
-                    (viewingTableDimensions()?.tableRadius || 80) * 2
+                    (viewingTableDimensions()?.tableRadius || 60) * 2
                   }px;`}
                 >
                   <div class="w-full h-full flex items-center justify-center">
                     <div class="text-center">
-                      <div class="text-2xl font-bold text-amber-800">
-                        {viewingTable()?.name}
+                      <div class="text-lg sm:text-2xl font-bold text-amber-800">
+                        {truncateText(viewingTable()?.name || "", 8)}
                       </div>
-                      <div class="text-sm text-amber-700 mt-1">
-                        Round Table • {viewingTable()?.capacity} seats
+                      <div class="text-xs sm:text-sm text-amber-700 mt-1">
+                        {viewingTable()?.capacity} seats
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Seats - Now Using Correct Positioning Based on Table Shape */}
+              {/* Mobile Seats */}
               <For each={viewingTableSeatPositions()}>
                 {(seatData) => {
                   const assignment = getTableGuests(viewingTableId()!).find(
@@ -270,23 +263,18 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
 
                   return (
                     <div
-                      class={`absolute w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold shadow-lg ${
+                      class={`absolute w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-xs font-bold shadow-lg ${
                         isOccupied
                           ? "bg-gradient-to-br from-purple-400 to-violet-500 text-white"
                           : "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600"
                       }`}
-                      style={`left: ${seatData.x - 24}px; top: ${
-                        seatData.y - 24
+                      style={`left: ${seatData.x - 20}px; top: ${
+                        seatData.y - 20
                       }px;`}
-                      title={
-                        isOccupied
-                          ? `Seat ${seatData.seatNumber} - ${assignment?.guestName}`
-                          : `Seat ${seatData.seatNumber} - Empty`
-                      }
                     >
                       {isOccupied ? (
                         <svg
-                          class="w-6 h-6"
+                          class="w-4 h-4 sm:w-6 sm:h-6"
                           fill="currentColor"
                           viewBox="0 0 24 24"
                         >
@@ -301,23 +289,23 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
               </For>
             </div>
 
-            {/* Guest List for this table */}
-            <div class="mt-8">
-              <h4 class="text-lg font-semibold text-gray-900 mb-4">
+            {/* Mobile Guest List */}
+            <div class="mt-6 sm:mt-8">
+              <h4 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
                 Seated Guests
               </h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                 <For each={getTableGuests(viewingTableId()!)}>
                   {(assignment) => (
-                    <div class="flex items-center space-x-3 p-3 bg-gradient-to-r from-purple-50/50 to-violet-50/50 rounded-lg border border-purple-100/50">
-                      <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-violet-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md">
+                    <div class="flex items-center space-x-2 sm:space-x-3 p-2 sm:p-3 bg-gradient-to-r from-purple-50/50 to-violet-50/50 rounded-lg border border-purple-100/50">
+                      <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-400 to-violet-500 rounded-lg flex items-center justify-center text-white font-bold shadow-md text-xs sm:text-sm">
                         {assignment.seatNumber}
                       </div>
-                      <div class="flex-1">
-                        <p class="font-medium text-gray-900">
+                      <div class="flex-1 min-w-0">
+                        <p class="font-medium text-gray-900 text-sm sm:text-base truncate">
                           {assignment.guestName}
                         </p>
-                        <p class="text-purple-600 text-sm">
+                        <p class="text-purple-600 text-xs sm:text-sm">
                           Seat {assignment.seatNumber}
                         </p>
                       </div>
@@ -330,13 +318,13 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
         </div>
       </Show>
 
-      {/* Seating Statistics */}
-      <div class="animate-fade-in-up-delay-200 grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div class="bg-white/90 backdrop-blur-sm rounded-xl p-6 border border-gray-200 shadow-lg">
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+      {/* Mobile Seating Statistics */}
+      <div class="animate-fade-in-up-delay-200 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6">
+        <div class="bg-white/90 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-200 shadow-lg">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center mb-2 sm:mb-0">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -349,20 +337,22 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                 />
               </svg>
             </div>
-            <div>
-              <p class="text-3xl font-bold text-gray-900">
+            <div class="text-center sm:text-left">
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900">
                 {seatingStats().totalAttendees}
               </p>
-              <p class="text-gray-600 font-medium">Total Guests</p>
+              <p class="text-xs sm:text-sm text-gray-600 font-medium">
+                Total Guests
+              </p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white/90 backdrop-blur-sm rounded-xl p-6 border border-gray-200 shadow-lg">
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center">
+        <div class="bg-white/90 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-200 shadow-lg">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg flex items-center justify-center mb-2 sm:mb-0">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -375,20 +365,22 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                 />
               </svg>
             </div>
-            <div>
-              <p class="text-3xl font-bold text-gray-900">
+            <div class="text-center sm:text-left">
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900">
                 {seatingStats().totalTables}
               </p>
-              <p class="text-gray-600 font-medium">Tables Setup</p>
+              <p class="text-xs sm:text-sm text-gray-600 font-medium">
+                Tables Setup
+              </p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white/90 backdrop-blur-sm rounded-xl p-6 border border-gray-200 shadow-lg">
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center">
+        <div class="bg-white/90 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-200 shadow-lg">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg flex items-center justify-center mb-2 sm:mb-0">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -401,20 +393,22 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                 />
               </svg>
             </div>
-            <div>
-              <p class="text-3xl font-bold text-gray-900">
+            <div class="text-center sm:text-left">
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900">
                 {seatingStats().occupiedSeats}
               </p>
-              <p class="text-gray-600 font-medium">Seats Filled</p>
+              <p class="text-xs sm:text-sm text-gray-600 font-medium">
+                Seats Filled
+              </p>
             </div>
           </div>
         </div>
 
-        <div class="bg-white/90 backdrop-blur-sm rounded-xl p-6 border border-gray-200 shadow-lg">
-          <div class="flex items-center space-x-3">
-            <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+        <div class="bg-white/90 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-200 shadow-lg">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-3">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center mb-2 sm:mb-0">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -427,23 +421,25 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                 />
               </svg>
             </div>
-            <div>
-              <p class="text-3xl font-bold text-gray-900">
+            <div class="text-center sm:text-left">
+              <p class="text-2xl sm:text-3xl font-bold text-gray-900">
                 {seatingStats().seatUtilization}%
               </p>
-              <p class="text-gray-600 font-medium">Seat Efficiency</p>
+              <p class="text-xs sm:text-sm text-gray-600 font-medium">
+                Seat Efficiency
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Table Overview Grid */}
-      <div class="animate-fade-in-up-delay-400 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl p-8">
-        <div class="flex items-center justify-between mb-8">
-          <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-slate-600 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
+      {/* Mobile Table Overview Grid */}
+      <div class="animate-fade-in-up-delay-400 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl p-4 sm:p-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8 gap-4">
+          <div class="flex items-center space-x-3 sm:space-x-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-600 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -457,21 +453,21 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
               </svg>
             </div>
             <div>
-              <h3 class="text-2xl font-semibold text-gray-900">
+              <h3 class="text-lg sm:text-2xl font-semibold text-gray-900">
                 Table Overview
               </h3>
-              <p class="text-gray-600 font-light">
-                Click any table to view details or make adjustments
+              <p class="text-sm sm:text-base text-gray-600 font-light">
+                Tap any table to view details or make adjustments
               </p>
             </div>
           </div>
-          <div class="text-sm text-gray-500">
+          <div class="text-xs sm:text-sm text-gray-500">
             {seatingStats().fullTables} of {seatingStats().totalTables} tables
             at full capacity
           </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <For each={props.tables || []}>
             {(table) => {
               const occupancy = getTableOccupancy(table);
@@ -479,10 +475,9 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
               const isFull = occupancy.occupied === table.capacity;
 
               return (
-                <div class="group relative bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden">
-                  {/* Header */}
+                <div class="group relative bg-gradient-to-br from-white to-gray-50/50 rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden touch-manipulation">
                   <div
-                    class={`p-5 border-b transition-all duration-300 ${
+                    class={`p-4 sm:p-5 border-b transition-all duration-300 ${
                       isFull
                         ? "bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200"
                         : "bg-gradient-to-r from-gray-50 to-white border-gray-200"
@@ -492,7 +487,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                     <div class="flex items-center justify-between mb-3">
                       <div class="flex items-center space-x-3">
                         <div
-                          class={`w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold shadow-md ${
+                          class={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center text-white font-bold shadow-md ${
                             (table.shape || "round") === "rectangular"
                               ? "bg-gradient-to-br from-emerald-500 to-teal-600"
                               : "bg-gradient-to-br from-blue-500 to-indigo-600"
@@ -500,7 +495,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                         >
                           {(table.shape || "round") === "rectangular" ? (
                             <svg
-                              class="w-5 h-5"
+                              class="w-4 h-4 sm:w-5 sm:h-5"
                               fill="currentColor"
                               viewBox="0 0 24 24"
                             >
@@ -518,7 +513,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                             </svg>
                           ) : (
                             <svg
-                              class="w-5 h-5"
+                              class="w-4 h-4 sm:w-5 sm:h-5"
                               fill="currentColor"
                               viewBox="0 0 24 24"
                             >
@@ -533,11 +528,11 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                             </svg>
                           )}
                         </div>
-                        <div>
-                          <h4 class="font-semibold text-gray-900">
-                            {truncateText(table.name, 15)}
+                        <div class="flex-1 min-w-0">
+                          <h4 class="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                            {table.name}
                           </h4>
-                          <p class="text-sm text-gray-600">
+                          <p class="text-xs sm:text-sm text-gray-600">
                             {(table.shape || "round") === "rectangular"
                               ? "Rectangular"
                               : "Round"}{" "}
@@ -581,7 +576,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                           e.stopPropagation();
                           handleViewTableLocal(table.id);
                         }}
-                        class={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all duration-300 ${
+                        class={`flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 touch-manipulation ${
                           viewingTableId() === table.id
                             ? "bg-blue-200 text-blue-800"
                             : "bg-blue-100 hover:bg-blue-200 text-blue-700"
@@ -596,7 +591,7 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                           e.stopPropagation();
                           handleEditTable(table.id);
                         }}
-                        class="flex-1 py-2 px-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-sm font-medium transition-all duration-300 hover:scale-105"
+                        class="flex-1 py-2 px-3 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-xs sm:text-sm font-medium transition-all duration-300 hover:scale-105 touch-manipulation"
                       >
                         Edit Seats
                       </button>
@@ -604,11 +599,11 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                   </div>
 
                   {/* Guest List Preview */}
-                  <div class="p-4">
-                    <h5 class="font-medium text-gray-900 mb-3 text-sm">
+                  <div class="p-3 sm:p-4">
+                    <h5 class="font-medium text-gray-900 mb-2 sm:mb-3 text-xs sm:text-sm">
                       Seated Guests
                     </h5>
-                    <div class="space-y-2 max-h-32 overflow-y-auto">
+                    <div class="space-y-1 sm:space-y-2 max-h-24 sm:max-h-32 overflow-y-auto overflow-touch">
                       <Show
                         when={tableGuests.length > 0}
                         fallback={
@@ -617,29 +612,26 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                           </p>
                         }
                       >
-                        <For each={tableGuests.slice(0, 4)}>
+                        <For each={tableGuests.slice(0, 3)}>
                           {(assignment) => (
                             <div class="flex items-center space-x-2">
-                              <div class="w-6 h-6 bg-gradient-to-br from-purple-400 to-violet-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                              <div class="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-br from-purple-400 to-violet-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
                                 {assignment.seatNumber}
                               </div>
-                              <span class="text-sm text-gray-700 flex-1">
-                                {truncateText(assignment.guestName, 18)}
+                              <span class="text-xs sm:text-sm text-gray-700 flex-1 truncate">
+                                {assignment.guestName}
                               </span>
                             </div>
                           )}
                         </For>
-                        <Show when={tableGuests.length > 4}>
-                          <div class="text-xs text-gray-500 ml-8">
-                            +{tableGuests.length - 4} more guests...
+                        <Show when={tableGuests.length > 3}>
+                          <div class="text-xs text-gray-500 ml-7 sm:ml-8">
+                            +{tableGuests.length - 3} more guests...
                           </div>
                         </Show>
                       </Show>
                     </div>
                   </div>
-
-                  {/* Hover Effect Overlay */}
-                  <div class="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </div>
               );
             }}
@@ -647,21 +639,22 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div class="animate-fade-in-up-delay-600 bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl p-6 border border-gray-200">
-        <h4 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h4>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {/* Mobile Quick Actions */}
+      <div class="animate-fade-in-up-delay-600 bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl p-4 sm:p-6 border border-gray-200">
+        <h4 class="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
+          Quick Actions
+        </h4>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <button
             onClick={() => {
-              // Future functionality for PDF export
               alert("Export functionality coming soon!");
             }}
-            class="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 text-left group"
+            class="p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 text-left group touch-manipulation"
           >
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center transition-colors duration-300">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 group-hover:bg-blue-200 rounded-lg flex items-center justify-center transition-colors duration-300">
                 <svg
-                  class="w-5 h-5 text-blue-600"
+                  class="w-4 h-4 sm:w-5 sm:h-5 text-blue-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -674,24 +667,25 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                   />
                 </svg>
               </div>
-              <div>
-                <p class="font-medium text-gray-900">Export Seating Chart</p>
-                <p class="text-sm text-gray-600">Download as PDF</p>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900 text-sm sm:text-base">
+                  Export Seating Chart
+                </p>
+                <p class="text-xs sm:text-sm text-gray-600">Download as PDF</p>
               </div>
             </div>
           </button>
 
           <button
             onClick={() => {
-              // Future functionality for sharing
               alert("Share functionality coming soon!");
             }}
-            class="p-4 bg-white rounded-xl border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-300 text-left group"
+            class="p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-green-300 hover:shadow-md transition-all duration-300 text-left group touch-manipulation"
           >
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center transition-colors duration-300">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 group-hover:bg-green-200 rounded-lg flex items-center justify-center transition-colors duration-300">
                 <svg
-                  class="w-5 h-5 text-green-600"
+                  class="w-4 h-4 sm:w-5 sm:h-5 text-green-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -704,21 +698,25 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                   />
                 </svg>
               </div>
-              <div>
-                <p class="font-medium text-gray-900">Share with Venue</p>
-                <p class="text-sm text-gray-600">Send seating plan</p>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900 text-sm sm:text-base">
+                  Share with Venue
+                </p>
+                <p class="text-xs sm:text-sm text-gray-600">
+                  Send seating plan
+                </p>
               </div>
             </div>
           </button>
 
           <button
             onClick={props.onBackToAssignment}
-            class="p-4 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-300 text-left group hover:scale-105"
+            class="p-3 sm:p-4 bg-white rounded-xl border border-gray-200 hover:border-purple-300 hover:shadow-md transition-all duration-300 text-left group hover:scale-105 touch-manipulation"
           >
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 bg-purple-100 group-hover:bg-purple-200 rounded-lg flex items-center justify-center transition-colors duration-300">
+              <div class="w-8 h-8 sm:w-10 sm:h-10 bg-purple-100 group-hover:bg-purple-200 rounded-lg flex items-center justify-center transition-colors duration-300">
                 <svg
-                  class="w-5 h-5 text-purple-600"
+                  class="w-4 h-4 sm:w-5 sm:h-5 text-purple-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -731,9 +729,13 @@ const SeatingOverview: Component<SeatingOverviewProps> = (props) => {
                   />
                 </svg>
               </div>
-              <div>
-                <p class="font-medium text-gray-900">Make Adjustments</p>
-                <p class="text-sm text-gray-600">Modify seating plan</p>
+              <div class="flex-1">
+                <p class="font-medium text-gray-900 text-sm sm:text-base">
+                  Make Adjustments
+                </p>
+                <p class="text-xs sm:text-sm text-gray-600">
+                  Modify seating plan
+                </p>
               </div>
             </div>
           </button>

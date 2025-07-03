@@ -205,7 +205,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
   const handleTableSelect = (tableId: string) => {
     setSelectedTableId(tableId);
     setCurrentStep(2);
-    setOverviewExpanded(false); // Collapse overview when starting assignment
+    setOverviewExpanded(false);
   };
 
   const handleSeatAssign = (seatNumber: number, guestId: string) => {
@@ -239,7 +239,6 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
   };
 
   const handleViewTable = (tableId: string) => {
-    // Navigate to table assignment for viewing/editing
     setSelectedTableId(tableId);
     setCurrentStep(2);
     setOverviewExpanded(false);
@@ -260,12 +259,12 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
 
   return (
     <div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30">
-      <div class="max-w-7xl mx-auto p-8">
+      <div class="max-w-7xl mx-auto mobile-px mobile-py">
         {/* Elegant Header */}
-        <div class="animate-fade-in-up text-center mb-12 relative">
-          <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl shadow-xl mb-6">
+        <div class="animate-fade-in-up text-center mb-8 sm:mb-12 relative">
+          <div class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-600 to-violet-700 rounded-2xl shadow-xl mb-4 sm:mb-6">
             <svg
-              class="w-10 h-10 text-white"
+              class="w-8 h-8 sm:w-10 sm:h-10 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -278,22 +277,22 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
               />
             </svg>
           </div>
-          <h1 class="text-5xl font-light text-gray-800 mb-4 tracking-wide">
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-light text-gray-800 mb-3 sm:mb-4 tracking-wide">
             {allGuestsSeated()
               ? "Seating Plan Complete"
               : "Seating Arrangements"}
           </h1>
-          <p class="text-xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
+          <p class="text-lg sm:text-xl text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
             {allGuestsSeated()
               ? "Review and manage your finalized seating arrangements"
               : "Manage tables and assign guests to individual seats"}
           </p>
 
-          {/* Table Management Controls */}
-          <div class="flex justify-center space-x-4 mt-8">
+          {/* Mobile-optimized controls */}
+          <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
             <button
               onClick={() => handleAddTable()}
-              class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
+              class="btn-mobile px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               <svg
                 class="w-5 h-5 mr-2 inline"
@@ -314,7 +313,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
             <Show when={selectedTable()}>
               <button
                 onClick={() => handleEditTable(selectedTable()!)}
-                class="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
+                class="btn-mobile px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
               >
                 <svg
                   class="w-5 h-5 mr-2 inline"
@@ -329,12 +328,13 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                   />
                 </svg>
-                Edit Table
+                <span class="hidden sm:inline">Edit Table</span>
+                <span class="sm:hidden">Edit</span>
               </button>
 
               <button
                 onClick={() => handleDeleteTable(selectedTable()!.id)}
-                class="px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
+                class="btn-mobile px-6 py-3 bg-gradient-to-r from-red-500 to-rose-600 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
               >
                 <svg
                   class="w-5 h-5 mr-2 inline"
@@ -349,14 +349,15 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                   />
                 </svg>
-                Delete Table
+                <span class="hidden sm:inline">Delete Table</span>
+                <span class="sm:hidden">Delete</span>
               </button>
             </Show>
           </div>
 
           {/* Auto-save indicator */}
           <Show when={isSaving()}>
-            <div class="absolute top-0 right-0 flex items-center space-x-2 bg-emerald-100 text-emerald-700 px-4 py-2 rounded-full shadow-lg animate-pulse">
+            <div class="absolute top-0 right-0 flex items-center space-x-2 bg-emerald-100 text-emerald-700 px-3 py-2 rounded-full shadow-lg animate-pulse">
               <svg
                 class="w-4 h-4 animate-spin"
                 fill="none"
@@ -375,17 +376,17 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
           </Show>
         </div>
 
-        {/* Table Form Modal */}
+        {/* Mobile-optimized table form modal */}
         <Show when={showTableForm()}>
           <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div class="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-2xl p-8 max-w-md w-full">
+            <div class="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-2xl p-6 sm:p-8 max-w-md w-full max-h-[90vh] overflow-y-auto">
               <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-semibold text-gray-900">
+                <h3 class="text-xl sm:text-2xl font-semibold text-gray-900">
                   {editingTable() ? "Edit Table" : "Add New Table"}
                 </h3>
                 <button
                   onClick={handleCancelTableForm}
-                  class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300"
+                  class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300 touch-manipulation"
                 >
                   <svg
                     class="w-6 h-6"
@@ -418,7 +419,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                       }))
                     }
                     placeholder="e.g., Head Table, Family Table"
-                    class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300"
+                    class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 text-mobile-readable"
                   />
                 </div>
 
@@ -438,7 +439,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                           Number((e.target as HTMLInputElement).value) || 8,
                       }))
                     }
-                    class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300"
+                    class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 text-mobile-readable"
                   />
                   <Show when={editingTable()}>
                     <p class="text-xs text-amber-600 mt-1">
@@ -460,7 +461,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                           .value as TableShape,
                       }))
                     }
-                    class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300"
+                    class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 text-mobile-readable"
                   >
                     <option value="round">Round</option>
                     <option value="rectangular">Rectangular</option>
@@ -472,11 +473,11 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                   </p>
                 </div>
 
-                <div class="flex space-x-3 pt-4">
+                <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 pt-4">
                   <button
                     onClick={handleSaveTable}
                     disabled={!tableFormData().name.trim()}
-                    class={`flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
+                    class={`btn-mobile flex-1 px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
                       tableFormData().name.trim()
                         ? "bg-gradient-to-r from-purple-500 to-violet-600 text-white hover:shadow-lg hover:scale-105"
                         : "bg-gray-200 text-gray-400 cursor-not-allowed"
@@ -486,7 +487,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                   </button>
                   <button
                     onClick={handleCancelTableForm}
-                    class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium"
+                    class="btn-mobile px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 font-medium"
                   >
                     Cancel
                   </button>
@@ -496,13 +497,13 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
           </div>
         </Show>
 
-        {/* Quick Add Presets */}
+        {/* Quick Add Presets - Mobile optimized */}
         <Show when={!showTableForm() && props.tables.length === 0}>
-          <div class="animate-fade-in-up-delay-200 mb-8 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl p-8">
+          <div class="animate-fade-in-up-delay-200 mb-6 sm:mb-8 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl p-6 sm:p-8">
             <h4 class="text-lg font-medium text-gray-900 mb-4">
               Quick Add Common Tables
             </h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
                 {
                   name: "Head Table",
@@ -527,7 +528,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                       capacity: preset.capacity,
                     })
                   }
-                  class="group p-4 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50/50 transition-all duration-300 text-left"
+                  class="group p-4 bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl hover:border-indigo-300 hover:bg-indigo-50/50 transition-all duration-300 text-left touch-manipulation"
                 >
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
@@ -576,19 +577,19 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
           </div>
         </Show>
 
-        {/* Collapsible Overview - Only shown in main view */}
+        {/* Collapsible Overview - Mobile optimized */}
         <Show when={currentStep() === 1 && !showTableForm()}>
-          <div class="animate-fade-in-up-delay-400 mb-8">
+          <div class="animate-fade-in-up-delay-400 mb-6 sm:mb-8">
             <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
               <button
                 onClick={() => setOverviewExpanded(!overviewExpanded())}
-                class="w-full p-6 text-left hover:bg-gray-50/50 transition-all duration-300"
+                class="w-full p-4 sm:p-6 text-left hover:bg-gray-50/50 transition-all duration-300 touch-manipulation"
               >
                 <div class="flex items-center justify-between">
-                  <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 bg-gradient-to-br from-slate-600 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
+                  <div class="flex items-center space-x-3 sm:space-x-4">
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-slate-600 to-gray-700 rounded-xl flex items-center justify-center shadow-lg">
                       <svg
-                        class="w-6 h-6 text-white"
+                        class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -602,21 +603,21 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                       </svg>
                     </div>
                     <div>
-                      <h3 class="text-xl font-semibold text-gray-900">
+                      <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
                         Seating Overview
                       </h3>
-                      <p class="text-gray-600 font-light">
+                      <p class="text-sm sm:text-base text-gray-600 font-light">
                         {seatAssignments().length} guests seated •{" "}
-                        {props.tables.length} tables •
+                        {props.tables.length} tables
                         {allGuestsSeated()
-                          ? " Complete!"
-                          : ` ${unassignedAttendees().length} remaining`}
+                          ? " • Complete!"
+                          : ` • ${unassignedAttendees().length} remaining`}
                       </p>
                     </div>
                   </div>
                   <div class="flex items-center space-x-3">
                     <Show when={allGuestsSeated()}>
-                      <div class="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-sm font-medium">
+                      <div class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full text-xs font-medium">
                         ✓ Complete
                       </div>
                     </Show>
@@ -639,9 +640,8 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                 </div>
               </button>
 
-              {/* Collapsible Content */}
               <Show when={overviewExpanded()}>
-                <div class="border-t border-gray-200 p-6 bg-gradient-to-r from-gray-50/50 to-white">
+                <div class="border-t border-gray-200 p-4 sm:p-6 bg-gradient-to-r from-gray-50/50 to-white">
                   <SeatingOverview
                     tables={props.tables}
                     guests={props.guests}
@@ -656,20 +656,20 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
           </div>
         </Show>
 
-        {/* Progress Steps */}
+        {/* Progress Steps - Mobile optimized */}
         <Show when={props.tables.length > 0}>
           <div class="animate-fade-in-up-delay-600">
             <SeatingSteps currentStep={currentStep()} />
           </div>
         </Show>
 
-        {/* Selected Table Header */}
+        {/* Selected Table Header - Mobile optimized */}
         <Show when={selectedTable()}>
-          <div class="animate-fade-in-up-delay-800 bg-white/80 backdrop-blur-sm rounded-2xl border border-purple-200 shadow-xl p-6 mb-8">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-6">
+          <div class="animate-fade-in-up-delay-800 bg-white/80 backdrop-blur-sm rounded-2xl border border-purple-200 shadow-xl p-4 sm:p-6 mb-6 sm:mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div class="flex items-center space-x-4 sm:space-x-6">
                 <div
-                  class={`w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold shadow-lg ${
+                  class={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center text-white font-bold shadow-lg ${
                     (selectedTable()?.shape || "round") === "rectangular"
                       ? "bg-gradient-to-br from-emerald-500 to-teal-600"
                       : "bg-gradient-to-br from-blue-500 to-indigo-600"
@@ -677,7 +677,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                 >
                   {(selectedTable()?.shape || "round") === "rectangular" ? (
                     <svg
-                      class="w-8 h-8"
+                      class="w-6 h-6 sm:w-8 sm:h-8"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -695,7 +695,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                     </svg>
                   ) : (
                     <svg
-                      class="w-8 h-8"
+                      class="w-6 h-6 sm:w-8 sm:h-8"
                       fill="currentColor"
                       viewBox="0 0 24 24"
                     >
@@ -711,14 +711,14 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                   )}
                 </div>
                 <div>
-                  <h3 class="text-2xl font-semibold text-gray-900">
+                  <h3 class="text-xl sm:text-2xl font-semibold text-gray-900">
                     {selectedTable()?.name}
                   </h3>
-                  <p class="text-purple-600 font-medium">
+                  <p class="text-sm sm:text-base text-purple-600 font-medium">
                     {(selectedTable()?.shape || "round") === "rectangular"
                       ? "Rectangular"
                       : "Round"}{" "}
-                    table • {selectedTable()?.capacity} seats •
+                    table • {selectedTable()?.capacity} seats •{" "}
                     {
                       seatAssignments().filter(
                         (a) => a.tableId === selectedTableId()
@@ -730,9 +730,10 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
               </div>
               <button
                 onClick={handleBackToTableSelection}
-                class="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-300 font-medium"
+                class="btn-mobile px-4 sm:px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-all duration-300 font-medium"
               >
-                Choose Different Table
+                <span class="hidden sm:inline">Choose Different Table</span>
+                <span class="sm:hidden">Back to Tables</span>
               </button>
             </div>
           </div>
@@ -740,10 +741,10 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
 
         {/* Main Assignment Interface */}
         <Show when={props.tables.length === 0}>
-          <div class="animate-fade-in-up-delay-200 text-center py-16">
-            <div class="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <div class="animate-fade-in-up-delay-200 text-center py-12 sm:py-16">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
               <svg
-                class="w-10 h-10 text-gray-400"
+                class="w-8 h-8 sm:w-10 sm:h-10 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -756,7 +757,7 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                 />
               </svg>
             </div>
-            <h3 class="text-2xl font-light text-gray-600 mb-4">
+            <h3 class="text-xl sm:text-2xl font-light text-gray-600 mb-3 sm:mb-4">
               Start by adding your first table
             </h3>
             <p class="text-gray-500 font-light max-w-md mx-auto">

@@ -22,11 +22,11 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
     null
   );
 
-  // Container dimensions for proper centering
-  const CONTAINER_WIDTH = 384; // w-96 = 384px
-  const CONTAINER_HEIGHT = 384; // h-96 = 384px
-  const CENTER_X = CONTAINER_WIDTH / 2; // 192px
-  const CENTER_Y = CONTAINER_HEIGHT / 2; // 192px
+  // Responsive container dimensions
+  const CONTAINER_WIDTH = 320; // Smaller for mobile
+  const CONTAINER_HEIGHT = 320;
+  const CENTER_X = CONTAINER_WIDTH / 2;
+  const CENTER_Y = CONTAINER_HEIGHT / 2;
 
   const tableDimensions = createMemo(() =>
     getTableDimensions(props.table.capacity, props.table.shape || "round")
@@ -55,65 +55,44 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
   const selectedGuest = createMemo(() => {
     const guestId = selectedGuestId();
     if (!guestId) return null;
-
-    const found = props.unassignedAttendees.find((g) => g.id === guestId);
-    return found;
+    return props.unassignedAttendees.find((g) => g.id === guestId);
   });
 
   const handleSeatClick = (seatNumber: number) => {
-    console.log(
-      "Seat clicked:",
-      seatNumber,
-      "Selected guest ID:",
-      selectedGuestId()
-    );
-
     const assignment = tableAssignments().find(
       (a) => a.seatNumber === seatNumber
     );
     const guestId = selectedGuestId();
 
     if (assignment) {
-      // Seat is occupied, remove assignment
-      console.log("Removing assignment for seat:", seatNumber);
       props.onRemoveAssignment(assignment.guestId);
     } else if (guestId) {
-      // Guest is selected and seat is available, assign guest to seat
-      console.log("Assigning guest to seat:", seatNumber, guestId);
       props.onSeatAssign(seatNumber, guestId);
       setSelectedGuestId(null);
-    } else {
-      console.log("No guest selected, cannot assign");
     }
   };
 
   const handleGuestSelect = (guestId: string) => {
     const newGuestId = guestId === selectedGuestId() ? null : guestId;
-    console.log(
-      "Guest selection changed:",
-      guestId,
-      "new selection:",
-      newGuestId
-    );
     setSelectedGuestId(newGuestId);
   };
 
   return (
-    <div class="animate-fade-in-up grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Guest Selection Panel */}
-      <div class="space-y-6">
+    <div class="animate-fade-in-up space-y-4 sm:space-y-6 lg:space-y-8">
+      {/* Mobile Layout - Stack vertically */}
+      <div class="block lg:hidden space-y-4">
         {/* Selected Guest Info */}
         <Show when={selectedGuest()}>
-          <div class="animate-fade-in-up-delay-200 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
-            <div class="flex items-center space-x-4 mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+          <div class="animate-fade-in-up-delay-200 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-4 border border-purple-200">
+            <div class="flex items-center space-x-3 mb-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg">
                 {getInitials(selectedGuest()!.name)}
               </div>
-              <div>
-                <h4 class="text-lg font-semibold text-gray-900">
-                  {selectedGuest()!.name}
+              <div class="flex-1">
+                <h4 class="text-base font-semibold text-gray-900">
+                  {truncateText(selectedGuest()!.name, 25)}
                 </h4>
-                <p class="text-purple-700">
+                <p class="text-sm text-purple-700">
                   {selectedGuest()!.type === "main" ? "Main Guest" : "Plus One"}{" "}
                   • Click a seat to assign
                 </p>
@@ -121,20 +100,163 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
             </div>
             <button
               onClick={() => setSelectedGuestId(null)}
-              class="w-full py-2 px-4 bg-white/80 hover:bg-white text-gray-700 rounded-lg transition-all duration-300 font-medium"
+              class="w-full py-2 px-4 bg-white/80 hover:bg-white text-gray-700 rounded-lg transition-all duration-300 font-medium touch-manipulation"
             >
               Cancel Selection
             </button>
           </div>
         </Show>
 
-        {/* Available Guests */}
-        <div class="animate-fade-in-up-delay-400 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
-          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 p-6">
-            <div class="flex items-center space-x-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+        {/* Table Layout - Mobile Optimized */}
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 p-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
                 <svg
-                  class="w-6 h-6 text-white"
+                  class="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"
+                  />
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h3 class="text-lg font-semibold text-gray-900">
+                  {props.table.name}
+                </h3>
+                <p class="text-sm text-gray-600 font-light">
+                  {selectedGuest()
+                    ? `Tap a seat to assign ${truncateText(
+                        selectedGuest()!.name,
+                        15
+                      )}`
+                    : "Select a guest below, then tap a seat"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4">
+            <div class="relative w-80 h-80 mx-auto">
+              {/* Mobile Table Surface */}
+              {props.table.shape === "rectangular" ? (
+                <div
+                  class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg border-4 border-amber-200 shadow-xl"
+                  style={`left: ${
+                    CENTER_X - tableDimensions().width / 2
+                  }px; top: ${
+                    CENTER_Y - tableDimensions().height / 2
+                  }px; width: ${tableDimensions().width}px; height: ${
+                    tableDimensions().height
+                  }px;`}
+                >
+                  <div class="w-full h-full flex items-center justify-center">
+                    <div class="text-center">
+                      <div class="text-sm font-bold text-amber-800">
+                        {truncateText(props.table.name, 12)}
+                      </div>
+                      <div class="text-xs text-amber-700 mt-1">
+                        {props.table.capacity} seats
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl"
+                  style={`left: ${
+                    CENTER_X - tableDimensions().tableRadius
+                  }px; top: ${
+                    CENTER_Y - tableDimensions().tableRadius
+                  }px; width: ${tableDimensions().tableRadius * 2}px; height: ${
+                    tableDimensions().tableRadius * 2
+                  }px;`}
+                >
+                  <div class="w-full h-full flex items-center justify-center">
+                    <div class="text-center">
+                      <div class="text-lg font-bold text-amber-800">
+                        {truncateText(props.table.name, 8)}
+                      </div>
+                      <div class="text-xs text-amber-700 mt-1">
+                        {props.table.capacity} seats
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Mobile Seats */}
+              <For each={seatPositions()}>
+                {(seatData) => {
+                  const assignment = tableAssignments().find(
+                    (a) => a.seatNumber === seatData.seatNumber
+                  );
+                  const isOccupied = !!assignment;
+                  const canClickToAssign = hasSelectedGuest() && !isOccupied;
+
+                  const adjustedX = seatData.position.x + (CENTER_X - 140);
+                  const adjustedY = seatData.position.y + (CENTER_Y - 140);
+
+                  return (
+                    <button
+                      class={`absolute w-12 h-12 rounded-full transition-all duration-300 flex items-center justify-center text-xs font-bold shadow-lg touch-manipulation ${
+                        isOccupied
+                          ? "bg-gradient-to-br from-purple-400 to-violet-500 text-white active:from-red-400 active:to-red-500"
+                          : canClickToAssign
+                          ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white shadow-xl animate-pulse"
+                          : hasSelectedGuest()
+                          ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white shadow-xl"
+                          : "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600"
+                      }`}
+                      style={`left: ${adjustedX - 24}px; top: ${
+                        adjustedY - 24
+                      }px;`}
+                      onClick={() => handleSeatClick(seatData.seatNumber)}
+                    >
+                      {isOccupied ? (
+                        <svg
+                          class="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                      ) : (
+                        seatData.seatNumber
+                      )}
+                    </button>
+                  );
+                }}
+              </For>
+            </div>
+
+            {/* Mobile Seat Legend */}
+            <div class="mt-4 flex justify-center space-x-6">
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full"></div>
+                <span class="text-xs text-gray-600">Available</span>
+              </div>
+              <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 bg-gradient-to-br from-purple-400 to-violet-500 rounded-full"></div>
+                <span class="text-xs text-gray-600">Occupied</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Available Guests - Mobile */}
+        <div class="bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+          <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 p-4">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                <svg
+                  class="w-5 h-5 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -148,24 +270,24 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
                 </svg>
               </div>
               <div>
-                <h3 class="text-xl font-semibold text-gray-900">
+                <h3 class="text-lg font-semibold text-gray-900">
                   Available Guests
                 </h3>
-                <p class="text-gray-600 font-light">
+                <p class="text-sm text-gray-600 font-light">
                   {props.unassignedAttendees.length} guests awaiting seats
                 </p>
               </div>
             </div>
           </div>
 
-          <div class="p-6">
+          <div class="p-4">
             <Show
               when={props.unassignedAttendees.length > 0}
               fallback={
-                <div class="text-center py-12">
-                  <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <div class="text-center py-8">
+                  <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
                     <svg
-                      class="w-8 h-8 text-emerald-600"
+                      class="w-6 h-6 text-emerald-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -184,20 +306,20 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
                 </div>
               }
             >
-              <div class="space-y-3 max-h-96 overflow-y-auto">
+              <div class="space-y-2 max-h-64 overflow-y-auto overflow-touch">
                 <For each={props.unassignedAttendees}>
                   {(attendee) => (
                     <button
                       onClick={() => handleGuestSelect(attendee.id)}
-                      class={`w-full p-4 rounded-xl text-left transition-all duration-300 transform hover:scale-[1.02] border ${
+                      class={`w-full p-3 rounded-xl text-left transition-all duration-300 transform active:scale-95 border touch-manipulation ${
                         selectedGuestId() === attendee.id
                           ? "bg-gradient-to-r from-purple-100 to-violet-100 border-purple-300 shadow-lg"
                           : "bg-gradient-to-r from-white to-emerald-50/50 border-emerald-200 hover:border-emerald-300 hover:shadow-md"
                       }`}
                     >
-                      <div class="flex items-center space-x-4">
+                      <div class="flex items-center space-x-3">
                         <div
-                          class={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shadow-md ${
+                          class={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold shadow-md text-sm ${
                             selectedGuestId() === attendee.id
                               ? "bg-gradient-to-br from-purple-500 to-violet-600"
                               : attendee.type === "main"
@@ -208,11 +330,11 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
                           {getInitials(attendee.name)}
                         </div>
                         <div class="flex-1">
-                          <h4 class="font-semibold text-gray-900">
-                            {truncateText(attendee.name, 25)}
+                          <h4 class="font-semibold text-gray-900 text-sm">
+                            {truncateText(attendee.name, 20)}
                           </h4>
                           <p
-                            class={`text-sm ${
+                            class={`text-xs ${
                               attendee.type === "main"
                                 ? "text-emerald-600"
                                 : "text-amber-600"
@@ -224,9 +346,9 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
                           </p>
                         </div>
                         <Show when={selectedGuestId() === attendee.id}>
-                          <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                          <div class="w-5 h-5 bg-purple-500 rounded-full flex items-center justify-center">
                             <svg
-                              class="w-4 h-4 text-white"
+                              class="w-3 h-3 text-white"
                               fill="none"
                               stroke="currentColor"
                               viewBox="0 0 24 24"
@@ -249,24 +371,26 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
           </div>
         </div>
 
-        {/* Current Table Status */}
-        <div class="animate-fade-in-up-delay-600 bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl p-6 border border-gray-200">
-          <h4 class="text-lg font-semibold text-gray-900 mb-4">Table Status</h4>
-          <div class="space-y-3">
+        {/* Table Status - Mobile */}
+        <div class="bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl p-4 border border-gray-200">
+          <h4 class="text-base font-semibold text-gray-900 mb-3">
+            Table Status
+          </h4>
+          <div class="space-y-2">
             <div class="flex justify-between items-center">
-              <span class="text-gray-600">Total Seats:</span>
+              <span class="text-sm text-gray-600">Total Seats:</span>
               <span class="font-medium text-gray-900">
                 {props.table.capacity}
               </span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-600">Assigned:</span>
+              <span class="text-sm text-gray-600">Assigned:</span>
               <span class="font-medium text-purple-600">
                 {tableAssignments().length}
               </span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-600">Available:</span>
+              <span class="text-sm text-gray-600">Available:</span>
               <span class="font-medium text-emerald-600">
                 {props.table.capacity - tableAssignments().length}
               </span>
@@ -283,164 +407,345 @@ const TableAssignment: Component<TableAssignmentProps> = (props) => {
         </div>
       </div>
 
-      {/* Table Layout */}
-      <div class="lg:col-span-2">
-        <div class="animate-fade-in-up-delay-800 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
-          <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 p-6">
-            <div class="flex items-center space-x-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <svg
-                  class="w-6 h-6 text-white"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"
-                  />
-                </svg>
+      {/* Desktop Layout - Keep existing grid layout */}
+      <div class="hidden lg:grid lg:grid-cols-3 lg:gap-8">
+        {/* Guest Selection Panel */}
+        <div class="space-y-6">
+          {/* Selected Guest Info */}
+          <Show when={selectedGuest()}>
+            <div class="animate-fade-in-up-delay-200 bg-gradient-to-r from-purple-50 to-violet-50 rounded-2xl p-6 border border-purple-200">
+              <div class="flex items-center space-x-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg">
+                  {getInitials(selectedGuest()!.name)}
+                </div>
+                <div>
+                  <h4 class="text-lg font-semibold text-gray-900">
+                    {selectedGuest()!.name}
+                  </h4>
+                  <p class="text-purple-700">
+                    {selectedGuest()!.type === "main"
+                      ? "Main Guest"
+                      : "Plus One"}{" "}
+                    • Click a seat to assign
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 class="text-xl font-semibold text-gray-900">
-                  {props.table.name}
-                </h3>
-                <p class="text-gray-600 font-light">
-                  {selectedGuest()
-                    ? `Click a seat to assign ${selectedGuest()!.name}`
-                    : hasSelectedGuest()
-                    ? `Guest selected - Click a seat to assign`
-                    : "Select a guest, then click a seat to assign"}
-                </p>
+              <button
+                onClick={() => setSelectedGuestId(null)}
+                class="w-full py-2 px-4 bg-white/80 hover:bg-white text-gray-700 rounded-lg transition-all duration-300 font-medium"
+              >
+                Cancel Selection
+              </button>
+            </div>
+          </Show>
+
+          {/* Available Guests */}
+          <div class="animate-fade-in-up-delay-400 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-50 to-teal-50 border-b border-emerald-100 p-6">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg
+                    class="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="text-xl font-semibold text-gray-900">
+                    Available Guests
+                  </h3>
+                  <p class="text-gray-600 font-light">
+                    {props.unassignedAttendees.length} guests awaiting seats
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-6">
+              <Show
+                when={props.unassignedAttendees.length > 0}
+                fallback={
+                  <div class="text-center py-12">
+                    <div class="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <svg
+                        class="w-8 h-8 text-emerald-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    </div>
+                    <p class="text-gray-600 font-light">
+                      All guests have been seated!
+                    </p>
+                  </div>
+                }
+              >
+                <div class="space-y-3 max-h-96 overflow-y-auto">
+                  <For each={props.unassignedAttendees}>
+                    {(attendee) => (
+                      <button
+                        onClick={() => handleGuestSelect(attendee.id)}
+                        class={`w-full p-4 rounded-xl text-left transition-all duration-300 transform hover:scale-[1.02] border ${
+                          selectedGuestId() === attendee.id
+                            ? "bg-gradient-to-r from-purple-100 to-violet-100 border-purple-300 shadow-lg"
+                            : "bg-gradient-to-r from-white to-emerald-50/50 border-emerald-200 hover:border-emerald-300 hover:shadow-md"
+                        }`}
+                      >
+                        <div class="flex items-center space-x-4">
+                          <div
+                            class={`w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold shadow-md ${
+                              selectedGuestId() === attendee.id
+                                ? "bg-gradient-to-br from-purple-500 to-violet-600"
+                                : attendee.type === "main"
+                                ? "bg-gradient-to-br from-emerald-500 to-teal-600"
+                                : "bg-gradient-to-br from-amber-500 to-orange-600"
+                            }`}
+                          >
+                            {getInitials(attendee.name)}
+                          </div>
+                          <div class="flex-1">
+                            <h4 class="font-semibold text-gray-900">
+                              {truncateText(attendee.name, 25)}
+                            </h4>
+                            <p
+                              class={`text-sm ${
+                                attendee.type === "main"
+                                  ? "text-emerald-600"
+                                  : "text-amber-600"
+                              }`}
+                            >
+                              {attendee.type === "main"
+                                ? "Main Guest"
+                                : "Plus One"}
+                            </p>
+                          </div>
+                          <Show when={selectedGuestId() === attendee.id}>
+                            <div class="w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+                              <svg
+                                class="w-4 h-4 text-white"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                            </div>
+                          </Show>
+                        </div>
+                      </button>
+                    )}
+                  </For>
+                </div>
+              </Show>
+            </div>
+          </div>
+
+          {/* Current Table Status */}
+          <div class="animate-fade-in-up-delay-600 bg-gradient-to-r from-slate-50 to-gray-50 rounded-2xl p-6 border border-gray-200">
+            <h4 class="text-lg font-semibold text-gray-900 mb-4">
+              Table Status
+            </h4>
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-gray-600">Total Seats:</span>
+                <span class="font-medium text-gray-900">
+                  {props.table.capacity}
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-600">Assigned:</span>
+                <span class="font-medium text-purple-600">
+                  {tableAssignments().length}
+                </span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-gray-600">Available:</span>
+                <span class="font-medium text-emerald-600">
+                  {props.table.capacity - tableAssignments().length}
+                </span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                <div
+                  class="bg-gradient-to-r from-purple-400 to-violet-500 h-2 rounded-full transition-all duration-300"
+                  style={`width: ${
+                    (tableAssignments().length / props.table.capacity) * 100
+                  }%`}
+                ></div>
               </div>
             </div>
           </div>
-          {/* Table Layout - Now Properly Centered */}
-          <div class="p-8">
-            <div class="relative w-96 h-96 mx-auto">
-              {/* Table Surface - Perfectly Centered */}
-              {props.table.shape === "rectangular" ? (
-                <div
-                  class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg border-4 border-amber-200 shadow-xl"
-                  style={`left: ${
-                    CENTER_X - tableDimensions().width / 2
-                  }px; top: ${
-                    CENTER_Y - tableDimensions().height / 2
-                  }px; width: ${tableDimensions().width}px; height: ${
-                    tableDimensions().height
-                  }px;`}
-                >
-                  <div class="w-full h-full flex items-center justify-center">
-                    <div class="text-center">
-                      <div class="text-xl font-bold text-amber-800">
-                        {props.table.name}
-                      </div>
-                      <div class="text-xs text-amber-700 mt-1">
-                        Rectangular • {props.table.capacity} seats
-                      </div>
-                    </div>
-                  </div>
+        </div>
+
+        {/* Table Layout - Desktop */}
+        <div class="lg:col-span-2">
+          <div class="animate-fade-in-up-delay-800 bg-white/90 backdrop-blur-sm rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-100 p-6">
+              <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg
+                    class="w-6 h-6 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6"
+                    />
+                  </svg>
                 </div>
-              ) : (
-                <div
-                  class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl"
-                  style={`left: ${
-                    CENTER_X - tableDimensions().tableRadius
-                  }px; top: ${
-                    CENTER_Y - tableDimensions().tableRadius
-                  }px; width: ${tableDimensions().tableRadius * 2}px; height: ${
-                    tableDimensions().tableRadius * 2
-                  }px;`}
-                >
-                  <div class="w-full h-full flex items-center justify-center">
-                    <div class="text-center">
-                      <div class="text-2xl font-bold text-amber-800">
-                        {props.table.name}
-                      </div>
-                      <div class="text-sm text-amber-700 mt-1">
-                        Round Table • {props.table.capacity} seats
-                      </div>
-                    </div>
-                  </div>
+                <div>
+                  <h3 class="text-xl font-semibold text-gray-900">
+                    {props.table.name}
+                  </h3>
+                  <p class="text-gray-600 font-light">
+                    {selectedGuest()
+                      ? `Click a seat to assign ${selectedGuest()!.name}`
+                      : hasSelectedGuest()
+                      ? `Guest selected - Click a seat to assign`
+                      : "Select a guest, then click a seat to assign"}
+                  </p>
                 </div>
-              )}
-
-              {/* Seats - Now Using Corrected Center Point */}
-              <For each={seatPositions()}>
-                {(seatData) => {
-                  const assignment = tableAssignments().find(
-                    (a) => a.seatNumber === seatData.seatNumber
-                  );
-                  const isOccupied = !!assignment;
-                  const canClickToAssign = hasSelectedGuest() && !isOccupied;
-
-                  // Adjust seat positions to use the proper center point
-                  const adjustedX = seatData.position.x + (CENTER_X - 140);
-                  const adjustedY = seatData.position.y + (CENTER_Y - 140);
-
-                  return (
-                    <button
-                      class={`absolute w-14 h-14 rounded-full transition-all duration-300 flex items-center justify-center text-sm font-bold shadow-lg hover:scale-110 cursor-pointer ${
-                        isOccupied
-                          ? "bg-gradient-to-br from-purple-400 to-violet-500 text-white hover:bg-gradient-to-br hover:from-red-400 hover:to-red-500"
-                          : canClickToAssign
-                          ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white hover:shadow-xl animate-pulse"
-                          : hasSelectedGuest()
-                          ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white hover:shadow-xl"
-                          : "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600 cursor-default"
-                      }`}
-                      style={`left: ${adjustedX - 28}px; top: ${
-                        adjustedY - 28
-                      }px;`}
-                      onClick={() => handleSeatClick(seatData.seatNumber)}
-                      title={
-                        isOccupied
-                          ? `Seat ${seatData.seatNumber} - ${assignment?.guestName} (Click to remove)`
-                          : canClickToAssign
-                          ? `Seat ${seatData.seatNumber} - Click to assign guest`
-                          : hasSelectedGuest()
-                          ? `Seat ${seatData.seatNumber} - Available`
-                          : `Seat ${seatData.seatNumber} - Select a guest first`
-                      }
-                    >
-                      {isOccupied ? (
-                        <svg
-                          class="w-6 h-6"
-                          fill="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                        </svg>
-                      ) : (
-                        seatData.seatNumber
-                      )}
-                    </button>
-                  );
-                }}
-              </For>
+              </div>
             </div>
 
-            {/* Seat Legend */}
-            <div class="mt-8">
-              <div class="flex justify-center space-x-8">
-                <div class="flex items-center space-x-2">
-                  <div class="w-4 h-4 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full"></div>
-                  <span class="text-sm text-gray-600">Available</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <div class="w-4 h-4 bg-gradient-to-br from-purple-400 to-violet-500 rounded-full"></div>
-                  <span class="text-sm text-gray-600">Occupied</span>
-                </div>
-                <Show when={selectedGuest()}>
-                  <div class="flex items-center space-x-2">
-                    <div class="w-4 h-4 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full animate-pulse"></div>
-                    <span class="text-sm text-emerald-600 font-medium">
-                      Click to Assign {selectedGuest()!.name}
-                    </span>
+            {/* Table Layout - Desktop */}
+            <div class="p-8">
+              <div class="relative w-96 h-96 mx-auto">
+                {/* Table Surface */}
+                {props.table.shape === "rectangular" ? (
+                  <div
+                    class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg border-4 border-amber-200 shadow-xl"
+                    style={`left: ${
+                      CENTER_X - tableDimensions().width / 2
+                    }px; top: ${
+                      CENTER_Y - tableDimensions().height / 2
+                    }px; width: ${tableDimensions().width}px; height: ${
+                      tableDimensions().height
+                    }px;`}
+                  >
+                    <div class="w-full h-full flex items-center justify-center">
+                      <div class="text-center">
+                        <div class="text-xl font-bold text-amber-800">
+                          {props.table.name}
+                        </div>
+                        <div class="text-xs text-amber-700 mt-1">
+                          Rectangular • {props.table.capacity} seats
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </Show>
+                ) : (
+                  <div
+                    class="absolute bg-gradient-to-br from-amber-100 to-orange-100 rounded-full border-4 border-amber-200 shadow-xl"
+                    style={`left: ${
+                      CENTER_X - tableDimensions().tableRadius
+                    }px; top: ${
+                      CENTER_Y - tableDimensions().tableRadius
+                    }px; width: ${
+                      tableDimensions().tableRadius * 2
+                    }px; height: ${tableDimensions().tableRadius * 2}px;`}
+                  >
+                    <div class="w-full h-full flex items-center justify-center">
+                      <div class="text-center">
+                        <div class="text-2xl font-bold text-amber-800">
+                          {props.table.name}
+                        </div>
+                        <div class="text-sm text-amber-700 mt-1">
+                          Round Table • {props.table.capacity} seats
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Seats */}
+                <For each={seatPositions()}>
+                  {(seatData) => {
+                    const assignment = tableAssignments().find(
+                      (a) => a.seatNumber === seatData.seatNumber
+                    );
+                    const isOccupied = !!assignment;
+                    const canClickToAssign = hasSelectedGuest() && !isOccupied;
+
+                    const adjustedX = seatData.position.x + (CENTER_X - 140);
+                    const adjustedY = seatData.position.y + (CENTER_Y - 140);
+
+                    return (
+                      <button
+                        class={`absolute w-14 h-14 rounded-full transition-all duration-300 flex items-center justify-center text-sm font-bold shadow-lg hover:scale-110 cursor-pointer ${
+                          isOccupied
+                            ? "bg-gradient-to-br from-purple-400 to-violet-500 text-white hover:bg-gradient-to-br hover:from-red-400 hover:to-red-500"
+                            : canClickToAssign
+                            ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white hover:shadow-xl animate-pulse"
+                            : hasSelectedGuest()
+                            ? "bg-gradient-to-br from-emerald-400 to-green-500 text-white hover:shadow-xl"
+                            : "bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600 cursor-default"
+                        }`}
+                        style={`left: ${adjustedX - 28}px; top: ${
+                          adjustedY - 28
+                        }px;`}
+                        onClick={() => handleSeatClick(seatData.seatNumber)}
+                      >
+                        {isOccupied ? (
+                          <svg
+                            class="w-6 h-6"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                          </svg>
+                        ) : (
+                          seatData.seatNumber
+                        )}
+                      </button>
+                    );
+                  }}
+                </For>
+              </div>
+
+              {/* Seat Legend */}
+              <div class="mt-8">
+                <div class="flex justify-center space-x-8">
+                  <div class="flex items-center space-x-2">
+                    <div class="w-4 h-4 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full"></div>
+                    <span class="text-sm text-gray-600">Available</span>
+                  </div>
+                  <div class="flex items-center space-x-2">
+                    <div class="w-4 h-4 bg-gradient-to-br from-purple-400 to-violet-500 rounded-full"></div>
+                    <span class="text-sm text-gray-600">Occupied</span>
+                  </div>
+                  <Show when={selectedGuest()}>
+                    <div class="flex items-center space-x-2">
+                      <div class="w-4 h-4 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full animate-pulse"></div>
+                      <span class="text-sm text-emerald-600 font-medium">
+                        Click to Assign {selectedGuest()!.name}
+                      </span>
+                    </div>
+                  </Show>
+                </div>
               </div>
             </div>
           </div>
