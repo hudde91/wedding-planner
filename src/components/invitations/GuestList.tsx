@@ -54,7 +54,7 @@ const GuestList: Component<GuestListProps> = (props) => {
   };
 
   return (
-    <div class="space-y-8">
+    <div class="space-y-6 sm:space-y-8">
       {/* Header with Background */}
       <div class="animate-fade-in-up relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-100 via-white to-cyan-100 border border-blue-200/50 shadow-xl">
         <div class="absolute inset-0 opacity-10">
@@ -65,13 +65,13 @@ const GuestList: Component<GuestListProps> = (props) => {
           />
         </div>
 
-        <div class="relative z-10 p-8">
-          <div class="flex justify-between items-center">
+        <div class="relative z-10 mobile-px mobile-py">
+          <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-4 sm:space-y-0">
             <div class="max-w-3xl">
-              <h1 class="text-4xl font-light text-gray-800 mb-4 tracking-wide">
+              <h1 class="text-3xl sm:text-4xl font-light text-gray-800 mb-2 sm:mb-4 tracking-wide">
                 Guest Management
               </h1>
-              <p class="text-lg text-gray-600 font-light leading-relaxed">
+              <p class="text-base sm:text-lg text-gray-600 font-light leading-relaxed">
                 Manage your wedding guest list, track RSVPs, and coordinate all
                 the important details for your loved ones.
               </p>
@@ -79,7 +79,7 @@ const GuestList: Component<GuestListProps> = (props) => {
 
             <button
               onClick={() => setShowAddForm(!showAddForm())}
-              class={`px-6 py-3 rounded-xl font-medium transition-all duration-300 ${
+              class={`btn-mobile px-6 py-3 rounded-xl font-medium transition-all duration-300 self-start sm:self-center focus-mobile ${
                 showAddForm()
                   ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
                   : "bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:shadow-lg hover:scale-105"
@@ -90,7 +90,7 @@ const GuestList: Component<GuestListProps> = (props) => {
           </div>
         </div>
 
-        <div class="absolute top-4 right-4 w-32 h-32 opacity-5">
+        <div class="absolute top-4 right-4 w-24 h-24 sm:w-32 sm:h-32 opacity-5">
           <svg viewBox="0 0 100 100" fill="currentColor" class="text-blue-300">
             <circle cx="30" cy="30" r="8" />
             <circle cx="50" cy="20" r="8" />
@@ -124,11 +124,11 @@ const GuestList: Component<GuestListProps> = (props) => {
       {/* Guest Cards */}
       <div class="animate-fade-in-up-delay-600 space-y-4">
         <Show when={props.guests.length === 0}>
-          <div class="text-center py-16">
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl p-12 border border-gray-100 shadow-lg max-w-md mx-auto">
-              <div class="w-24 h-24 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+          <div class="text-center py-12 sm:py-16">
+            <div class="bg-white/80 backdrop-blur-sm rounded-2xl mobile-px mobile-py border border-gray-100 shadow-lg max-w-md mx-auto">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
                 <svg
-                  class="w-12 h-12 text-blue-400"
+                  class="w-10 h-10 sm:w-12 sm:h-12 text-blue-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -141,16 +141,16 @@ const GuestList: Component<GuestListProps> = (props) => {
                   />
                 </svg>
               </div>
-              <h3 class="text-xl font-medium text-gray-900 mb-2">
+              <h3 class="text-lg sm:text-xl font-medium text-gray-900 mb-2">
                 No guests added yet
               </h3>
-              <p class="text-gray-600 font-light mb-6">
+              <p class="text-gray-600 font-light mb-4 sm:mb-6 text-sm sm:text-base">
                 Add your first wedding guest to get started with invitations and
                 RSVP tracking!
               </p>
               <button
                 onClick={() => setShowAddForm(true)}
-                class="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
+                class="btn-mobile px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300 focus-mobile"
               >
                 Add Your First Guest
               </button>

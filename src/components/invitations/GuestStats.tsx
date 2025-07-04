@@ -24,15 +24,15 @@ const GuestStats: Component<GuestStatsProps> = (props) => {
   };
 
   return (
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
       {/* Total Invited */}
-      <div class="group bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
+      <div class="group bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500 card-hover">
         <div class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-cyan-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
         <div class="relative z-10">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -50,20 +50,22 @@ const GuestStats: Component<GuestStatsProps> = (props) => {
             <p class="text-sm font-medium text-gray-600 tracking-wide">
               Total Invited
             </p>
-            <p class="text-3xl font-light text-blue-600">{props.totalGuests}</p>
+            <p class="text-2xl sm:text-3xl font-light text-blue-600">
+              {props.totalGuests}
+            </p>
             <p class="text-xs text-gray-500 font-light">Invitations sent</p>
           </div>
         </div>
       </div>
 
       {/* Attending */}
-      <div class="group bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
+      <div class="group bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500 card-hover">
         <div class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-green-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
         <div class="relative z-10">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-400 to-green-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -81,7 +83,7 @@ const GuestStats: Component<GuestStatsProps> = (props) => {
             <p class="text-sm font-medium text-gray-600 tracking-wide">
               Attending
             </p>
-            <p class="text-3xl font-light text-emerald-600">
+            <p class="text-2xl sm:text-3xl font-light text-emerald-600">
               {props.stats.attending.length}
             </p>
             <p class="text-xs text-gray-500 font-light">
@@ -92,13 +94,13 @@ const GuestStats: Component<GuestStatsProps> = (props) => {
       </div>
 
       {/* Declined */}
-      <div class="group bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
+      <div class="group bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500 card-hover">
         <div class="absolute inset-0 bg-gradient-to-br from-red-50/50 to-rose-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
         <div class="relative z-10">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-red-400 to-rose-400 rounded-lg flex items-center justify-center">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-400 to-rose-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -116,7 +118,7 @@ const GuestStats: Component<GuestStatsProps> = (props) => {
             <p class="text-sm font-medium text-gray-600 tracking-wide">
               Declined
             </p>
-            <p class="text-3xl font-light text-red-600">
+            <p class="text-2xl sm:text-3xl font-light text-red-600">
               {props.stats.declined.length}
             </p>
             <p class="text-xs text-gray-500 font-light">Cannot attend</p>
@@ -125,13 +127,13 @@ const GuestStats: Component<GuestStatsProps> = (props) => {
       </div>
 
       {/* Total Attendees */}
-      <div class="group bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500">
+      <div class="group bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-500 card-hover">
         <div class="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-violet-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
         <div class="relative z-10">
-          <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-violet-400 rounded-lg flex items-center justify-center">
+          <div class="flex items-center justify-between mb-3 sm:mb-4">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-400 to-violet-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-6 h-6 text-white"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -149,7 +151,7 @@ const GuestStats: Component<GuestStatsProps> = (props) => {
             <p class="text-sm font-medium text-gray-600 tracking-wide">
               Total Attendees
             </p>
-            <p class="text-3xl font-light text-purple-600">
+            <p class="text-2xl sm:text-3xl font-light text-purple-600">
               {props.stats.totalAttendees}
             </p>
             <p class="text-xs text-gray-500 font-light">Including plus ones</p>
@@ -158,12 +160,12 @@ const GuestStats: Component<GuestStatsProps> = (props) => {
       </div>
 
       {/* Response Progress - Full Width */}
-      <div class="col-span-2 md:col-span-4 bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100 shadow-lg">
-        <div class="flex items-center justify-between mb-4">
+      <div class="col-span-1 sm:col-span-2 lg:col-span-4 bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-lg">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-2 sm:space-y-0">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-400 rounded-lg flex items-center justify-center">
+            <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-amber-400 to-orange-400 rounded-lg flex items-center justify-center">
               <svg
-                class="w-5 h-5 text-white"
+                class="w-4 h-4 sm:w-5 sm:h-5 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -177,24 +179,28 @@ const GuestStats: Component<GuestStatsProps> = (props) => {
               </svg>
             </div>
             <div>
-              <h3 class="text-lg font-medium text-gray-900">RSVP Progress</h3>
-              <p class="text-sm text-gray-500 font-light">
+              <h3 class="text-base sm:text-lg font-medium text-gray-900">
+                RSVP Progress
+              </h3>
+              <p class="text-xs sm:text-sm text-gray-500 font-light">
                 Guest response tracking
               </p>
             </div>
           </div>
 
           <div class="text-right">
-            <div class="text-2xl font-light text-gray-900">
+            <div class="text-xl sm:text-2xl font-light text-gray-900">
               {getResponseRate()}%
             </div>
-            <div class="text-sm text-gray-500 font-light">Response Rate</div>
+            <div class="text-xs sm:text-sm text-gray-500 font-light">
+              Response Rate
+            </div>
           </div>
         </div>
 
         {/* Progress Bars */}
         <div class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Attending Progress */}
             <div class="space-y-2">
               <div class="flex justify-between text-sm">

@@ -10,7 +10,6 @@ interface PlusOneFormProps {
 }
 
 const PlusOneForm: Component<PlusOneFormProps> = (props) => {
-  // Local state - this component is now uncontrolled
   const [localData, setLocalData] = createSignal<PlusOne>({
     id: props.plusOne.id,
     name: props.plusOne.name,
@@ -36,9 +35,6 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
     setLocalData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Expose current data to parent (can be called externally)
-  const getCurrentData = () => localData();
-
   // Make getCurrentData available to parent if callback provided
   createEffect(() => {
     if (props.onDataChange) {
@@ -47,10 +43,10 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
   });
 
   return (
-    <div class="bg-gradient-to-br from-purple-50/50 to-violet-50/50 border border-purple-200/50 rounded-xl p-4">
-      <div class="flex justify-between items-center mb-4">
+    <div class="bg-gradient-to-br from-purple-50/50 to-violet-50/50 border border-purple-200/50 rounded-xl p-3 sm:p-4">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 sm:mb-4 space-y-2 sm:space-y-0">
         <h4 class="text-sm font-medium text-gray-700 flex items-center">
-          <div class="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center mr-2">
+          <div class="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center mr-2 flex-shrink-0">
             <svg
               class="w-3 h-3 text-purple-600"
               fill="none"
@@ -70,7 +66,7 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
         <button
           type="button"
           onClick={() => props.onRemove(props.plusOne.id)}
-          class="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300"
+          class="btn-mobile self-start sm:self-center p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300 focus-mobile"
           title="Remove plus one"
         >
           <svg
@@ -89,7 +85,7 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
         </button>
       </div>
 
-      <div class="space-y-4">
+      <div class="space-y-3 sm:space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">
             Name
@@ -100,7 +96,7 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
             onInput={(e) =>
               updateField("name", (e.target as HTMLInputElement).value)
             }
-            class="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light text-sm"
+            class="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus-mobile transition-all duration-300 font-light text-sm text-mobile-readable"
             placeholder={`${props.guestName || "Guest"}'s plus one`}
           />
         </div>
@@ -118,7 +114,7 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
                 (e.target as HTMLInputElement).value
               )
             }
-            class="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light text-sm"
+            class="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus-mobile transition-all duration-300 font-light text-sm text-mobile-readable"
             placeholder="e.g., Vegetarian, Gluten-free"
           />
         </div>
@@ -132,7 +128,7 @@ const PlusOneForm: Component<PlusOneFormProps> = (props) => {
             onInput={(e) =>
               updateField("notes", (e.target as HTMLTextAreaElement).value)
             }
-            class="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light text-sm resize-none"
+            class="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus-mobile transition-all duration-300 font-light text-sm text-mobile-readable resize-none"
             rows="2"
             placeholder="Any special notes"
           ></textarea>

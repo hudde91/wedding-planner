@@ -201,18 +201,18 @@ const GuestForm: Component<GuestFormProps> = (props) => {
   };
 
   return (
-    <div class="bg-white/80 backdrop-blur-sm p-8 rounded-2xl border border-gray-100 shadow-lg">
+    <div class="bg-white/80 backdrop-blur-sm mobile-px mobile-py rounded-2xl border border-gray-100 shadow-lg">
       <div class="mb-6">
-        <h3 class="text-2xl font-medium text-gray-900">
+        <h3 class="text-xl sm:text-2xl font-medium text-gray-900">
           {props.editingGuest ? "Edit Guest" : "Add New Guest"}
         </h3>
-        <p class="text-gray-600 font-light mt-1">
+        <p class="text-gray-600 font-light mt-1 text-sm sm:text-base">
           Fill out all the details and click submit when ready
         </p>
       </div>
 
       <form onSubmit={handleSubmit} class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Name *
@@ -223,7 +223,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
               onInput={(e) =>
                 updateFormField("name", (e.target as HTMLInputElement).value)
               }
-              class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light"
+              class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg focus-mobile transition-all duration-300 font-light text-mobile-readable"
               placeholder="Enter guest name"
               required
             />
@@ -237,7 +237,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
               type="email"
               value={formData().email}
               onInput={handleEmailInput}
-              class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light ${
+              class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus-mobile transition-all duration-300 font-light text-mobile-readable ${
                 validationErrors().email
                   ? "border-red-300 ring-2 ring-red-100"
                   : "border-gray-200"
@@ -259,7 +259,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
               type="tel"
               value={formData().phone}
               onInput={handlePhoneInput}
-              class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light ${
+              class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus-mobile transition-all duration-300 font-light text-mobile-readable ${
                 validationErrors().phone
                   ? "border-red-300 ring-2 ring-red-100"
                   : "border-gray-200"
@@ -286,7 +286,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
                     (e.target as HTMLSelectElement).value as RSVPStatus
                   )
                 }
-                class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light appearance-none cursor-pointer pr-10"
+                class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg focus-mobile transition-all duration-300 font-light text-mobile-readable appearance-none cursor-pointer pr-10"
               >
                 <option value="pending">Pending</option>
                 <option value="attending">Attending</option>
@@ -311,7 +311,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
             </div>
           </div>
 
-          <div class="md:col-span-2">
+          <div class="lg:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Meal Preference
             </label>
@@ -324,7 +324,7 @@ const GuestForm: Component<GuestFormProps> = (props) => {
                   (e.target as HTMLInputElement).value
                 )
               }
-              class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light"
+              class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg focus-mobile transition-all duration-300 font-light text-mobile-readable"
               placeholder="e.g., Vegetarian, Gluten-free, No allergies"
             />
           </div>
@@ -332,14 +332,14 @@ const GuestForm: Component<GuestFormProps> = (props) => {
 
         {/* Plus Ones Section */}
         <div class="space-y-4">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
             <label class="block text-sm font-medium text-gray-700">
               Plus Ones
             </label>
             <button
               type="button"
               onClick={addPlusOne}
-              class="inline-flex items-center px-4 py-2 border-2 border-dashed border-purple-300 rounded-lg text-purple-600 hover:border-purple-400 hover:text-purple-700 hover:bg-purple-50 transition-all duration-300 space-x-2"
+              class="btn-mobile inline-flex items-center px-4 py-2 border-2 border-dashed border-purple-300 rounded-lg text-purple-600 hover:border-purple-400 hover:text-purple-700 hover:bg-purple-50 transition-all duration-300 space-x-2 self-start focus-mobile"
             >
               <svg
                 class="w-4 h-4"
@@ -383,24 +383,24 @@ const GuestForm: Component<GuestFormProps> = (props) => {
             onInput={(e) =>
               updateFormField("notes", (e.target as HTMLTextAreaElement).value)
             }
-            class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light resize-none"
+            class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-lg focus-mobile transition-all duration-300 font-light text-mobile-readable resize-none"
             rows="3"
             placeholder="Any special notes, dietary restrictions, or requirements"
           ></textarea>
         </div>
 
         {/* Action Buttons */}
-        <div class="flex items-center space-x-4 pt-4">
+        <div class="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-4">
           <button
             type="submit"
-            class="px-8 py-3 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-300"
+            class="btn-mobile w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-lg font-medium hover:shadow-lg hover:scale-105 transition-all duration-300 focus-mobile"
           >
             {props.editingGuest ? "Update Guest" : "Add Guest"}
           </button>
           <button
             type="button"
             onClick={props.onCancel}
-            class="px-8 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-300"
+            class="btn-mobile w-full sm:w-auto px-8 py-3 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-all duration-300 focus-mobile"
           >
             Cancel
           </button>
