@@ -22,13 +22,13 @@ const KeyMetrics: Component<KeyMetricsProps> = (props) => {
   };
 
   return (
-    <div class="animate-fade-in-up-delay-400 grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+    <div class="animate-fade-in-up-delay-400 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
       {/* Overall Progress */}
-      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100">
-        <div class="flex items-center justify-between mb-2">
-          <div class="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
+      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="flex items-center justify-between mb-3 sm:mb-2">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center">
             <svg
-              class="w-5 h-5 text-blue-600"
+              class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -42,13 +42,15 @@ const KeyMetrics: Component<KeyMetricsProps> = (props) => {
             </svg>
           </div>
         </div>
-        <div class="text-2xl font-light text-blue-600 mb-1">
+        <div class="text-xl sm:text-2xl font-light text-blue-600 mb-1">
           {props.overallProgress}%
         </div>
-        <div class="text-sm text-gray-600 font-light">Overall Progress</div>
-        <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+        <div class="text-sm text-gray-600 font-light mb-2">
+          Overall Progress
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2">
           <div
-            class={`h-1.5 rounded-full transition-all duration-1000 ${getProgressBarColor(
+            class={`h-2 rounded-full transition-all duration-1000 ${getProgressBarColor(
               props.overallProgress
             )}`}
             style={`width: ${props.overallProgress}%`}
@@ -57,11 +59,11 @@ const KeyMetrics: Component<KeyMetricsProps> = (props) => {
       </div>
 
       {/* Budget Used */}
-      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100">
-        <div class="flex items-center justify-between mb-2">
-          <div class="w-10 h-10 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center">
+      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="flex items-center justify-between mb-3 sm:mb-2">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center">
             <svg
-              class="w-5 h-5 text-green-600"
+              class="w-5 h-5 sm:w-6 sm:h-6 text-green-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -75,21 +77,21 @@ const KeyMetrics: Component<KeyMetricsProps> = (props) => {
             </svg>
           </div>
         </div>
-        <div class="text-2xl font-light text-green-600 mb-1">
+        <div class="text-xl sm:text-2xl font-light text-green-600 mb-1">
           {props.budgetUtilization}%
         </div>
-        <div class="text-sm text-gray-600 font-light">Budget Used</div>
-        <div class="text-xs text-gray-500 mt-1">
+        <div class="text-sm text-gray-600 font-light mb-1">Budget Used</div>
+        <div class="text-xs text-gray-500 break-all">
           {formatCurrency(props.totalBudget)} total
         </div>
       </div>
 
       {/* Total Guests */}
-      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100">
-        <div class="flex items-center justify-between mb-2">
-          <div class="w-10 h-10 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center">
+      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="flex items-center justify-between mb-3 sm:mb-2">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg flex items-center justify-center">
             <svg
-              class="w-5 h-5 text-purple-600"
+              class="w-5 h-5 sm:w-6 sm:h-6 text-purple-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -103,21 +105,21 @@ const KeyMetrics: Component<KeyMetricsProps> = (props) => {
             </svg>
           </div>
         </div>
-        <div class="text-2xl font-light text-purple-600 mb-1">
+        <div class="text-xl sm:text-2xl font-light text-purple-600 mb-1">
           {props.totalGuests}
         </div>
-        <div class="text-sm text-gray-600 font-light">Total Guests</div>
-        <div class="text-xs text-gray-500 mt-1">
+        <div class="text-sm text-gray-600 font-light mb-1">Total Guests</div>
+        <div class="text-xs text-gray-500">
           {props.attendingGuests} attending
         </div>
       </div>
 
       {/* Tasks Remaining */}
-      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100">
-        <div class="flex items-center justify-between mb-2">
-          <div class="w-10 h-10 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center">
+      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+        <div class="flex items-center justify-between mb-3 sm:mb-2">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg flex items-center justify-center">
             <svg
-              class="w-5 h-5 text-orange-600"
+              class="w-5 h-5 sm:w-6 sm:h-6 text-orange-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -131,13 +133,11 @@ const KeyMetrics: Component<KeyMetricsProps> = (props) => {
             </svg>
           </div>
         </div>
-        <div class="text-2xl font-light text-orange-600 mb-1">
+        <div class="text-xl sm:text-2xl font-light text-orange-600 mb-1">
           {props.remainingTasks}
         </div>
-        <div class="text-sm text-gray-600 font-light">Tasks Remaining</div>
-        <div class="text-xs text-gray-500 mt-1">
-          of {props.totalTasks} total
-        </div>
+        <div class="text-sm text-gray-600 font-light mb-1">Tasks Remaining</div>
+        <div class="text-xs text-gray-500">of {props.totalTasks} total</div>
       </div>
     </div>
   );

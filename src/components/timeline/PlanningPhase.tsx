@@ -48,78 +48,82 @@ const PlanningPhase: Component<PlanningPhaseProps> = (props) => {
     >
       {/* Phase Header */}
       <div
-        class="p-6 cursor-pointer hover:bg-black/5 transition-colors"
+        class="p-4 sm:p-6 cursor-pointer hover:bg-black/5 transition-colors touch-manipulation tap-highlight-transparent"
         onClick={props.onToggle}
       >
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <div class="w-12 h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
-              <svg
-                class="w-6 h-6 text-gray-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m5 0h6a2 2 0 002-2V7a2 2 0 00-2-2h-6m1-5v4m0 0v4m0-4h4m-4 0H9m0 0v4"
-                />
-              </svg>
-            </div>
-            <div>
-              <div class="flex items-center space-x-3 mb-1">
-                <h3 class="text-lg font-medium text-gray-900">
-                  {props.phase.name}
-                </h3>
-                <Show when={props.phase.isActive}>
-                  <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
-                    Active
-                  </span>
-                </Show>
-                <Show when={props.phase.isOverdue}>
-                  <span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
-                    Overdue
-                  </span>
-                </Show>
-                <Show when={props.phase.completionRate === 100}>
-                  <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
-                    Complete
-                  </span>
-                </Show>
-              </div>
-              <p class="text-sm text-gray-600 font-light">
-                {props.phase.description}
-              </p>
-              <p class="text-xs text-gray-500 mt-1">{props.phase.timeframe}</p>
-            </div>
+        <div class="flex items-start space-x-3 sm:space-x-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center flex-shrink-0">
+            <svg
+              class="w-5 h-5 sm:w-6 sm:h-6 text-gray-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v6a2 2 0 002 2h2m5 0h6a2 2 0 002-2V7a2 2 0 00-2-2h-6m1-5v4m0 0v4m0-4h4m-4 0H9m0 0v4"
+              />
+            </svg>
           </div>
-          <div class="flex items-center space-x-6">
-            <div class="text-right">
-              <div class="text-sm font-medium text-gray-900">
-                {pluralize(props.phase.tasks.length, "task")}
+
+          <div class="flex-1 min-w-0">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div class="flex-1 min-w-0 mb-2 sm:mb-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <h3 class="text-base sm:text-lg font-medium text-gray-900 truncate">
+                    {props.phase.name}
+                  </h3>
+                  <Show when={props.phase.isActive}>
+                    <span class="inline-flex px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                      Active
+                    </span>
+                  </Show>
+                  <Show when={props.phase.isOverdue}>
+                    <span class="inline-flex px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
+                      Overdue
+                    </span>
+                  </Show>
+                  <Show when={props.phase.completionRate === 100}>
+                    <span class="inline-flex px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">
+                      Complete
+                    </span>
+                  </Show>
+                </div>
+                <p class="text-sm text-gray-600 font-light mb-1">
+                  {props.phase.description}
+                </p>
+                <p class="text-xs text-gray-500">{props.phase.timeframe}</p>
               </div>
-              <div class="text-xs text-gray-500 font-light">
-                {props.phase.completionRate}% complete
+
+              <div class="flex items-center justify-between sm:justify-end sm:space-x-6">
+                <div class="text-left sm:text-right">
+                  <div class="text-sm font-medium text-gray-900">
+                    {pluralize(props.phase.tasks.length, "task")}
+                  </div>
+                  <div class="text-xs text-gray-500 font-light">
+                    {props.phase.completionRate}% complete
+                  </div>
+                </div>
+                <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg
+                    class={`w-4 h-4 text-gray-600 transition-transform duration-300 ${
+                      props.isExpanded ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
               </div>
-            </div>
-            <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
-              <svg
-                class={`w-4 h-4 text-gray-600 transition-transform duration-300 ${
-                  props.isExpanded ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
             </div>
           </div>
         </div>
@@ -141,10 +145,10 @@ const PlanningPhase: Component<PlanningPhaseProps> = (props) => {
           <Show
             when={props.phase.tasks.length > 0}
             fallback={
-              <div class="p-12 text-center">
-                <div class="w-16 h-16 bg-gray-200 rounded-xl flex items-center justify-center mx-auto mb-4">
+              <div class="p-8 sm:p-12 text-center">
+                <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gray-200 rounded-xl flex items-center justify-center mx-auto mb-4">
                   <svg
-                    class="w-8 h-8 text-gray-400"
+                    class="w-6 h-6 sm:w-8 sm:h-8 text-gray-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -166,7 +170,7 @@ const PlanningPhase: Component<PlanningPhaseProps> = (props) => {
               </div>
             }
           >
-            <div class="p-6 space-y-4">
+            <div class="p-4 sm:p-6 space-y-3 sm:space-y-4">
               <For each={props.phase.tasks}>
                 {(todo) => (
                   <TimelineTodoItem

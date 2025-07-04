@@ -36,12 +36,12 @@ const AIInsights: Component<AIInsightsProps> = (props) => {
 
   return (
     <Show when={props.analysis && !props.isAnalyzing}>
-      <div class="animate-fade-in-up-delay-600 bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-gray-100">
-        <div class="flex items-center justify-between mb-6">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-lg flex items-center justify-center">
+      <div class="animate-fade-in-up-delay-600 bg-white/80 backdrop-blur-sm rounded-xl p-4 sm:p-6 border border-gray-100 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6">
+          <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-indigo-100 to-purple-200 rounded-lg flex items-center justify-center flex-shrink-0">
               <svg
-                class="w-5 h-5 text-indigo-600"
+                class="w-5 h-5 sm:w-6 sm:h-6 text-indigo-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -54,8 +54,8 @@ const AIInsights: Component<AIInsightsProps> = (props) => {
                 />
               </svg>
             </div>
-            <div>
-              <h3 class="text-lg font-medium text-gray-900">
+            <div class="min-w-0">
+              <h3 class="text-base sm:text-lg font-medium text-gray-900">
                 Planning Analysis
               </h3>
               <p class="text-sm text-gray-600 font-light">
@@ -63,8 +63,8 @@ const AIInsights: Component<AIInsightsProps> = (props) => {
               </p>
             </div>
           </div>
-          <div class="text-right">
-            <div class="text-2xl font-light text-indigo-600">
+          <div class="text-center sm:text-right">
+            <div class="text-xl sm:text-2xl font-light text-indigo-600">
               {props.analysis?.overallScore || 0}/100
             </div>
             <div class="text-xs text-gray-500 font-light">Planning Score</div>
@@ -72,20 +72,24 @@ const AIInsights: Component<AIInsightsProps> = (props) => {
         </div>
 
         <Show when={props.analysis?.insights?.length ?? 0 > 0}>
-          <div class="space-y-3 mb-6">
+          <div class="space-y-3 mb-4 sm:mb-6">
             <For each={props.analysis?.insights?.slice(0, 3)}>
               {(insight: AIInsight) => (
                 <div
-                  class={`p-4 rounded-lg border ${getSeverityColor(
+                  class={`p-3 sm:p-4 rounded-lg border ${getSeverityColor(
                     insight.severity
                   )}`}
                 >
-                  <div class="flex items-start justify-between">
-                    <div class="flex-1">
-                      <h4 class="font-medium mb-1">{insight.title}</h4>
-                      <p class="text-sm font-light">{insight.message}</p>
+                  <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                    <div class="flex-1 min-w-0 mb-2 sm:mb-0">
+                      <h4 class="font-medium mb-1 text-sm sm:text-base">
+                        {insight.title}
+                      </h4>
+                      <p class="text-xs sm:text-sm font-light leading-relaxed">
+                        {insight.message}
+                      </p>
                     </div>
-                    <div class="text-xs uppercase tracking-wide font-medium ml-4">
+                    <div class="text-xs uppercase tracking-wide font-medium sm:ml-4 self-start">
                       {insight.severity}
                     </div>
                   </div>
@@ -97,13 +101,15 @@ const AIInsights: Component<AIInsightsProps> = (props) => {
 
         <Show when={props.analysis?.recommendations?.length ?? 0 > 0}>
           <div class="border-t border-gray-100 pt-4">
-            <h4 class="font-medium text-gray-900 mb-3">Top Recommendations</h4>
+            <h4 class="font-medium text-gray-900 mb-3 text-sm sm:text-base">
+              Top Recommendations
+            </h4>
             <div class="space-y-2">
               <For each={props.analysis?.recommendations?.slice(0, 3)}>
                 {(recommendation: string) => (
                   <div class="flex items-start space-x-3 text-sm">
                     <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full mt-2 flex-shrink-0"></div>
-                    <span class="text-gray-700 font-light">
+                    <span class="text-gray-700 font-light leading-relaxed">
                       {recommendation}
                     </span>
                   </div>

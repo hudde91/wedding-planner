@@ -25,9 +25,11 @@ interface PlanningPhasesListProps {
 
 const PlanningPhasesList: Component<PlanningPhasesListProps> = (props) => {
   return (
-    <div class="animate-fade-in-up-delay-200 space-y-6">
-      <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-medium text-gray-900">Planning Phases</h2>
+    <div class="animate-fade-in-up-delay-200 space-y-4 sm:space-y-6">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center space-y-2 sm:space-y-0">
+        <h2 class="text-xl sm:text-2xl font-medium text-gray-900">
+          Planning Phases
+        </h2>
         <div class="text-sm text-gray-500 font-light">
           {pluralize(
             props.phases.filter((p) => p.isActive).length,

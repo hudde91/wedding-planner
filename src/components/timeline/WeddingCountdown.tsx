@@ -14,14 +14,16 @@ interface WeddingCountdownProps {
 const WeddingCountdown: Component<WeddingCountdownProps> = (props) => {
   return (
     <Show when={props.weddingDate}>
-      <div class="animate-fade-in-up-delay-200 text-center mb-8 p-6 bg-white/60 backdrop-blur-sm rounded-xl border border-white/50">
-        <div class="text-2xl font-light text-gray-900 mb-2">
+      <div class="animate-fade-in-up-delay-200 text-center mb-6 sm:mb-8 p-4 sm:p-6 bg-white/60 backdrop-blur-sm rounded-xl border border-white/50 shadow-sm">
+        <div class="text-xl sm:text-2xl font-light text-gray-900 mb-2">
           {props.countdown.text}
         </div>
-        <div class="text-sm text-gray-600 font-light mb-1">
+        <div class="text-sm sm:text-base text-gray-600 font-light mb-1">
           {formatShortDate(props.weddingDate!)}
         </div>
-        <div class="text-xs text-gray-500">{props.countdown.subtext}</div>
+        <div class="text-xs sm:text-sm text-gray-500 font-light">
+          {props.countdown.subtext}
+        </div>
       </div>
     </Show>
   );

@@ -182,10 +182,10 @@ const Timeline: Component<TimelineProps> = (props) => {
   };
 
   return (
-    <div class="space-y-8">
+    <div class="space-y-6 sm:space-y-8">
       {/* Header Overview */}
       <div class="animate-fade-in-up relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-50 via-white to-gray-50 border border-gray-200 shadow-xl">
-        <div class="relative z-10 p-8">
+        <div class="relative z-10 p-4 sm:p-6 lg:p-8">
           <TimelineHeader isAnalyzing={isAnalyzing()} />
 
           <WeddingCountdown
