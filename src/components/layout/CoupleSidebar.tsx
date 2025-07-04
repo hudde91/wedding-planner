@@ -27,13 +27,6 @@ const CoupleSidebar: Component<CoupleSidebarProps> = (props) => {
       href: "/",
     },
     {
-      id: "timeline",
-      label: "Timeline",
-      icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
-      description: "Planning phases",
-      href: "/timeline",
-    },
-    {
       id: "details",
       label: "Details",
       icon: "M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4",
@@ -46,6 +39,13 @@ const CoupleSidebar: Component<CoupleSidebarProps> = (props) => {
       icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
       description: "Tasks & planning",
       href: "/todos",
+    },
+    {
+      id: "timeline",
+      label: "Timeline",
+      icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z",
+      description: "Planning phases",
+      href: "/timeline",
     },
     {
       id: "guests",
