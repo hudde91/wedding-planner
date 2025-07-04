@@ -20,12 +20,14 @@ const GuestWishlist: Component<GuestWishlistProps> = (props) => {
   };
 
   return (
-    <Wishlist
-      wishlistItems={props.wishlistItems}
-      onUpdateWishlistItem={props.onUpdateWishlistItem}
-      mode="guest"
-      coupleNames={coupleNames()}
-    />
+    <div class="space-y-4 sm:space-y-6">
+      <Wishlist
+        wishlistItems={props.wishlistItems}
+        onUpdateWishlistItem={props.onUpdateWishlistItem}
+        mode="guest"
+        coupleNames={coupleNames()}
+      />
+    </div>
   );
 };
 

@@ -20,13 +20,13 @@ const GuestGallery: Component<GuestGalleryProps> = (props) => {
   };
 
   return (
-    <div class="space-y-6">
+    <div class="space-y-4 sm:space-y-6">
       {/* Guest-specific instructions */}
-      <div class="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-rose-100/50 shadow-sm">
-        <div class="flex items-start space-x-4">
-          <div class="w-12 h-12 bg-gradient-to-br from-rose-400 to-purple-400 rounded-xl flex items-center justify-center flex-shrink-0">
+      <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-rose-100/50 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-rose-400 to-purple-400 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
             <svg
-              class="w-6 h-6 text-white"
+              class="w-5 h-5 sm:w-6 sm:h-6 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -39,11 +39,11 @@ const GuestGallery: Component<GuestGalleryProps> = (props) => {
               />
             </svg>
           </div>
-          <div class="flex-1">
-            <h3 class="text-lg font-medium text-gray-800 mb-2">
+          <div class="flex-1 min-w-0">
+            <h3 class="text-lg sm:text-xl font-medium text-gray-800 mb-2">
               Share Your Wedding Memories
             </h3>
-            <p class="text-gray-600 font-light leading-relaxed">
+            <p class="text-gray-600 font-light leading-relaxed text-sm sm:text-base">
               Help us capture every special moment! Upload your favorite photos
               from the wedding to share with the happy couple and other guests.
               No account required - just your name and beautiful memories.

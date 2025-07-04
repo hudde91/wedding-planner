@@ -41,14 +41,14 @@ const GuestWelcome: Component<GuestWelcomeProps> = (props) => {
   ];
 
   return (
-    <div class="space-y-12">
+    <div class="space-y-8 sm:space-y-12">
       {/* Welcome Message */}
-      <div class="text-center space-y-6">
-        <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-rose-100/50 p-8 md:p-12">
-          <div class="space-y-6">
-            <div class="w-16 h-16 mx-auto bg-gradient-to-br from-rose-400 to-purple-400 rounded-full flex items-center justify-center shadow-lg">
+      <div class="text-center space-y-4 sm:space-y-6">
+        <div class="bg-white/80 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-lg border border-rose-100/50 p-6 sm:p-8 md:p-12">
+          <div class="space-y-4 sm:space-y-6">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-gradient-to-br from-rose-400 to-purple-400 rounded-full flex items-center justify-center shadow-lg">
               <svg
-                class="w-8 h-8 text-white"
+                class="w-6 h-6 sm:w-8 sm:h-8 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -62,11 +62,11 @@ const GuestWelcome: Component<GuestWelcomeProps> = (props) => {
               </svg>
             </div>
 
-            <div class="space-y-4">
-              <h2 class="text-3xl md:text-4xl font-light text-gray-800 tracking-wide">
+            <div class="space-y-3 sm:space-y-4">
+              <h2 class="text-2xl sm:text-3xl md:text-4xl font-light text-gray-800 tracking-wide">
                 Welcome to Our Celebration
               </h2>
-              <p class="text-lg text-gray-600 font-light max-w-2xl mx-auto leading-relaxed">
+              <p class="text-base sm:text-lg text-gray-600 font-light max-w-2xl mx-auto leading-relaxed px-4 sm:px-0">
                 We are so grateful to have you as part of our special day. Your
                 presence means the world to us as we begin this beautiful
                 journey together.
@@ -75,9 +75,9 @@ const GuestWelcome: Component<GuestWelcomeProps> = (props) => {
 
             {/* Countdown */}
             <Show when={getDaysUntilWedding() !== null}>
-              <div class="inline-flex items-center space-x-4 bg-gradient-to-r from-rose-50 to-purple-50 rounded-full px-8 py-4 border border-rose-200/50">
+              <div class="inline-flex items-center space-x-3 sm:space-x-4 bg-gradient-to-r from-rose-50 to-purple-50 rounded-full px-6 sm:px-8 py-3 sm:py-4 border border-rose-200/50 shadow-sm">
                 <svg
-                  class="w-6 h-6 text-rose-500"
+                  class="w-5 h-5 sm:w-6 sm:h-6 text-rose-500 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -90,7 +90,7 @@ const GuestWelcome: Component<GuestWelcomeProps> = (props) => {
                   />
                 </svg>
                 <div class="text-center">
-                  <div class="text-2xl font-light text-gray-800">
+                  <div class="text-xl sm:text-2xl font-light text-gray-800">
                     {getDaysUntilWedding()! > 0 ? (
                       <span>{getDaysUntilWedding()} days to go!</span>
                     ) : getDaysUntilWedding() === 0 ? (
@@ -99,7 +99,7 @@ const GuestWelcome: Component<GuestWelcomeProps> = (props) => {
                       <span>Thank you for celebrating with us!</span>
                     )}
                   </div>
-                  <div class="text-sm text-gray-500 font-light">
+                  <div class="text-xs sm:text-sm text-gray-500 font-light">
                     Until our wedding day
                   </div>
                 </div>
@@ -110,18 +110,18 @@ const GuestWelcome: Component<GuestWelcomeProps> = (props) => {
       </div>
 
       {/* Quick Actions */}
-      <div class="grid md:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {quickActions.map((action) => (
           <A
             href={action.href}
-            class="group block bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100/50 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+            class="group block bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-gray-100/50 p-4 sm:p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 touch-manipulation tap-highlight-transparent"
           >
-            <div class="space-y-4">
+            <div class="space-y-3 sm:space-y-4">
               <div
-                class={`w-12 h-12 bg-gradient-to-br ${action.color} rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}
+                class={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br ${action.color} rounded-lg sm:rounded-xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform duration-300`}
               >
                 <svg
-                  class="w-6 h-6"
+                  class="w-5 h-5 sm:w-6 sm:h-6"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -135,7 +135,7 @@ const GuestWelcome: Component<GuestWelcomeProps> = (props) => {
                 </svg>
               </div>
               <div class="space-y-2">
-                <h3 class="text-xl font-medium text-gray-800 group-hover:text-gray-900">
+                <h3 class="text-lg sm:text-xl font-medium text-gray-800 group-hover:text-gray-900">
                   {action.title}
                 </h3>
                 <p class="text-gray-600 font-light text-sm leading-relaxed">
@@ -164,18 +164,18 @@ const GuestWelcome: Component<GuestWelcomeProps> = (props) => {
       </div>
 
       {/* Additional Info */}
-      <div class="bg-gradient-to-r from-rose-50/80 to-purple-50/80 backdrop-blur-sm rounded-2xl border border-rose-100/50 p-8">
-        <div class="text-center space-y-4">
-          <h3 class="text-2xl font-light text-gray-800">
+      <div class="bg-gradient-to-r from-rose-50/80 to-purple-50/80 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-rose-100/50 p-6 sm:p-8">
+        <div class="text-center space-y-3 sm:space-y-4">
+          <h3 class="text-xl sm:text-2xl font-light text-gray-800">
             Questions or Need Help?
           </h3>
-          <p class="text-gray-600 font-light max-w-xl mx-auto">
+          <p class="text-gray-600 font-light max-w-xl mx-auto leading-relaxed">
             If you have any questions about the wedding or need assistance with
             anything on this site, please don't hesitate to reach out to us
             directly.
           </p>
-          <div class="flex justify-center space-x-4 pt-4">
-            <div class="bg-white/80 rounded-full px-4 py-2 border border-rose-200/50">
+          <div class="flex justify-center space-x-4 pt-2 sm:pt-4">
+            <div class="bg-white/80 rounded-full px-4 py-2 border border-rose-200/50 shadow-sm">
               <span class="text-sm text-gray-600">
                 We can't wait to celebrate with you! 💕
               </span>

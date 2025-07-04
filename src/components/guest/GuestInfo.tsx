@@ -193,15 +193,15 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
   };
 
   return (
-    <div class="space-y-8">
+    <div class="space-y-6 sm:space-y-8">
       {/* Wedding Date & Basic Info */}
       <Show
         when={hasBasicInfo()}
         fallback={
-          <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100/50 p-8 text-center">
-            <div class="w-16 h-16 mx-auto bg-gradient-to-br from-rose-400 to-purple-400 rounded-full flex items-center justify-center shadow-lg mb-4">
+          <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-gray-100/50 p-6 sm:p-8 text-center">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-gradient-to-br from-rose-400 to-purple-400 rounded-full flex items-center justify-center shadow-lg mb-4">
               <svg
-                class="w-8 h-8 text-white"
+                class="w-6 h-6 sm:w-8 sm:h-8 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -214,20 +214,20 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
                 />
               </svg>
             </div>
-            <h2 class="text-2xl font-light text-gray-800 mb-2">
+            <h2 class="text-xl sm:text-2xl font-light text-gray-800 mb-2">
               Wedding Details Coming Soon
             </h2>
-            <p class="text-gray-600">
+            <p class="text-gray-600 text-sm sm:text-base">
               The happy couple is still finalizing the details. Check back soon!
             </p>
           </div>
         }
       >
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-rose-100/50 p-8">
-          <div class="text-center space-y-6">
-            <div class="w-16 h-16 mx-auto bg-gradient-to-br from-rose-400 to-purple-400 rounded-full flex items-center justify-center shadow-lg">
+        <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-rose-100/50 p-6 sm:p-8">
+          <div class="text-center space-y-4 sm:space-y-6">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 mx-auto bg-gradient-to-br from-rose-400 to-purple-400 rounded-full flex items-center justify-center shadow-lg">
               <svg
-                class="w-8 h-8 text-white"
+                class="w-6 h-6 sm:w-8 sm:h-8 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -242,7 +242,7 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
             </div>
 
             <div class="space-y-2">
-              <h2 class="text-3xl font-light text-gray-800">
+              <h2 class="text-2xl sm:text-3xl font-light text-gray-800">
                 {new Date(props.weddingPlan.wedding_date).toLocaleDateString(
                   "en-US",
                   {
@@ -254,7 +254,7 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
                 )}
               </h2>
               <Show when={props.weddingPlan.ceremony?.time}>
-                <p class="text-lg text-gray-600 font-light">
+                <p class="text-base sm:text-lg text-gray-600 font-light">
                   Ceremony at {formatTime(props.weddingPlan.ceremony?.time)}
                 </p>
               </Show>
@@ -265,15 +265,15 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
 
       {/* Ceremony & Reception Details */}
       <Show when={hasCeremonyInfo() || hasReceptionInfo()}>
-        <div class="grid md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Ceremony */}
           <Show when={hasCeremonyInfo()}>
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-blue-100/50 p-6">
-              <div class="space-y-4">
+            <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-blue-100/50 p-4 sm:p-6">
+              <div class="space-y-3 sm:space-y-4">
                 <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
+                  <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-400 to-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
                     <svg
-                      class="w-5 h-5 text-white"
+                      class="w-4 h-4 sm:w-5 sm:h-5 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -286,10 +286,12 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
                       />
                     </svg>
                   </div>
-                  <div>
-                    <h3 class="text-xl font-medium text-gray-800">Ceremony</h3>
+                  <div class="min-w-0">
+                    <h3 class="text-lg sm:text-xl font-medium text-gray-800">
+                      Ceremony
+                    </h3>
                     <Show when={props.weddingPlan.ceremony?.time}>
-                      <p class="text-blue-600 font-medium">
+                      <p class="text-sm sm:text-base text-blue-600 font-medium">
                         {formatTime(props.weddingPlan.ceremony?.time)}
                       </p>
                     </Show>
@@ -302,7 +304,9 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
                     </p>
                   </Show>
                   <Show when={getFullAddress(props.weddingPlan.ceremony)}>
-                    <p>{getFullAddress(props.weddingPlan.ceremony)}</p>
+                    <p class="break-words">
+                      {getFullAddress(props.weddingPlan.ceremony)}
+                    </p>
                   </Show>
                   <Show when={props.weddingPlan.ceremony?.duration}>
                     <p class="text-gray-500">
@@ -326,12 +330,12 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
 
           {/* Reception */}
           <Show when={hasReceptionInfo()}>
-            <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-purple-100/50 p-6">
-              <div class="space-y-4">
+            <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-purple-100/50 p-4 sm:p-6">
+              <div class="space-y-3 sm:space-y-4">
                 <div class="flex items-center space-x-3">
-                  <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-purple-500 rounded-lg flex items-center justify-center">
+                  <div class="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-purple-400 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
                     <svg
-                      class="w-5 h-5 text-white"
+                      class="w-4 h-4 sm:w-5 sm:h-5 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -344,10 +348,12 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
                       />
                     </svg>
                   </div>
-                  <div>
-                    <h3 class="text-xl font-medium text-gray-800">Reception</h3>
+                  <div class="min-w-0">
+                    <h3 class="text-lg sm:text-xl font-medium text-gray-800">
+                      Reception
+                    </h3>
                     <Show when={props.weddingPlan.reception?.time}>
-                      <p class="text-purple-600 font-medium">
+                      <p class="text-sm sm:text-base text-purple-600 font-medium">
                         {formatTime(props.weddingPlan.reception?.time)}
                       </p>
                     </Show>
@@ -360,7 +366,9 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
                     </p>
                   </Show>
                   <Show when={getFullAddress(props.weddingPlan.reception)}>
-                    <p>{getFullAddress(props.weddingPlan.reception)}</p>
+                    <p class="break-words">
+                      {getFullAddress(props.weddingPlan.reception)}
+                    </p>
                   </Show>
                   <Show when={props.weddingPlan.reception?.cocktailHour}>
                     <p class="text-gray-500">
@@ -387,21 +395,25 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
       </Show>
 
       {/* Schedule */}
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-rose-100/50 p-6">
-        <h3 class="text-2xl font-light text-gray-800 mb-6 text-center">
+      <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-rose-100/50 p-4 sm:p-6">
+        <h3 class="text-xl sm:text-2xl font-light text-gray-800 mb-4 sm:mb-6 text-center">
           Wedding Day Schedule
         </h3>
-        <div class="space-y-4">
+        <div class="space-y-3 sm:space-y-4">
           <For each={getSchedule()}>
             {(item) => (
-              <div class="flex items-center space-x-4 p-3 rounded-lg hover:bg-rose-50/50 transition-colors">
-                <div class="w-20 text-sm font-medium text-gray-700 flex-shrink-0">
+              <div class="flex items-start space-x-3 sm:space-x-4 p-3 rounded-lg hover:bg-rose-50/50 transition-colors">
+                <div class="w-16 sm:w-20 text-xs sm:text-sm font-medium text-gray-700 flex-shrink-0">
                   {item.time}
                 </div>
-                <div class="w-1 h-6 bg-rose-300 rounded-full"></div>
-                <div class="flex-1">
-                  <p class="font-medium text-gray-800">{item.event}</p>
-                  <p class="text-sm text-gray-600">{item.location}</p>
+                <div class="w-1 h-6 bg-rose-300 rounded-full flex-shrink-0"></div>
+                <div class="flex-1 min-w-0">
+                  <p class="font-medium text-gray-800 text-sm sm:text-base">
+                    {item.event}
+                  </p>
+                  <p class="text-xs sm:text-sm text-gray-600 break-words">
+                    {item.location}
+                  </p>
                 </div>
               </div>
             )}
@@ -410,14 +422,14 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
       </div>
 
       {/* Important Information */}
-      <div class="grid md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         <For each={importantNotes()}>
           {(note) => (
-            <div class="bg-white/80 backdrop-blur-sm rounded-xl shadow-sm border border-gray-100/50 p-4">
-              <div class="space-y-3">
-                <div class="w-8 h-8 bg-gradient-to-br from-rose-400 to-purple-400 rounded-lg flex items-center justify-center">
+            <div class="bg-white/80 backdrop-blur-sm rounded-lg sm:rounded-xl shadow-sm border border-gray-100/50 p-3 sm:p-4">
+              <div class="space-y-2 sm:space-y-3">
+                <div class="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-rose-400 to-purple-400 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg
-                    class="w-4 h-4 text-white"
+                    class="w-3 h-3 sm:w-4 sm:h-4 text-white"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -452,20 +464,20 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
           props.weddingPlan.accommodation
         }
       >
-        <div class="bg-gradient-to-r from-rose-50/80 to-purple-50/80 backdrop-blur-sm rounded-2xl border border-rose-100/50 p-6">
-          <h3 class="text-xl font-medium text-gray-800 mb-4">
+        <div class="bg-gradient-to-r from-rose-50/80 to-purple-50/80 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-rose-100/50 p-4 sm:p-6">
+          <h3 class="text-lg sm:text-xl font-medium text-gray-800 mb-3 sm:mb-4">
             Additional Information
           </h3>
-          <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-sm text-gray-600">
             <div class="space-y-2">
               <Show when={props.weddingPlan.parking}>
-                <p>
+                <p class="break-words">
                   <span class="font-medium">Parking:</span>{" "}
                   {props.weddingPlan.parking}
                 </p>
               </Show>
               <Show when={props.weddingPlan.transportation}>
-                <p>
+                <p class="break-words">
                   <span class="font-medium">Transportation:</span>{" "}
                   {props.weddingPlan.transportation}
                 </p>
@@ -473,7 +485,7 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
             </div>
             <div class="space-y-2">
               <Show when={props.weddingPlan.accommodation}>
-                <p>
+                <p class="break-words">
                   <span class="font-medium">Accommodation:</span>{" "}
                   {props.weddingPlan.accommodation}
                 </p>
@@ -490,15 +502,17 @@ const GuestInfo: Component<GuestInfoProps> = (props) => {
           props.weddingPlan.contactInfo?.plannerName
         }
       >
-        <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-100/50 p-6">
-          <h3 class="text-xl font-medium text-gray-800 mb-4">
+        <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-gray-100/50 p-4 sm:p-6">
+          <h3 class="text-lg sm:text-xl font-medium text-gray-800 mb-3 sm:mb-4">
             Contact Information
           </h3>
-          <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 text-sm text-gray-600">
             <Show when={props.weddingPlan.contactInfo?.coupleEmail}>
               <div>
                 <p class="font-medium text-gray-700">Happy Couple</p>
-                <p>{props.weddingPlan.contactInfo?.coupleEmail}</p>
+                <p class="break-all">
+                  {props.weddingPlan.contactInfo?.coupleEmail}
+                </p>
                 <Show when={props.weddingPlan.contactInfo?.couplePhone}>
                   <p>{props.weddingPlan.contactInfo?.couplePhone}</p>
                 </Show>

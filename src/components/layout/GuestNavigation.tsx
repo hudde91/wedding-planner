@@ -51,13 +51,50 @@ const GuestNavigation: Component<GuestNavigationProps> = (props) => {
   };
 
   return (
-    <nav class="relative max-w-6xl mx-auto px-6 mb-12">
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-rose-100/50 p-2">
-        <div class="flex flex-wrap justify-center gap-2">
+    <nav class="relative max-w-6xl mx-auto px-4 sm:px-6 mb-8 sm:mb-12">
+      <div class="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-rose-100/50 p-2 sm:p-2">
+        {/* Mobile Layout - Scrollable horizontal */}
+        <div class="flex sm:hidden overflow-x-auto space-x-1 scrollbar-hide">
           {navItems.map((item) => (
             <A
               href={item.href}
-              class={`group flex items-center space-x-3 px-6 py-4 rounded-xl transition-all duration-300 ${
+              class={`group flex flex-col items-center space-y-1 px-3 py-3 rounded-lg transition-all duration-300 flex-shrink-0 touch-manipulation tap-highlight-transparent ${
+                isActiveRoute(item.id)
+                  ? "bg-gradient-to-r from-rose-100 to-purple-100 text-gray-800 shadow-md border border-rose-200/60"
+                  : "text-gray-600 hover:bg-white/80 hover:text-gray-900"
+              }`}
+              title={item.description}
+            >
+              <svg
+                class="w-5 h-5 flex-shrink-0 transition-colors duration-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d={item.icon}
+                />
+              </svg>
+              <span class="text-xs font-medium whitespace-nowrap">
+                {item.label}
+              </span>
+              {/* Active indicator */}
+              {isActiveRoute(item.id) && (
+                <div class="w-1 h-1 bg-rose-500 rounded-full"></div>
+              )}
+            </A>
+          ))}
+        </div>
+
+        {/* Desktop Layout - Grid */}
+        <div class="hidden sm:flex sm:flex-wrap sm:justify-center gap-2">
+          {navItems.map((item) => (
+            <A
+              href={item.href}
+              class={`group flex items-center space-x-3 px-4 lg:px-6 py-3 lg:py-4 rounded-xl transition-all duration-300 touch-manipulation tap-highlight-transparent ${
                 isActiveRoute(item.id)
                   ? "bg-gradient-to-r from-rose-100 to-purple-100 text-gray-800 shadow-md border border-rose-200/60"
                   : "text-gray-600 hover:bg-white/80 hover:text-gray-900 hover:shadow-sm"
@@ -79,7 +116,7 @@ const GuestNavigation: Component<GuestNavigationProps> = (props) => {
               </svg>
               <div class="flex flex-col">
                 <span class="font-medium text-sm">{item.label}</span>
-                <span class="text-xs opacity-60 font-light hidden sm:block">
+                <span class="text-xs opacity-60 font-light hidden lg:block">
                   {item.description}
                 </span>
               </div>

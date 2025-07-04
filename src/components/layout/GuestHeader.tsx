@@ -38,42 +38,46 @@ const GuestHeader: Component<GuestHeaderProps> = (props) => {
   };
 
   return (
-    <header class="relative bg-white/90 backdrop-blur-md shadow-lg border-b border-rose-100/50 py-12 mb-8">
+    <header class="relative bg-white/90 backdrop-blur-md shadow-lg border-b border-rose-100/50 py-6 sm:py-8 lg:py-12 mb-6 sm:mb-8">
       {/* Elegant background gradient */}
       <div class="absolute inset-0 bg-gradient-to-r from-rose-100/60 via-white/80 to-purple-100/60"></div>
 
-      <div class="relative max-w-6xl mx-auto px-6 text-center">
+      <div class="relative max-w-6xl mx-auto px-4 sm:px-6 text-center">
         {/* Couple Names - Main Title */}
         <Show
           when={
             props.weddingPlan.couple_name1 && props.weddingPlan.couple_name2
           }
         >
-          <div class="mb-6">
-            <h1 class="text-4xl md:text-5xl font-extralight text-gray-800 tracking-wide mb-2">
-              {props.weddingPlan.couple_name1}
-              <span class="text-rose-400 mx-4">&</span>
-              {props.weddingPlan.couple_name2}
+          <div class="mb-4 sm:mb-6">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extralight text-gray-800 tracking-wide mb-2">
+              <span class="block sm:inline">
+                {props.weddingPlan.couple_name1}
+              </span>
+              <span class="text-rose-400 mx-2 sm:mx-4">&</span>
+              <span class="block sm:inline">
+                {props.weddingPlan.couple_name2}
+              </span>
             </h1>
-            <div class="w-24 h-px bg-gradient-to-r from-transparent via-rose-300 to-transparent mx-auto"></div>
+            <div class="w-16 sm:w-24 h-px bg-gradient-to-r from-transparent via-rose-300 to-transparent mx-auto"></div>
           </div>
         </Show>
 
         {/* Page Title */}
-        <div class="space-y-2 mb-6">
-          <h2 class="text-2xl md:text-3xl font-light text-gray-700 tracking-wide">
+        <div class="space-y-2 mb-4 sm:mb-6">
+          <h2 class="text-xl sm:text-2xl md:text-3xl font-light text-gray-700 tracking-wide">
             {getRouteTitle(props.currentRoute)}
           </h2>
-          <p class="text-lg text-gray-500 font-light">
+          <p class="text-base sm:text-lg text-gray-500 font-light px-2 sm:px-0">
             {getRouteSubtitle(props.currentRoute)}
           </p>
         </div>
 
         {/* Wedding Date */}
         <Show when={props.weddingPlan.wedding_date}>
-          <div class="inline-flex items-center space-x-3 bg-white/70 backdrop-blur-sm rounded-full px-6 py-3 border border-rose-200/50">
+          <div class="inline-flex items-center space-x-2 sm:space-x-3 bg-white/70 backdrop-blur-sm rounded-full px-4 sm:px-6 py-2 sm:py-3 border border-rose-200/50 shadow-sm">
             <svg
-              class="w-5 h-5 text-rose-400"
+              class="w-4 h-4 sm:w-5 sm:h-5 text-rose-400 flex-shrink-0"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -85,7 +89,7 @@ const GuestHeader: Component<GuestHeaderProps> = (props) => {
                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
               />
             </svg>
-            <span class="text-gray-700 font-medium">
+            <span class="text-sm sm:text-base text-gray-700 font-medium">
               {new Date(props.weddingPlan.wedding_date).toLocaleDateString(
                 "en-US",
                 {
@@ -102,9 +106,9 @@ const GuestHeader: Component<GuestHeaderProps> = (props) => {
 
       {/* Decorative element */}
       <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2">
-        <div class="w-8 h-8 bg-white rounded-full shadow-lg border border-rose-200/50 flex items-center justify-center">
+        <div class="w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-full shadow-lg border border-rose-200/50 flex items-center justify-center">
           <svg
-            class="w-4 h-4 text-rose-400"
+            class="w-3 h-3 sm:w-4 sm:h-4 text-rose-400"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

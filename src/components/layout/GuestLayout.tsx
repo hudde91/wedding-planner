@@ -108,8 +108,8 @@ const GuestLayout: Component<GuestLayoutProps> = (props) => {
       <GuestNavigation currentRoute={getCurrentRoute()} />
 
       {/* Main Content */}
-      <main class="relative z-10 pb-8">
-        <div class="max-w-6xl mx-auto px-6">
+      <main class="relative z-10 pb-6 sm:pb-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
           <div class="transform transition-all duration-700 ease-out">
             {props.children}
           </div>
@@ -117,12 +117,12 @@ const GuestLayout: Component<GuestLayoutProps> = (props) => {
       </main>
 
       {/* Footer */}
-      <footer class="relative z-10 mt-16 py-8 border-t border-rose-100/50 bg-white/60 backdrop-blur-sm">
-        <div class="max-w-6xl mx-auto px-6">
-          <div class="text-center space-y-4">
+      <footer class="relative z-10 mt-12 sm:mt-16 py-6 sm:py-8 border-t border-rose-100/50 bg-white/60 backdrop-blur-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+          <div class="text-center space-y-3 sm:space-y-4">
             <div class="flex items-center justify-center space-x-3">
               <svg
-                class="w-5 h-5 text-rose-400"
+                class="w-4 h-4 sm:w-5 sm:h-5 text-rose-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -134,11 +134,11 @@ const GuestLayout: Component<GuestLayoutProps> = (props) => {
                   d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
                 />
               </svg>
-              <span class="text-gray-600 font-light">
+              <span class="text-gray-600 font-light text-sm sm:text-base">
                 Thank you for being part of our special day
               </span>
             </div>
-            <div class="text-sm text-gray-500 font-light">
+            <div class="text-xs sm:text-sm text-gray-500 font-light">
               Wedding Planner Guest Portal
             </div>
           </div>

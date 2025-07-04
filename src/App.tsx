@@ -13,6 +13,9 @@ import type {
   WishlistFormData,
   MediaItem,
   MediaUploadData,
+  CeremonyDetails,
+  ReceptionDetails,
+  WeddingContactInfo,
 } from "./types";
 
 import LoadingSpinner from "./components/common/LoadingSpinner";
@@ -94,7 +97,12 @@ const App: Component = () => {
 
   const updateWeddingDetails = (
     field: keyof WeddingPlan,
-    value: string | number
+    value:
+      | string
+      | number
+      | CeremonyDetails
+      | ReceptionDetails
+      | WeddingContactInfo
   ): void => {
     setWeddingPlan((prev) => {
       const updated = { ...prev, [field]: value };
@@ -416,7 +424,7 @@ const App: Component = () => {
             path="/details"
             component={() => (
               <CoupleLayout weddingPlan={weddingPlan()}>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                   <WeddingDetails
                     weddingPlan={weddingPlan()}
                     updateWeddingDetails={updateWeddingDetails}
@@ -429,7 +437,7 @@ const App: Component = () => {
             path="/todos"
             component={() => (
               <CoupleLayout weddingPlan={weddingPlan()}>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                   <TodoList
                     todos={weddingPlan().todos}
                     addTodo={addTodo}
@@ -445,7 +453,7 @@ const App: Component = () => {
             path="/guests"
             component={() => (
               <CoupleLayout weddingPlan={weddingPlan()}>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                   <GuestList
                     guests={weddingPlan().guests}
                     addGuest={addGuest}
@@ -472,7 +480,7 @@ const App: Component = () => {
             path="/timeline"
             component={() => (
               <CoupleLayout weddingPlan={weddingPlan()}>
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
                   <Timeline
                     weddingPlan={weddingPlan()}
                     onToggleTodo={toggleTodo}
@@ -511,7 +519,7 @@ const App: Component = () => {
             )}
           />
 
-          {/* Guest Routes */}
+          {/* Guest Routes - Mobile Optimized */}
           <Route
             path="/guest"
             component={() => (
@@ -535,6 +543,7 @@ const App: Component = () => {
                 <GuestWishlist
                   wishlistItems={weddingPlan().wishlist}
                   onUpdateWishlistItem={updateWishlistItem}
+                  weddingPlan={weddingPlan()}
                 />
               </GuestLayout>
             )}
