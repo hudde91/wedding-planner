@@ -92,7 +92,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
           />
         </div>
 
-        <div class="relative z-10 p-4 sm:p-6 lg:p-12">
+        <div class="relative z-10 mobile-px mobile-py">
           <div class="max-w-3xl">
             <h1 class="text-2xl sm:text-3xl lg:text-5xl font-light text-gray-800 mb-2 lg:mb-4 tracking-wide">
               Your Wedding Details
@@ -118,7 +118,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
             {sections.map((section) => (
               <button
                 onClick={() => setActiveSection(section.id)}
-                class={`flex items-center space-x-2 px-3 py-3 lg:px-4 lg:py-3 rounded-lg transition-all duration-300 whitespace-nowrap min-h-[44px] touch-manipulation ${
+                class={`btn-mobile flex items-center space-x-2 px-3 py-3 lg:px-4 lg:py-3 rounded-lg transition-all duration-300 whitespace-nowrap focus-mobile ${
                   activeSection() === section.id
                     ? "bg-gradient-to-r from-rose-100 to-purple-100 text-gray-800 shadow-md border border-rose-200/60"
                     : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
@@ -153,7 +153,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
       {activeSection() === 0 && (
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
           {/* Couple Information */}
-          <div class="animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-100 shadow-lg">
+          <div class="animate-fade-in-up mobile-card mobile-px mobile-py">
             <div class="flex items-center space-x-3 mb-4 lg:mb-6">
               <div class="w-10 h-10 bg-gradient-to-br from-rose-400 to-pink-400 rounded-lg flex items-center justify-center">
                 <svg
@@ -194,7 +194,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                   placeholder="Enter first partner's name"
                 />
               </div>
@@ -212,7 +212,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                   placeholder="Enter second partner's name"
                 />
               </div>
@@ -227,7 +227,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     props.updateWeddingDetails("hashtag", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                   placeholder="#SmithWedding2024"
                 />
               </div>
@@ -235,7 +235,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
           </div>
 
           {/* Wedding Logistics */}
-          <div class="animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-100 shadow-lg">
+          <div class="animate-fade-in-up mobile-card mobile-px mobile-py">
             <div class="flex items-center space-x-3 mb-4 lg:mb-6">
               <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-indigo-400 rounded-lg flex items-center justify-center">
                 <svg
@@ -276,7 +276,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
 
@@ -293,7 +293,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
 
@@ -315,7 +315,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                         Number(e.currentTarget.value) || 0
                       )
                     }
-                    class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-lg focus-mobile transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
                     placeholder="0"
                   />
                 </div>
@@ -338,7 +338,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable appearance-none cursor-pointer"
+                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus-mobile transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable appearance-none cursor-pointer"
                 >
                   <option value="">Select dress code</option>
                   <option value="Casual">Casual</option>
@@ -356,7 +356,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
       )}
 
       {activeSection() === 1 && (
-        <div class="animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-100 shadow-lg">
+        <div class="animate-fade-in-up mobile-card mobile-px mobile-py">
           <div class="flex items-center space-x-3 mb-6 lg:mb-8">
             <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-blue-400 to-blue-500 rounded-lg flex items-center justify-center">
               <svg
@@ -395,7 +395,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     updateCeremonyDetail("venue", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                   placeholder="St. Mary's Cathedral"
                 />
               </div>
@@ -410,7 +410,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     updateCeremonyDetail("address", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                   placeholder="123 Main Street"
                 />
               </div>
@@ -426,7 +426,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateCeremonyDetail("city", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                     placeholder="City"
                   />
                 </div>
@@ -440,7 +440,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateCeremonyDetail("state", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                     placeholder="State"
                   />
                 </div>
@@ -458,7 +458,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     updateCeremonyDetail("time", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
 
@@ -472,7 +472,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     updateCeremonyDetail("duration", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                   placeholder="30 minutes"
                 />
               </div>
@@ -487,7 +487,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     updateCeremonyDetail("officiant", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                   placeholder="Father Smith"
                 />
               </div>
@@ -497,7 +497,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
       )}
 
       {activeSection() === 2 && (
-        <div class="animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-100 shadow-lg">
+        <div class="animate-fade-in-up mobile-card mobile-px mobile-py">
           <div class="flex items-center space-x-3 mb-6 lg:mb-8">
             <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-purple-400 to-purple-500 rounded-lg flex items-center justify-center">
               <svg
@@ -536,7 +536,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     updateReceptionDetail("venue", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                   placeholder="Grand Ballroom at The Plaza"
                 />
               </div>
@@ -551,7 +551,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     updateReceptionDetail("address", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                   placeholder="456 Oak Avenue"
                 />
               </div>
@@ -567,7 +567,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateReceptionDetail("city", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                     placeholder="City"
                   />
                 </div>
@@ -581,7 +581,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateReceptionDetail("state", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                     placeholder="State"
                   />
                 </div>
@@ -600,7 +600,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateReceptionDetail("time", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                   />
                 </div>
                 <div class="space-y-2">
@@ -613,7 +613,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateReceptionDetail("endTime", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                   />
                 </div>
               </div>
@@ -628,7 +628,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     updateReceptionDetail("cocktailHour", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
 
@@ -642,7 +642,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                   onInput={(e) =>
                     updateReceptionDetail("dinnerTime", e.currentTarget.value)
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
             </div>
@@ -652,7 +652,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
 
       {activeSection() === 3 && (
         <div class="space-y-6 lg:space-y-8">
-          <div class="animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-100 shadow-lg">
+          <div class="animate-fade-in-up mobile-card mobile-px mobile-py">
             <div class="flex items-center space-x-3 mb-6 lg:mb-8">
               <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-emerald-400 to-emerald-500 rounded-lg flex items-center justify-center">
                 <svg
@@ -694,7 +694,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       )
                     }
                     rows={3}
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light resize-none text-mobile-readable"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus-mobile transition-all duration-300 bg-white/50 backdrop-blur-sm font-light resize-none text-mobile-readable"
                     placeholder="Complimentary valet parking available..."
                   />
                 </div>
@@ -712,7 +712,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       )
                     }
                     rows={3}
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light resize-none text-mobile-readable"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus-mobile transition-all duration-300 bg-white/50 backdrop-blur-sm font-light resize-none text-mobile-readable"
                     placeholder="Shuttle service provided between venues..."
                   />
                 </div>
@@ -732,7 +732,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       )
                     }
                     rows={3}
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light resize-none text-mobile-readable"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus-mobile transition-all duration-300 bg-white/50 backdrop-blur-sm font-light resize-none text-mobile-readable"
                     placeholder="Room blocks available at Hotel Elegance..."
                   />
                 </div>
@@ -750,7 +750,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       )
                     }
                     rows={3}
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light resize-none text-mobile-readable"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus-mobile transition-all duration-300 bg-white/50 backdrop-blur-sm font-light resize-none text-mobile-readable"
                     placeholder="Unplugged ceremony, accessibility notes, etc..."
                   />
                 </div>
@@ -759,7 +759,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
           </div>
 
           {/* Contact Information */}
-          <div class="animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-100 shadow-lg">
+          <div class="animate-fade-in-up mobile-card mobile-px mobile-py">
             <div class="flex items-center space-x-3 mb-4 lg:mb-6">
               <div class="w-10 h-10 bg-gradient-to-br from-indigo-400 to-indigo-500 rounded-lg flex items-center justify-center">
                 <svg
@@ -798,7 +798,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateContactInfo("coupleEmail", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                     placeholder="couple@email.com"
                   />
                 </div>
@@ -812,7 +812,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateContactInfo("couplePhone", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                     placeholder="(555) 123-4567"
                   />
                 </div>
@@ -828,7 +828,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateContactInfo("plannerName", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                     placeholder="Jane Smith Events"
                   />
                 </div>
@@ -842,7 +842,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                     onInput={(e) =>
                       updateContactInfo("plannerPhone", e.currentTarget.value)
                     }
-                    class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                    class="mobile-input"
                     placeholder="(555) 987-6543"
                   />
                 </div>
@@ -853,7 +853,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
       )}
 
       {activeSection() === 4 && (
-        <div class="animate-fade-in-up bg-white/80 backdrop-blur-sm rounded-lg lg:rounded-xl p-4 sm:p-6 lg:p-8 border border-gray-100 shadow-lg">
+        <div class="animate-fade-in-up mobile-card mobile-px mobile-py">
           <div class="flex items-center space-x-3 mb-6 lg:mb-8">
             <div class="w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-br from-amber-400 to-amber-500 rounded-lg flex items-center justify-center">
               <svg
@@ -895,7 +895,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
               <div class="space-y-2">
@@ -911,7 +911,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
               <div class="space-y-2">
@@ -927,7 +927,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
               <div class="space-y-2">
@@ -943,7 +943,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
             </div>
@@ -962,7 +962,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
               <div class="space-y-2">
@@ -978,7 +978,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
               <div class="space-y-2">
@@ -994,7 +994,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
               <div class="space-y-2">
@@ -1010,7 +1010,7 @@ const WeddingDetails: Component<WeddingDetailsProps> = (props) => {
                       e.currentTarget.value
                     )
                   }
-                  class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent transition-all duration-300 bg-white/50 backdrop-blur-sm font-light text-mobile-readable"
+                  class="mobile-input"
                 />
               </div>
             </div>

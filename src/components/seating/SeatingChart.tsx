@@ -616,11 +616,6 @@ const SeatingChart: Component<SeatingChartProps> = (props) => {
                     </div>
                   </div>
                   <div class="flex items-center space-x-3">
-                    <Show when={allGuestsSeated()}>
-                      <div class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded-full text-xs font-medium">
-                        ✓ Complete
-                      </div>
-                    </Show>
                     <svg
                       class={`w-5 h-5 text-gray-400 transition-transform duration-300 ${
                         overviewExpanded() ? "rotate-180" : ""

@@ -44,53 +44,6 @@ export interface TaskVelocityInfo {
   recommendation: string;
 }
 
-export const calculateTaskVelocity = (
-  incompleteTasks: TodoItem[],
-  monthsUntilWedding: number
-): TaskVelocityInfo => {
-  const weeksUntil = monthsUntilWedding * 4.33;
-
-  if (incompleteTasks.length === 0) {
-    return {
-      tasksPerWeek: 0,
-      isOnTrack: true,
-      estimatedCompletionDate: new Date().toISOString().split("T")[0],
-      recommendation: "All tasks completed! You're ready for your wedding!",
-    };
-  }
-
-  if (weeksUntil <= 0) {
-    return {
-      tasksPerWeek: incompleteTasks.length,
-      isOnTrack: false,
-      estimatedCompletionDate: new Date().toISOString().split("T")[0],
-      recommendation: "Wedding is here! Focus on essential tasks only.",
-    };
-  }
-
-  const tasksPerWeek = Math.ceil(incompleteTasks.length / weeksUntil);
-  const isOnTrack = tasksPerWeek <= 3;
-
-  const estimatedCompletionDate = new Date(
-    Date.now() + (incompleteTasks.length / 2.5) * 7 * 24 * 60 * 60 * 1000
-  )
-    .toISOString()
-    .split("T")[0];
-
-  const recommendation = isOnTrack
-    ? `You're on track! Complete ${tasksPerWeek} task${
-        tasksPerWeek === 1 ? "" : "s"
-      } per week.`
-    : `${tasksPerWeek} tasks per week is challenging. Consider hiring a wedding planner.`;
-
-  return {
-    tasksPerWeek,
-    isOnTrack,
-    estimatedCompletionDate,
-    recommendation,
-  };
-};
-
 export const getProgressMessage = (percentage: number): string => {
   if (percentage === 100) return "All tasks completed! 🎉";
   if (percentage >= 80) return "Almost there! Keep up the great work";

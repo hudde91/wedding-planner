@@ -101,15 +101,6 @@ export interface SeatPosition {
   tableRadius?: number;
 }
 
-import { JSX } from "solid-js";
-
-interface SeatLayoutProps {
-  seatNumber: number;
-  totalSeats: number;
-  shape: TableShape;
-  children?: JSX.Element;
-}
-
 export const getSeatPosition = (
   seatNumber: number,
   totalSeats: number,

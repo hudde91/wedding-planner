@@ -7,10 +7,10 @@ import {
 } from "solid-js";
 import { TodoItem as TodoItemType, TodoFormData } from "../../types";
 import PinterestInspirations from "./PinterestInspirations";
-import type { PinterestPin } from "../../types";
+import type { PaymentStatus, PinterestPin } from "../../types";
 import { formatCurrency } from "../../utils/currency";
 import { formatCompactDate } from "../../utils/date";
-import { getPaymentStatusStyle, PaymentStatus } from "../../utils/status";
+import { getPaymentStatusStyle } from "../../utils/status";
 import {
   formatPhoneNumber,
   validatePhoneNumber,
@@ -35,6 +35,8 @@ const TodoItem: Component<TodoItemProps> = (props) => {
     vendor_email: props.todo.vendor_email || "",
     vendor_phone: props.todo.vendor_phone || "",
     notes: props.todo.notes || "",
+    payment_status: props.todo.payment_status,
+    due_date: props.todo.due_date,
   });
 
   const [showInspirations, setShowInspirations] = createSignal(false);
@@ -46,6 +48,8 @@ const TodoItem: Component<TodoItemProps> = (props) => {
     vendor_email: props.todo.vendor_email || "",
     vendor_phone: props.todo.vendor_phone || "",
     notes: props.todo.notes || "",
+    payment_status: props.todo.payment_status,
+    due_date: props.todo.due_date,
   });
 
   let formContainerRef: HTMLDivElement | undefined;
@@ -61,6 +65,8 @@ const TodoItem: Component<TodoItemProps> = (props) => {
       vendor_email: currentTodo.vendor_email || "",
       vendor_phone: currentTodo.vendor_phone || "",
       notes: currentTodo.notes || "",
+      payment_status: currentTodo.payment_status,
+      due_date: currentTodo.due_date,
     };
 
     setTodoFormData(newFormData);
@@ -171,6 +177,30 @@ const TodoItem: Component<TodoItemProps> = (props) => {
     }, 10);
   };
 
+  // Handle payment status change - save immediately
+  const handlePaymentStatusChange = (e: Event) => {
+    const value = (e.target as HTMLSelectElement).value;
+    updateFormField("payment_status", value as PaymentStatus);
+    // Save immediately for select elements
+    setTimeout(() => {
+      if (hasUnsavedChanges()) {
+        saveChanges();
+      }
+    }, 10);
+  };
+
+  // Handle due date change - save immediately
+  const handleDueDateChange = (e: Event) => {
+    const value = (e.target as HTMLInputElement).value;
+    updateFormField("due_date", value);
+    // Save immediately for date inputs
+    setTimeout(() => {
+      if (hasUnsavedChanges()) {
+        saveChanges();
+      }
+    }, 10);
+  };
+
   const handleGetInspiration = (e: MouseEvent): void => {
     e.preventDefault();
     e.stopPropagation();
@@ -235,7 +265,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
       <div
         class={`group backdrop-blur-sm border rounded-lg lg:rounded-xl hover:shadow-xl transition-all duration-500 ${status.bgColor}`}
       >
-        <div class="flex items-center justify-between p-4 lg:p-6">
+        <div class="flex items-center justify-between mobile-px mobile-py">
           <div class="flex items-start space-x-3 lg:space-x-4 flex-1 min-w-0">
             {/* Checkbox */}
             <div
@@ -293,7 +323,9 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                 </span>
 
                 {/* Status indicators - Stack on mobile */}
-                {(props.todo.vendor_name || props.todo.cost) && (
+                {(props.todo.vendor_name ||
+                  props.todo.cost ||
+                  props.todo.payment_status) && (
                   <div class="flex flex-wrap gap-2">
                     {props.todo.vendor_name && (
                       <div class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded-md text-xs">
@@ -333,13 +365,11 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                         {getTodoCostDisplay(props.todo)}
                       </div>
                     )}
-                    {todoFormData().payment_status && (
+                    {props.todo.payment_status && (
                       <div
                         class={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium ${
-                          getPaymentStatusStyle(
-                            (todoFormData().payment_status as PaymentStatus) ||
-                              "not_paid"
-                          ).containerClass
+                          getPaymentStatusStyle(props.todo.payment_status)
+                            .containerClass
                         }`}
                       >
                         <svg
@@ -356,8 +386,8 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           />
                         </svg>
                         <span class="truncate">
-                          {todoFormData()
-                            .payment_status?.replace("_", " ")
+                          {props.todo.payment_status
+                            ?.replace("_", " ")
                             .replace(/\b\w/g, (l) => l.toUpperCase())}
                         </span>
                       </div>
@@ -380,7 +410,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
             <button
               type="button"
               onClick={handleToggleExpanded}
-              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
+              class="btn-mobile p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all duration-300 focus-mobile"
               title={props.isExpanded ? "Collapse details" : "Expand details"}
             >
               <svg
@@ -404,7 +434,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
             <button
               type="button"
               onClick={handleDelete}
-              class="opacity-0 group-hover:opacity-100 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] touch-manipulation"
+              class="opacity-0 group-hover:opacity-100 sm:opacity-100 btn-mobile p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300 focus-mobile"
               title="Delete task"
             >
               <svg
@@ -436,7 +466,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
             ref={formContainerRef}
             class="border-t border-gray-200/60 bg-gradient-to-br from-gray-50/30 to-white/60 backdrop-blur-sm"
           >
-            <div class="p-4 lg:p-8 space-y-6 lg:space-y-8">
+            <div class="mobile-px mobile-py space-y-6 lg:space-y-8">
               {/* Pinterest Inspiration Section */}
               <div class="bg-gradient-to-r from-pink-50 via-rose-50 to-purple-50 rounded-lg lg:rounded-xl p-4 lg:p-6 border border-pink-200/50">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
@@ -462,7 +492,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                   <button
                     type="button"
                     onClick={handleGetInspiration}
-                    class="w-full sm:w-auto px-4 py-3 lg:px-6 lg:py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-lg lg:rounded-xl font-medium hover:shadow-lg hover:scale-105 transition-all duration-300 min-h-[44px] touch-manipulation"
+                    class="mobile-button-primary w-full sm:w-auto px-4 py-3 lg:px-6 lg:py-3"
                   >
                     Browse Ideas
                   </button>
@@ -521,7 +551,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                             )
                           }
                           onBlur={handleInputBlur}
-                          class="w-full pl-8 pr-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
+                          class="mobile-input pl-8 pr-4"
                           placeholder="0"
                         />
                       </div>
@@ -533,14 +563,8 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                       <div class="relative">
                         <select
                           value={todoFormData().payment_status || ""}
-                          onChange={(e) =>
-                            updateFormField(
-                              "payment_status",
-                              (e.target as HTMLSelectElement).value
-                            )
-                          }
-                          onBlur={handleInputBlur}
-                          class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light appearance-none cursor-pointer pr-10 text-mobile-readable"
+                          onChange={handlePaymentStatusChange}
+                          class="mobile-input appearance-none cursor-pointer pr-10"
                         >
                           <option value="">Select status</option>
                           <option value="not_paid">Not Paid</option>
@@ -573,14 +597,8 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                       <input
                         type="date"
                         value={todoFormData().due_date || ""}
-                        onInput={(e) =>
-                          updateFormField(
-                            "due_date",
-                            (e.target as HTMLInputElement).value
-                          )
-                        }
-                        onBlur={handleInputBlur}
-                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-emerald-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
+                        onChange={handleDueDateChange}
+                        class="mobile-input"
                       />
                     </div>
                   </div>
@@ -628,7 +646,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           )
                         }
                         onBlur={handleInputBlur}
-                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
+                        class="mobile-input"
                         placeholder="Vendor name"
                       />
                     </div>
@@ -646,10 +664,10 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           )
                         }
                         onBlur={handlePhoneBlur}
-                        class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable ${
-                          !isValidVendorPhone()
+                        class={`mobile-input ${
+                          todoFormData().vendor_phone && !isValidVendorPhone()
                             ? "border-red-300 ring-2 ring-red-100"
-                            : "border-blue-200"
+                            : ""
                         }`}
                         placeholder="(555) 123-4567"
                       />
@@ -668,10 +686,10 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           )
                         }
                         onBlur={handleInputBlur}
-                        class={`w-full px-4 py-3 bg-white/80 backdrop-blur-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable ${
-                          !isValidVendorEmail()
+                        class={`mobile-input ${
+                          todoFormData().vendor_email && !isValidVendorEmail()
                             ? "border-red-300 ring-2 ring-red-100"
-                            : "border-blue-200"
+                            : ""
                         }`}
                         placeholder="vendor@example.com"
                       />
@@ -690,7 +708,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                           )
                         }
                         onBlur={handleInputBlur}
-                        class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
+                        class="mobile-input"
                         placeholder="Contact person name"
                       />
                     </div>
@@ -738,7 +756,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                       )
                     }
                     onBlur={handleInputBlur}
-                    class="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300 focus:border-transparent transition-all duration-300 font-light text-mobile-readable"
+                    class="mobile-input resize-none"
                     rows="4"
                     placeholder="Any additional details, preferences, or inspiration notes..."
                   ></textarea>
@@ -761,7 +779,7 @@ const TodoItem: Component<TodoItemProps> = (props) => {
                   >
                     <div class="w-2 h-2 bg-amber-400 rounded-full animate-pulse"></div>
                     <span class="text-sm text-amber-600 font-medium">
-                      Tap outside to save
+                      Saving changes...
                     </span>
                   </Show>
                 </div>

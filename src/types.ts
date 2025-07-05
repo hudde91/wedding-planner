@@ -1,3 +1,9 @@
+export type PaymentStatus =
+  | "not_paid"
+  | "deposit_paid"
+  | "partial_paid"
+  | "fully_paid";
+
 export type RSVPStatus = "pending" | "attending" | "declined";
 
 export type TableShape = "round" | "rectangular";
@@ -70,7 +76,7 @@ export interface TodoItem {
   text: string;
   completed: boolean;
   cost?: number;
-  payment_status?: string;
+  payment_status?: PaymentStatus;
   due_date?: string;
   vendor_name?: string;
   vendor_contact?: string;
@@ -236,7 +242,7 @@ export interface GuestStats {
 
 export interface TodoFormData {
   cost?: number;
-  payment_status?: string;
+  payment_status?: PaymentStatus;
   due_date?: string;
   vendor_name?: string;
   vendor_contact?: string;
